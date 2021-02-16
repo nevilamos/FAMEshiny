@@ -1,41 +1,55 @@
 rm(list=ls(all=TRUE))
-
+options(shiny.reactlog=TRUE) 
 
 
 options(stringsAsFactors = F)
-library(Matrix.utils)
-library(tools)
-#library(Rfast)
-library (tidyr)
-library (raster)
+library(dplyr)
 library(fasterize)
 library(sf)
-library(foreach)
 library(doParallel)
+library(foreach)
 library(gdalUtils)
-library(dplyr)
-#library(tiff)
-#library(reshape2)
-library(plotly)
-library(shiny)
-library (shinydashboard)
-library(tabularaster)
 library(knitr)
+library(Matrix.utils)
+library(plotly)
+library(raster)
+library(Rfast)
+library(shiny)
+library(shinydashboard)
 library(shinyFiles)
+library(tabularaster)
+library(tibble)
+library(tidyr)
+library(tools)
+
+
+
+
+
+
 library(shinycssloaders)
 library(shinyjs)
-#library(FAMEFMR)
+library(FAMEFMR)
+
+#for debugging------------------
+options(warn=-1)
+
+
 #library(shinythemes)
 
 #loads functions used in TFI and RA calculations
-source("EcoResFunctionsShiny.r")
-source("TFI_functionsShiny.r")
+#source("EcoResFunctionsShiny.r")
+#source("TFI_functionsShiny.r")
 source("ButtonDisableHelpers.r")
+
+
+#temporary debugging for function overwrites package function with version stored in temp.r
+#source("temp.r")
 
 
 
 #set the number of cores to use
-# algorithm here to work out the best number of cores to use as a ratio of RAM currently assuming requirment of 8GB per core
+# algorithm here to work out the best number of cores to use as a ratio of RAM currently assuming requirement of 8GB per core
 if(Sys.info()[1]=="Windows"){
   maxCores<-as.integer(memory.limit(size = NA)/(1024^2*8))
   
@@ -81,7 +95,7 @@ for (d in c(ResultsDir)){dir.create(d)}
 rm(d)
 dir.create(file.path(ResultsDir,"RA_Rasters"))
 dir.create(file.path(ResultsDir,"TFI_Rasters"))
-# list of options for choice of region/ state or adhoc plygon for analysis
+# list of options for choice of region/ state or adhoc polygon for analysis
 REG_NO <- c("WHOLE OF STATE"=99,
             "BARWON SOUTH WEST"=1,
             "GIPPSLAND"=2 ,
@@ -90,6 +104,8 @@ REG_NO <- c("WHOLE OF STATE"=99,
             "LODDON MALLEE"=5,
             "PORT PHILLIP"=6,
             "USER DEFINED POLYGON"=7)
+
+source("makeLUTS.R")
 
 cellSizes<-c(225, 75)
 HDMVals225<-"./HDMS/HDMVals225.rdata"
@@ -100,6 +116,6 @@ TFI_LUT<-read.csv("./ReferenceTables/EFG_EVD_TFI.csv")[,c("EFG_NUM","MIN_LO_TFI"
 names(TFI_LUT)[1]<-"EFG"
 
 
-myEFG_TSF_4GS<-read.csv("./ReferenceTables/EFG_TSF_4GScorrectedAllEFGto400yrsV2.csv")[,c('EFG_NO','GS4_NO',"YSF")]
+EFG_TSF_4GS<-read.csv("./ReferenceTables/EFG_TSF_4GScorrectedAllEFGto400yrsV2.csv")[,c('EFG_NO','GS4_NO',"YSF")]
 
 
