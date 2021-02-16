@@ -188,47 +188,41 @@ ui <-dashboardPage(
                                                "enter end season for abundance baseline",
                                                "")
                            ),
-                           # use standard or chose custom species responses----------------------------------------------------------
+                           # use standard or choose custom species responses----------------------------------------------------------
                            column(6,
-                                  radioButtons(inputId = "spListChoice",
-                                               label="Use default or custom species list?",
-                                               choices =c("default","custom")
-                                  ),
+                                  checkboxInput(inputId = "spListChoice",
+                                               label="Use custom species table",
+                                               value = FALSE,width = NULL),
                                   conditionalPanel(
-                                    condition = 'input.spListChoice == "custom"',
+                                    condition = 'input.spListChoice',
                                     selectInput("customSpList",
                                                 "Select user defined species list",
                                                 choice = c(list.files('./CustomCSV',pattern=".csv$",full.names=T))
                                     )
-                                    
-                                    
                                   ),
-                                  radioButtons(inputId = "spResponseChoice",
-                                               label="Use default or custom relative abundance?",
-                                               choices =c("default","custom")
-                                  ),
+                                  
+                                  checkboxInput(inputId = "spResponseChoice",
+                                               label="Use custom relative abundance table",
+                                               value = FALSE,width = NULL),
                                   conditionalPanel(
-                                    condition = 'input.spResponseChoice == "custom"',
+                                    condition = 'input.spResponseChoice',
                                     selectInput("customResponseFile",
                                                 "Select user defined Response File",
                                                 choice = c("",list.files('./CustomCSV',pattern=".csv$",full.names=T))
-                                    )
-                                    
-                                    
+                                    ) 
                                   ),
-                                  radioButtons("makeRArasters","Make relative abundance rasters?", choices= c("No","Yes")),
+                                  
+                                  checkboxInput(inputId ="makeRArasters",
+                                                label="Make relative abundance rasters",
+                                                value = FALSE,width = NULL),
                                   conditionalPanel(
-                                    condition = 'input.makeRArasters == "Yes"',
+                                    condition = 'input.makeRArasters',
                                     radioButtons("allOrSomeYears","Years to make rasters",choices = c("all","some")),
                                     conditionalPanel(
                                       condition = 'input.allOrSomeYears == "some"',
                                       selectInput("yearsForRasters","Select one or more years for Rasters",choices ="",multiple=T)
-                                      
                                     )
-                                    
-                                    
                                   )
-                                  
                            )
                          )
                        )
@@ -237,7 +231,8 @@ ui <-dashboardPage(
                 column(4,
                        wellPanel(
                          h3("TFI related calculations"),
-                         radioButtons("makeTFIrasters","Make TFIstatus/BBTFI maps for each year", choices= c("No","Yes"))
+                         checkboxInput("makeTFIrasters","Make TFIstatus maps for each year",value = FALSE, width = NULL),
+                         checkboxInput("makeBBTFIrasters","Make BBTFIstatus maps for each year",value = FALSE, width = NULL)
                        )
                 )),
               #TFI and RA action buttons-------------------------------------
@@ -252,6 +247,16 @@ ui <-dashboardPage(
                   column(4,
                          withBusyIndicatorUI(
                            actionButton("runTFI", label = "Run TFI calcuations")
+                         )
+                  ),
+                  column(4,
+                         withBusyIndicatorUI(
+                           actionButton("runBBTFI", label = "Run BBTFI calcuations")
+                         )
+                  ),
+                  column(4,
+                         withBusyIndicatorUI(
+                           actionButton("runGS", label = "Run GS calcuations")
                          )
                   ),
                   column(4,

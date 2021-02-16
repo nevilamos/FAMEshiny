@@ -1,29 +1,77 @@
 server <- function(session,input, output) {
   rv<-reactiveValues()
+  #Observer for loading AdHoc shapefiles ---------------------------------
+  observe({myInput=input$adHocPoly
+  savePath="./AdHocPolygons"
+  if (is.null(myInput)) return() 
+  shapefile_components<-c("shp","shx","prj","dbf")
+  y=NULL
+  x=NULL
+  x=length(unique(tools::file_path_sans_ext(tools::file_path_sans_ext(myInput$name)))==1)
+  y<-(length(myInput$name)==4 & sum(shapefile_components%in%tools::file_ext(myInput$name))==4)
+  
+  
+  if(x==T){
+    if(y==T){
+      file.copy(
+        myInput$datapath,
+        file.path(savePath,
+                  myInput$name
+        )
+      )
+      #update
+      rv$AdHocPoly = myInput$name
+      myText1="shapefile uploaded"
+      showtable1="YES"
+      output$rawFHTable<-renderTable(
+        myInput[,1:2]
+      )
+      updateSelectInput(session,'AdHocShape','Select AdHoc Area shapefile',
+                        choice = c("",list.files('./AdHocPolygons/',pattern=".shp$")))
+    }else{
+      myText1=paste("<span style=\"color:red\">one or more of .shp,.shx,.dbf,.prj are missing\n Or additional files selected</span>")
+      showtable1="NO"
+    }
+  }else{
+    if(y==T){
+      myText1=paste("<span style=\"color:red\"all elements of shapefile do not have same basename</span>")
+      output1$showtable="NO"
+    }else{
+      myText1=paste("<span style=\"color:red\">wrong file elements selected</span>")
+      showtable1="NO"
+    }
+  }
+  
+  output$message_text1 <- renderText({myText1}) 
+  output$panelStatus1 <- reactive({showtable1})
+  outputOptions(output, "panelStatus1", suspendWhenHidden = FALSE)   
+  
+  }
+  )
   #download handlers for utilities page --------------------------------------------------
-   downloadToolFileName<-"FAMEPreProcessing.zip"
-   output$downloadTool <- downloadHandler(
-     filename = function(){
-       downloadToolFileName
-     },
-     content = function(downloadToolFileName) {
-       fs <- dir("./FAMEPreProcessing",full.names = T)
-       zip(zipfile=downloadToolFileName, files=fs)
-     },
-     contentType = "application/zip"
-   )
-   
-   downloadManualFileName<-"FAME_Manual.pdf"
-   output$downloadManual <- downloadHandler(
-     filename = function(){
-       downloadManualFileName
-     },
-     content = function(file) {
-       file.copy(from = downloadManualFileName,to=file,overwrite=T)
-       }
-   )   
-   
-   
+  downloadToolFileName<-"FAMEPreProcessing.zip"
+  output$downloadTool <- downloadHandler(
+    filename = function(){
+      downloadToolFileName
+    },
+    content = function(downloadToolFileName) {
+      fs <- dir("./FAMEPreProcessing",full.names = T)
+      zip(zipfile=downloadToolFileName, files=fs)
+    },
+    contentType = "application/zip"
+  )
+  
+  downloadManualFileName<-"FAME_Manual.pdf"
+  output$downloadManual <- downloadHandler(
+    filename = function(){
+      downloadManualFileName
+    },
+    content = function(file) {
+      file.copy(from = downloadManualFileName,to=file,overwrite=T)
+    }
+  )   
+  
+  
   roots =  c(wd = './results')
   
   shinyFileChoose(input, 'files', 
@@ -49,7 +97,7 @@ server <- function(session,input, output) {
     contentType = "application/zip"
   )
   
-  #observer for loading fire scenario shapefiles ---------------------------------  
+  #Observer for loading fire scenario shapefiles ---------------------------------  
   #This code is repeated with modifications for each shapefile load ideally would be made into function or module
   observe({myInput=input$rawFH
   savePath="./rawFH"
@@ -102,55 +150,7 @@ server <- function(session,input, output) {
   
   
   
-  #observer for loading AdHoc shapefiles ---------------------------------
-  observe({myInput=input$adHocPoly
-  savePath="./AdHocPolygons"
-  if (is.null(myInput)) return() 
-  shapefile_components<-c("shp","shx","prj","dbf")
-  y=NULL
-  x=NULL
-  x=length(unique(tools::file_path_sans_ext(tools::file_path_sans_ext(myInput$name)))==1)
-  y<-(length(myInput$name)==4 & sum(shapefile_components%in%tools::file_ext(myInput$name))==4)
-  
-  
-  if(x==T){
-    if(y==T){
-      file.copy(
-        myInput$datapath,
-        file.path(savePath,
-                  myInput$name
-        )
-      )
-      #update
-      rv$AdHocPoly = myInput$name
-      myText1="shapefile uploaded"
-      showtable1="YES"
-      output$rawFHTable<-renderTable(
-        myInput[,1:2]
-      )
-      updateSelectInput(session,'AdHocShape','Select AdHoc Area shapefile',
-                        choice = c("",list.files('./AdHocPolygons/',pattern=".shp$")))
-    }else{
-      myText1=paste("<span style=\"color:red\">one or more of .shp,.shx,.dbf,.prj are missing\n Or additional files selected</span>")
-      showtable1="NO"
-    }
-  }else{
-    if(y==T){
-      myText1=paste("<span style=\"color:red\"all elements of shapefile do not have same basename</span>")
-      output1$showtable="NO"
-    }else{
-      myText1=paste("<span style=\"color:red\">wrong file elements selected</span>")
-      showtable1="NO"
-    }
-  }
-  
-  output$message_text1 <- renderText({myText1}) 
-  output$panelStatus1 <- reactive({showtable1})
-  outputOptions(output, "panelStatus1", suspendWhenHidden = FALSE)   
-  
-  }
-  )
-  #observer for custom .csv uploads  ---------------------------------
+  #Observer for custom .csv uploads  ---------------------------------
   observe({ myInput = input$addCustomCSV
   savePath ="./CustomCSV"
   file.copy(
@@ -162,38 +162,23 @@ server <- function(session,input, output) {
   updateSelectInput(session,'customResponseFile','Select csutom csv file',
                     choice = c("",list.files('./CustomCSV',pattern=".csv$")))
   })
-  #observer for loading a previous FH analysis---------------------------------
+  #Observer for loading a previous FH analysis---------------------------------
   observeEvent(input$FHOutputLoad,{
     
     if(input$FHOutputLoad=="use current loaded FH analysis"){
       return()  
     }else{
       load(input$FHOutputLoad)
-      rv$FHanalysis<-FHanalysis
-      rv$cropRasters<-cropRasters
-      #print(names(rv$FHanalysis)) 
+      rv$FHAnalysis<-FHAnalysis<<-FHAnalysis
+      rv$cropRasters<-cropRasters<<-cropRasters
+      rv$allCombs<-allCombs<<-allCombs
+      #print(names(rv$FHAnalysis)) 
       
     }
     
   })
-  # # observer to update startbaseline and end baseline where startTimespan is increased--------
-  # observe(input$startTimespan,{
-  #   if (input$startBaseline<input$startTimespan){
-  #     updateNumericInput(session,
-  #                        "startBaseline",
-  #                        value = input$startTimespan,
-  #                        min = input$startTimespan)
-  #     updateNumericInput(session,
-  #                        "endBaseline",
-  #                        value = input$startTimespan,
-  #                        min = input$startTimespan)
-  #     
-      
-      
-      
-#    }
-# })
-  # observer to runFH analysis ---------------------------------
+  
+  # Observer to runFH analysis ---------------------------------
   observeEvent(input$runFH,{
     
     validate(
@@ -203,193 +188,294 @@ server <- function(session,input, output) {
       rv$outputFH<-file_path_sans_ext(basename(input$unionedFH))
       #    showModal("FH analysis running")
       myREG_NO<-as.integer(input$REGION_NO)
+      RasterRes<-as.integer(input$RasterRes)
+      print(paste("RasterRes =",RasterRes))
       HDM_RASTER_PATH <-paste0("./HDMS/",input$RasterRes,"m/BinaryThresholded")
       
-      if(myREG_NO==7){
+      if (myREG_NO == 7) {
         Clipshape = input$AdHocShape
-        cropRasters<-makeCropDetails(
+        cropRasters <- cropNAborder(
+          REG_NO = myREG_NO,
+          myRasterRes = RasterRes,
+          PUBLIC_LAND_ONLY = input$public,
+          myPoly = file.path("./AdHocPolygons", input$AdHocShape),
+          generalRasterDir = "./InputGeneralRasters"
+        )
+      } 
+      else
+      {
+        Clipshape = "LF_REGIONS.shp"
+        cropRasters <<- makeCropDetails(
           #cropRasters<-cropNAborder(
           REG_NO = myREG_NO,
-          RasterRes =as.numeric(input$RasterRes),
+          RasterRes = as.numeric(input$RasterRes),
           PUBLIC_LAND_ONLY = input$public,
-          myPoly = file.path("./AdHocPolygons",input$AdHocShape)
+          generalRasterDir = "./InputGeneralRasters"
         )
-      }else{
-        cropRasters<-makeCropDetails(
-        #cropRasters<-cropNAborder(
-          REG_NO = myREG_NO,
-          RasterRes =as.numeric(input$RasterRes),
-          PUBLIC_LAND_ONLY = input$public)
         
-        Clipshape ="LF_REGIONS.shp"
+        
       }
       cropRasters$HDM_RASTER_PATH=HDM_RASTER_PATH
       rv$cropRasters = cropRasters
-      FHanalysis<-FHProcess(
-      #FHanalysis<-fhProcess(
-        flattenedFH = file.path("./rawFH/",input$unionedFH),
-        #rawFH = file.path("./rawFH/",input$unionedFH),
+      FHAnalysis<-fhProcess(
+        rawFH =  file.path("./rawFH/",input$unionedFH),
         start.SEASON = input$startTimespan,
         end.SEASON = NULL,
-        OtherAndUnknown = input$otherUnknown
+        OtherAndUnknown = input$otherUnknown,
+        validFIRETYPE = c("BURN","BUSHFIRE","UNKNOWN","OTHER")
       )
       #Save input settings to a list and then append into FH analysis object
-      #FHanalysis$AnalysisInputs<-list(
-      FHanalysis$FireScenario= input$unionedFH
-      FHanalysis$RasterRes = input$RasterRes
-      FHanalysis$ClipPolygonFile = Clipshape
-      FHanalysis$Region_No = myREG_NO
-      FHanalysis$PUBLIC_ONLY = input$public
-      FHanalysis$Start_Season = NULL
-      FHanalysis$name<-paste0("FH_Analysis_",rv$outputFH)
-      st_write(FHanalysis$OutDF,file.path(ResultsDir,paste0(FHanalysis$name,".shp")))
+      #FHAnalysis$AnalysisInputs<-list(
+      FHAnalysis$FireScenario= input$unionedFH
+      FHAnalysis$RasterRes = input$RasterRes
+      FHAnalysis$ClipPolygonFile = Clipshape
+      FHAnalysis$Region_No = myREG_NO
+      FHAnalysis$PUBLIC_ONLY = input$public
+      FHAnalysis$Start_Season = NULL
+      FHAnalysis$name<-paste0("FH_Analysis_",rv$outputFH)
+      st_write(FHAnalysis$OutDF,file.path(ResultsDir,paste0(FHAnalysis$name,".shp")),append=FALSE)
       #) 
+      print("Save input settings to a list and then append into FH analysis object")
+      FHAnalysis$FH_IDr<-fasterize(sf=FHAnalysis$OutDF,raster =  cropRasters$Raster,field = "ID",fun="first")
+      print("made FHAnalysis$FH_IDr")
       
-      FHanalysis$FH_IDr<-fasterize(sf=FHanalysis$OutDF,raster =  cropRasters$Raster,field = "ID",fun="first")
+      rv$FHAnalysis<-FHAnalysis
+      
+      print("run function to calculate all combinations (function from calc_U_AllCombs)")
+      print(paste("RasterRes =",RasterRes))
+      allCombs <- calcU_All_Combs(
+        myFHAnalysis =  FHAnalysis,
+        myCropRasters = cropRasters,
+        myRasterRes = RasterRes)
+      rv$allCombs<-allCombs
+      print("made allcombs")
+      
+      print(paste ("line", 249, ls(pattern="FHAnalysis" ),"exists"))
+      #save analysis to enable reloading
+      save(FHAnalysis,cropRasters,allCombs,
+           file=file.path("./FH_Outputs",paste0(FHAnalysis$name,input$RasterRes,".rdata")))
+      print("saved FHAnalysis to enable reloading")
       
       
-      rv$FHanalysis<-FHanalysis
-      save(FHanalysis,cropRasters,
-           file=file.path("./FH_Outputs",paste0(FHanalysis$name,input$RasterRes,".rdata")))
-      updateSelectInput(session,'FHanalysis','Select FH dataset (.rdata)',
+      updateSelectInput(session,'FHAnalysis','Select FH dataset (.rdata)',
                         choice = c("",list.files('./FH_Outputs/',pattern=".rdata$")))
       
-      #    removeModal()
     })
   })
-  # observer to run relative abundance analysis  -------------------------------------------------------
+  # Observer to run relative abundance analysis  -------------------------------------------------------
   observeEvent({input$runRA|input$runRA_TFI},ignoreInit = T,{
     withBusyIndicatorServer("runRA", {
+
       withBusyIndicatorServer("runRA_TFI", {
-        if(input$spListChoice=="default"){
-          TaxonList <-read.csv("./ReferenceTables/DraftTaxonListStatewidev2.csv")
+
+        if(input$spListChoice == FALSE){
+          TaxonList <<-read.csv("./ReferenceTables/DraftTaxonListStatewidev2.csv")
         }else{
-          TaxonList<-read.csv(file.path("./CustomCSV",input$customSpList))
+          TaxonList<<-read.csv(file.path("./CustomCSV",input$customSpList))
         }
         
-        #print("calcuating HDMSpp_NO")
-        HDMSpp_NO<-TaxonList$TAXON_ID[TaxonList$Include=="Yes"]
-        #print (exists("HDMSpp_NO"))
+
+        
+        HDMSpp_NO <<- TaxonList$TAXON_ID[TaxonList$Include=="Yes"]
+        writeSp <- TaxonList$TAXON_ID[TaxonList$WriteSpeciesRaster == "Yes"]
+        writeSp <<- writeSp[writeSp %in% HDMSpp_NO]
+        
+        
         print("getting HDMvals")
-        if(rv$FHanalysis$RasterRes=="225"){
-          HDMVals<<-makeHDMVals(myHDMSpp_NO = HDMSpp_NO,
-                                myCropDetails = rv$cropRasters,
-                                RasterRes = rv$FHanalysis$RasterRes)
+        if(rv$FHAnalysis$RasterRes == "225"){
+          load(paste0("./HDMS/HDMVals", rv$FHAnalysis$RasterRes, ".rdata"))
+          HDMVals <- HDMVals[rv$cropRasters$IDX, as.character(HDMSpp_NO)]
         }else{
           print("doing 75m version makeHDMValsfromRasters")
-          HDMVals<<-makeHDMValsfromRasters(myHDMSpp_NO = HDMSpp_NO,
+          HDMVals<-makeHDMValsfromRasters(myHDMSpp_NO = HDMSpp_NO,
                                            myCropDetails = rv$cropRasters)
+          
         }
+        print(paste("dim hdmvals =",dim(HDMVals)))
         print("Loaded HDMVals")
-        if(input$spResponseChoice  =="default"){
-          mySpGSResponses="./ReferenceTables/OrdinalExpertLong.csv"
+        if(input$spResponseChoice == FALSE){
+          mySpGSResponses <<- "./ReferenceTables/OrdinalExpertLong.csv"
         }else{
-          mySpGSResponses=file.path("./CustomCSV",input$customResponseFile)
+          mySpGSResponses <<- file.path("./CustomCSV",input$customResponseFile)
         }
-        AbundDataByGS = read.csv(mySpGSResponses)[,c("EFG_NO", "GS4_NO",  "FireType" , "Abund", "VBA_CODE")]  #Select the file giving the fauna relative abundacne inputs you wish to use
+        print(mySpGSResponses)
+        AbundDataByGS  <<-  read.csv(mySpGSResponses)[,c("EFG_NO", "GS4_NO",  "FireType" , "Abund", "VBA_CODE")]  #Select the file giving the fauna relative abundance inputs you wish to use
         AbundDataByGS$FireTypeNo[AbundDataByGS$FireType=="High"]<-2
         AbundDataByGS$FireTypeNo[AbundDataByGS$FireType=="Low"]<-1
-        AbundDataByGS<-AbundDataByGS[!is.na(AbundDataByGS$Abund),c("EFG_NO", "GS4_NO",  "FireTypeNo" , "Abund", "VBA_CODE")]
+        # AbundDataByGS <<- AbundDataByGS[!is.na(AbundDataByGS$Abund),c("EFG_NO", "GS4_NO",  "FireTypeNo" , "Abund", "VBA_CODE")]
+        # 
+        # 
+        # AbundDataLong <<- merge(AbundDataByGS, EFG_TSF_4GS,   by=c('EFG_NO','GS4_NO'))
+        # AbundDataLong <<- AbundDataLong[order(AbundDataLong$VBA_CODE),]
+        AbundDataLong = merge(AbundDataByGS, EFG_TSF_4GS, by=c('EFG_NO','GS4_NO'))
+        AbundDataLong <- AbundDataLong[order(AbundDataLong$VBA_CODE),]
+        print("making Spp abund LU List")
+        LU_List <<- make_Spp_LU_list(myHDMSpp_NO = HDMSpp_NO,
+                                     myAbundDataLong = AbundDataLong)
         
-        EFG_TSF_4GS <- myEFG_TSF_4GS
-        AbundDataLong = merge(AbundDataByGS, EFG_TSF_4GS,   by=c('EFG_NO','GS4_NO'))
-        AbundDataLong<-AbundDataLong[order(AbundDataLong$VBA_CODE),]
-        
-        print("Making LU_List")
-        LU_List<<-makeLU_List(myHDMSpp_NO = HDMSpp_NO,
-                              myAbundDataLong = AbundDataLong)
-        
-        tsf_ysf_mat<-makeYSF_LFT_matrix(FHanalysis = rv$FHanalysis,
-                                        myCropDetails=rv$cropRasters,
-                                        FH_ID.tif=rv$FHanalysis$FH_IDr)
+        # tsf_ysf_mat<-makeYSF_LFT_matrix(FHAnalysis = rv$FHAnalysis,
+        #                                 myCropDetails=rv$cropRasters,
+        #                                 FH_ID.tif=rv$FHAnalysis$FH_IDr)
         
         if (exists("TaxonList"))
           print("Making spYearSumm")
-        SpYearSumm<-makeSppYearSum(TimeSpan = rv$FHanalysis$TimeSpan,
-                                   myHDMSpp_NO = HDMSpp_NO,
-                                   writeSpRasters = input$makeRArasters,
-                                   myLU_List = LU_List,
-                                   YSF_TSF_Dir = YSF_TSF_Dir,
-                                   ResultsDir = ResultsDir,
-                                   EFG = rv$cropRasters$EFG,
-                                   myCropDetails = rv$cropRasters,
-                                   HDMVals = HDMVals,
-                                   myFHResults = rv$FHanalysis,
-                                   myYSF_LFT = tsf_ysf_mat,
-                                   TaxonList = TaxonList,
-                                   writeYears = input$yearsForRasters)
-        rv$SpYearSumm<-SpYearSumm
-        write.csv(SpYearSumm,file.path(ResultsDir,"SpYearSumm.csv"),row.names=F)
-        print("finished sp year summ")    
-        myBaseline<<-ifelse(input$endBaseline>input$startBaseline,input$startBaseline:input$endBaseline,input$startBaseline)
-        calcDeltaAbund(SpYearSumm,
-                       TimeSpan=rv$FHanalysis$TimeSpan,
-                       myBaseline,
-                       ResultsDir,
-                       HDMSpp_NO,
-                       TaxonList)
-        print("finished deltaabund")
-        makeSummaryGraphs(SpYearSumm,
-                          ResultsDir,
-                          HDMSpp_NO,
-                          outputFH<-rv$outputFH)
-        print("finished summary graphs")
         
-      })
+        SpYearSummWide <- makeSppYearSum2(myFHAnalysis=rv$FHAnalysis,
+                                      myAllCombs <- rv$allCombs,
+                                      myHDMSpp_NO = HDMSpp_NO, 
+                                      myWriteSpRasters = input$makeRArasters,
+                                      myResultsDir = ResultsDir,
+                                      myLU_List = LU_List,
+                                      myHDMVals = HDMVals,
+                                      myTaxonList = TaxonList,
+                                      writeYears = input$yearsForRasters,
+                                      myWriteSp = writeSp)
+        rv$SpYearSummWide <- SpYearSummWide
+        #write.csv(SpYearSumm,file.path(ResultsDir,"SpYearSumm.csv"),row.names=F)
+        print("finished sp year summ")    
+        Baseline<-ifelse(input$endBaseline>input$startBaseline,input$startBaseline:input$endBaseline,input$startBaseline)
+        print("calcuated myBaseline")
+        myDeltaAbund <- calcDeltaAbund(SpYearSumm = SpYearSummWide,
+                                       myFHAnalysis=FHAnalysis,
+                                       myBaseline = Baseline,
+                                       myResultsDir = ResultsDir)
+        print("finished deltaabund")
+        })
     })
   })
-  # observer to get update years for calcuations-----------------------------------------------------
-  observeEvent(rv$FHanalysis$TimeSpan,{
-                 updateSelectInput(session,"yearsForRasters",
-                                   choices = rv$FHanalysis$TimeSpan,selected = min(rv$FHanalysis$TimeSpan))
-                 updateSelectInput(session,"startBaseline",
-                                   choices = rv$FHanalysis$TimeSpan,selected = min(rv$FHanalysis$TimeSpan))
-                 updateSelectInput(session,"endBaseline",
-                                   choices = rv$FHanalysis$TimeSpan,selected = min(rv$FHanalysis$TimeSpan))
-                 
-               }
+  # Observer to get update years for calculations-----------------------------------------------------
+  observeEvent(rv$FHAnalysis$TimeSpan,{
+    updateSelectInput(session,"yearsForRasters",
+                      choices = rv$FHAnalysis$TimeSpan,
+                      selected = min(rv$FHAnalysis$TimeSpan)
+    )
+    updateSelectInput(session,"startBaseline",
+                      choices = rv$FHAnalysis$TimeSpan,
+                      selected = min(rv$FHAnalysis$TimeSpan)
+    )
+    updateSelectInput(session,"endBaseline",
+                      choices = rv$FHAnalysis$TimeSpan,
+                      selected = min(rv$FHAnalysis$TimeSpan)
+    )
+    
+  }
   )
   
-  # obsever to run TFI related calcuations ------------------------------------------------------------
-  observeEvent(input$runTFI|input$runRA_TFI,
-               ignoreInit = T,{
-                 withBusyIndicatorServer("runTFI", {
-                   withBusyIndicatorServer("runRA_TFI", {
-                     validate(
-                       need(rv$FHanalysis, 'You need to select a FH analysis to use')
-                     )
-                     myBasename<<-file_path_sans_ext(basename(rv$FHanalysis$name))
-                     myBBTFI<-calc_BBTFI(FHanalysis =rv$FHanalysis,
-                                         cropRasters = rv$cropRasters,#,the selected FHanalysis object ( either through running analysis previously, or loading the rdata object.)
-                                         TFI_LUT_DF = TFI_LUT)
-                     print("finished BBTFI calcs")
-                     myTFI<-calc_TFI(FHanalysis =rv$FHanalysis,#the selected FHanalysis object ( either through running analysis previously, or loading the rdata object.)
-                                      TFI_LUT_DF = TFI_LUT,
-                                      cropRasters = rv$cropRasters,
-                                      OutputRasters = input$makeTFIrasters)
-                     print("Finished my TFI")
-                     save(myBBTFI,myTFI,file=file.path(ResultsDir,paste(file_path_sans_ext(rv$FHanalysis$name),"TFI.rdata")))
-                     rv$myBBTFI<-myBBTFI
-                     
-                     rv$myTFI<-myTFI
-                     
-                   })
-                 })
-               })
+  # Observer to run TFI related calcuations---------------------
+  observeEvent(
+    input$runTFI|input$runRA_TFI,
+    ignoreInit = T,{
+      withBusyIndicatorServer("runTFI", {
+        withBusyIndicatorServer("runRA_TFI", {
+          validate(
+            need(rv$FHAnalysis,
+                 'You need to select a FH analysis to use')
+          )
+          print("running TFI calc")
+          
+          TFI_Result <<- calc_TFI_2(
+            myFHAnalysis = rv$FHAnalysis,
+            myAllCombs = rv$allCombs,
+            myTFI_LUT = TFI_LUT,
+            OutputRasters = FALSE)
+          
+          
+          print("Finished my TFI")
+          
+          rv$TFI<-TFI_Result
+          
+          save(TFI_Result,
+               file=file.path(
+                 ResultsDir,
+                 paste(file_path_sans_ext(rv$FHAnalysis$name),
+                       "TFI.rdata")
+               )
+          )
+          
+        })
+      })
+    }
+  )
   
-  
-  
-  
-  
-  # observer prints the details of currently selected analysis-----------------------------------------
-  observeEvent(rv$FHanalysis$name,ignoreInit = T,
+  # Observer to run BBTFI calcuations---------------------
+  observeEvent(
+    input$runBBTFI|input$runRA_TFI,
+    ignoreInit = T,{
+      withBusyIndicatorServer("runBBTFI", {
+        withBusyIndicatorServer("runRA_TFI", {
+          validate(
+            need(rv$FHAnalysis,
+                 'You need to select a FH analysis to use')
+          )
+          
+          print ("calc_bbTFI")
+          print(rv$FHAnalysis)
+          print(lapply(rv$FHAnalysis,class))
+          print(lapply(rv$allCombs,class))
+          print(lapply(input$makeBBTFIrasters,class))
+          myBBTFI<<-calcBBTFI_2(
+            myFHAnalysis = rv$FHAnalysis,
+            myAllCombs = rv$allCombs,
+            makeBBTFIrasters = input$makeBBTFIrasters
+          )
+          print("finished BBTFI calcs")
+          
+          rv$myBBTFI<-myBBTFI
+          
+          save(myBBTFI,
+               
+               file=file.path(
+                 ResultsDir,
+                 paste(file_path_sans_ext(rv$FHAnalysis$name),
+                       "BBTFI.rdata")
+               )
+          )
+          
+        })
+      })
+    }
+  )
+  # Observer to run GS calcuations-----------------------------------
+  observeEvent(
+    input$runGS|input$runRA_TFI,
+    ignoreInit = T,{
+      withBusyIndicatorServer("runGS", {
+        withBusyIndicatorServer("runRA_TFI", {
+          validate(
+            need(rv$FHAnalysis,
+                 'You need to select a FH analysis to use')
+          )
+          
+          print ("GS Calculations")
+          GS_Summary<-makeGS_Summary(
+            myFHAnalysis = rv$FHAnalysis,
+            myAllCombs = rv$allCombs
+          )
+          print("finished GS calcs")
+          
+          rv$GS_Summary<-GS_Summary
+          
+          save(GS_Summary,
+               file=file.path(
+                 ResultsDir,
+                 paste(file_path_sans_ext(rv$FHAnalysis$name),
+                       "GS_Summary.rdata")
+               )
+          )
+          
+        })
+      })
+    }
+  )
+  # Observer prints the details of currently selected analysis-----------------------------------------
+  observeEvent(rv$FHAnalysis$name,ignoreInit = T,
                {output$selected_FH_name<-renderText({
-                 paste( "FH Analysis selected =" ,as.character(rv$FHanalysis$name))
+                 paste( "FH Analysis selected =" ,as.character(rv$FHAnalysis$name))
                })})  
   
   
   
-  # observer to display TFI and BBTFI plots when availible--------------------------------------------
+  # Observer to display TFI and BBTFI plots when availible--------------------------------------------
   
   observeEvent(rv$myTFI,ignoreInit = T,{
     myChoices<-unique(rv$myTFI$TFI_STATUS_BY_EFG_LONG$EFG)
@@ -426,7 +512,7 @@ server <- function(session,input, output) {
       #   ylab("Area (ha)")
       
       ggplotly(p1)
-
+      
     })
     
     output$BBTFIPlot<-renderPlotly({
@@ -444,7 +530,7 @@ server <- function(session,input, output) {
     )
     
   })
-  # 2 observers RA calcs when availible--------------------------------------------
+  # Observers make RA charts when availible--------------------------------------------
   observeEvent(rv$SpYearSumm,ignoreInit = T,{
     
     myChoices<-unique(rv$SpYearSumm$COMMON_NAME)
@@ -518,7 +604,7 @@ server <- function(session,input, output) {
     })
   })
   
-  ####The next 15 lines appear to duplcate previous code, commented just in case still needed
+  ####The next 15 lines appear to duplicate previous code, commented just in case still needed
   # observeEvent(input$runspEFGpList,{
   #   req(input$spREGION_NO)
   #   if(input$spREGION_NO == 7){
@@ -538,7 +624,7 @@ server <- function(session,input, output) {
   #Run Aspatial GSO-------------------------------------------------
   
   # this section runs the rmd script and documents for aspatial GSO that was written by Paul Moloney in 2017. and modified to use shiny GUI
-  #observers for GSO .csv uploads  ---------------------------------
+  #Observers for GSO .csv uploads  ---------------------------------
   observe( {myInput = input$addGSOCSV
   savePath ="./GSOInputs"
   file.copy(
@@ -584,7 +670,7 @@ server <- function(session,input, output) {
   
   # Make AbunddataLong------------------------------------------------------
   makeAbundDataLong<- function(AbundDataByGS = (read.csv("./ReferenceTables/OrdinalExpertLong.csv")[,c("EFG_NO", "GS4_NO",  "FireType" , "Abund", "VBA_CODE")]),
-                               EFG_TSF_4GS = myEFG_TSF_4GS){
+                               EFG_TSF_4GS){
     AbundDataByGS$FireTypeNo[AbundDataByGS$FireType=="High"]<-2
     AbundDataByGS$FireTypeNo[AbundDataByGS$FireType=="Low"]<-1
     AbundDataByGS<-AbundDataByGS[!is.na(AbundDataByGS$Abund),c("EFG_NO", "GS4_NO",  "FireTypeNo" , "Abund", "VBA_CODE")]
@@ -604,6 +690,6 @@ server <- function(session,input, output) {
   shinyFileChoose(input, 'files', 
                   root=roots)
   
-
+  
   
 }
