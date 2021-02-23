@@ -320,7 +320,7 @@ server <- function(session,input, output) {
                                       myLU_List = LU_List,
                                       myHDMVals = HDMVals,
                                       myTaxonList = rv$TaxonList,
-                                      writeYears = input$yearsForRasters,
+                                      writeYears = NULL,#input$yearsForRasters,
                                       myWriteSp = writeSp)
         rv$SpYearSummWide <- SpYearSummWide
         #write.csv(SpYearSumm,file.path(ResultsDir,"SpYearSumm.csv"),row.names=F)
@@ -403,7 +403,7 @@ server <- function(session,input, output) {
           
           print ("calculating BBTFI")
 
-          myBBTFI<-calcBBTFI_2(
+          BBTFI<-calcBBTFI_2(
             myFHAnalysis = rv$FHAnalysis,
             myAllCombs = rv$allCombs,
             makeBBTFIrasters = input$makeBBTFIrasters,
@@ -411,7 +411,7 @@ server <- function(session,input, output) {
           )
           print("finished BBTFI calcs")
           
-          rv$myBBTFI<-myBBTFI
+          rv$BBTFI<-BBTFI
           
           save(myBBTFI,
                
@@ -468,43 +468,36 @@ server <- function(session,input, output) {
   
   # Observer to display TFI and BBTFI plots when availible--------------------------------------------
   
-  observeEvent(rv$myTFI,ignoreInit = T,{
-    myChoices<-unique(rv$myTFI$TFI_STATUS_BY_EFG_LONG$EFG)
+  observeEvent(rv$TFI,ignoreInit = T,{
+    myChoices<-unique(rv$TFI$EFG_NAME)
     myChoices<-myChoices[!is.na(myChoices)]
     updateSelectInput(session,"EFGChoices",choices=myChoices)
     updateTabItems(session,"tabs","TFIplots")
-    minSEASON<-min(rv$myTFI$TFI_STATUS_BY_EFG_LONG$SEASON)
-    maxSEASON<-max(rv$myTFI$TFI_STATUS_BY_EFG_LONG$SEASON)
+    minSEASON<-min(rv$TFI$SEASON)
+    maxSEASON<-max(rv$TFI$SEASON)
     updateSliderInput(session,"tfiSeasonChoices",min=minSEASON,max=maxSEASON,value=c(1980,maxSEASON))
+    
+  })
+  output$TFItrendPlot<-renderPlotly({
+    rv$TFI%>% 
+      filter(EFG_NAME == input$EFGChoices)%>%
+      group_by(TFI_STATUS,SEASON) %>%
+      summarise(Area = sum(Hectares))%>%
+      plot_ly(x=~SEASON, y=~Area, group=~TFI_STATUS,
+              type="bar",color=~TFI_STATUS)%>%
+      layout(title = paste0(input$EFGChoices,"\n","TFI Status"),
+             yaxis = list(rangemode = "tozero",title = "Area (ha)"),
+             #xaxis= list(range = as.numeric(input$tfiSeasonChoices)),
+             barmode = 'stack')
+    
   })
   
-  observeEvent(input$EFGChoices,ignoreInit=T,{
-    x<-TFI_LUT[TFI_LUT$EFG==input$EFGChoices,]
-    rv$EFG_text<-paste0(x[5], " TFI Min LO= ",x[2], ": Min HI= ",x[3],": Max =" ,x[4])
-  })
   
   
   
   observeEvent(rv$myBBTFI,ignoreInit = T,{
     #cdata <- session$clientData
-    output$TFItrendPlot<-renderPlotly({
-      myData = rv$myTFI$TFI_STATUS_BY_EFG_LONG[rv$myTFI$TFI_STATUS_BY_EFG_LONG$EFG==input$EFGChoices,]
-      myData = myData[!is.na(myData$EFG)&(myData$STATUS%in%c("0","1","2")),]
-      
-      mydat<-myData
-      p1<-ggplot(myData)+#
-        geom_line(aes(SEASON,Hectares,group=as.factor(STATUS),color=as.factor(STATUS)))+
-        theme(axis.text.x = element_text(angle = 90))+scale_color_manual(name="TFI Status",breaks=c("0","1","2"), labels = c("within", "below","above"), values = c("grey", "red", "blue"))
-      # p1<-ggplot(myData)+#
-      #   geom_line(aes(SEASON,Hectares,group=as.factor(STATUS)))+
-      #   theme(axis.text.x = element_text(angle = 90))+
-      #   scale_color_manual(name="TFI Status",breaks=c("0","1","2"), labels = c("within", "below","above"), values = c("grey", "red", "blue")) +
-      #   ggtitle(paste0("TFI Status\n",rv$EFG_text))+
-      #   ylab("Area (ha)")
-      
-      ggplotly(p1)
-      
-    })
+    
     
     output$BBTFIPlot<-renderPlotly({
       p2<-ggplot(data = rv$myBBTFI$BBTFI_EFG_Area_SEASON[rv$myBBTFI$BBTFI_EFG_Area_SEASON$EFG==input$EFGChoices,],
@@ -559,11 +552,11 @@ server <- function(session,input, output) {
         myPoly="./ReferenceShapefiles/LF_DISTRICT.shp"
       }
       print ("calcuating draft species List")
-      myDraftSpList<-calcDraftSpList(REG_NO = input$spREGION_NO,
+      myDraftSpList<-calc_DraftSpList(REG_NO = input$spREGION_NO,
                                       RasterRes = 225,
                                       myPoly=myPoly,
                                       PUBLIC_LAND_ONLY = input$sppublic,
-                                      HDMVals=HDMVals225 )
+                                      myHDMVals=HDMVals225 )
       print (head(myDraftSpList))
       write.csv(myDraftSpList,file.path(ResultsDir,"myDraftspList.csv"))
       print("made draft species List")
@@ -580,35 +573,20 @@ server <- function(session,input, output) {
       }
       
       
-      calcSpp_EFG_LMU(REG_NO=input$spREGION_NO,#REG_NO of defined region from input (1:6) or 0 for statewide or 7 for Ad Hoc Poly),
-                      RasterRes=225,
-                      PUBLIC_LAND_ONLY=input$sppublic,
-                      myPoly=myPoly,#shapefile ofLF_REGIONs( default)or  adhoc region,
+      calc_Spp_EFG_LMU(REG_NO = input$spREGION_NO,#REG_NO of defined region from input (1:6) or 0 for statewide or 7 for Ad Hoc Poly),
+                      RasterRes = 225,
+                      PUBLIC_LAND_ONLY = input$sppublic,
+                      myPoly = myPoly,#shapefile ofLF_REGIONs( default)or  adhoc region,
                       generalRasterDir = "./InputGeneralRasters",
                       splist ="./ReferenceTables/DraftTaxonListStatewidev2.csv",
-                      HDMVals=HDMVals225,
-                      EFGRas="./InputGeneralRasters/EFG_NUM_225.tif",
-                      TFI_LUT=TFI_LUT)
+                      myHDMVals=HDMVals225,
+                      #EFGRas="./InputGeneralRasters/EFG_NUM_225.tif",
+                      TFI_LUT = TFI_LUT)
       
     })
   })
   
-  ####The next 15 lines appear to duplicate previous code, commented just in case still needed
-  # observeEvent(input$runspEFGpList,{
-  #   req(input$spREGION_NO)
-  #   if(input$spREGION_NO == 7){
-  #     myPoly=file.path("./AdHocPolygons",input$spAdHocShape)
-  #   }else{
-  #     myPoly="./ReferenceShapefiles/LF_DISTRICT.shp"
-  #   }    
-  #   
-  #   myDraftSpList<-calcDraftSpList(REG_NO,
-  #                                 RasterRes = 225,
-  #                                 myPoly=myPoly,
-  # 
-  #                                 HDMVals=HDMVals225 )
-  #   print (head(myDraftSpList))
-  #   write.csv(myDraftSpList,file.path(ResultsDir,"myDraftspList.csv"))
+
   # })
   #Run Aspatial GSO-------------------------------------------------
   
@@ -657,9 +635,8 @@ server <- function(session,input, output) {
     })
   })
   
-  # Make AbunddataLong------------------------------------------------------
 
-  #shutDown
+# observer to shut down server
   observeEvent(input$close, {
     js$closeWindow()
     system("sudo shutdown")
