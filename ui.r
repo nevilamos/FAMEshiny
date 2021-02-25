@@ -257,11 +257,7 @@ ui <-dashboardPage(
                            actionButton("runTFI", label = "Run TFI calculations")
                          )
                   ),
-                  column(4,
-                         withBusyIndicatorUI(
-                           actionButton("runBBTFI", label = "Run BBTFI calculations")
-                         )
-                  ),
+
                   column(4,
                          withBusyIndicatorUI(
                            actionButton("runGS", label = "Run GS calculations")
@@ -289,7 +285,7 @@ ui <-dashboardPage(
                 ),
                 fluidRow(
                   plotlyOutput("TFItrendPlot"),
-                  plotlyOutput("BBTFIPlot")
+                  plotlyOutput("BBTFIPlot"),
                 )
                 
               )

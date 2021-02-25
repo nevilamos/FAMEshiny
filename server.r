@@ -197,15 +197,15 @@ server <- function(session,input, output) {
       } else{
         clipShape = "./ReferenceShapefiles/LF_DISTRICT.shp"
       }
-        
+      
       cropRasters <- cropNAborder(
-          REG_NO = myREG_NO,
-          myRasterRes = RasterRes,
-          PUBLIC_LAND_ONLY = input$public,
-          myPoly = file.path(clipShape),
-          generalRasterDir = "./InputGeneralRasters"
-        )
-
+        REG_NO = myREG_NO,
+        myRasterRes = RasterRes,
+        PUBLIC_LAND_ONLY = input$public,
+        myPoly = file.path(clipShape),
+        generalRasterDir = "./InputGeneralRasters"
+      )
+      
       cropRasters$HDM_RASTER_PATH=HDM_RASTER_PATH
       rv$cropRasters = cropRasters
       FHAnalysis<-fhProcess(
@@ -258,16 +258,16 @@ server <- function(session,input, output) {
   # Observer to run relative abundance analysis  -------------------------------------------------------
   observeEvent({input$runRA|input$runRA_TFI},ignoreInit = T,{
     withBusyIndicatorServer("runRA", {
-
+      
       withBusyIndicatorServer("runRA_TFI", {
-
+        
         if(input$spListChoice == FALSE){
           rv$TaxonList<-read.csv("./ReferenceTables/DraftTaxonListStatewidev2.csv")
         }else{
           rv$TaxonList<-read.csv(file.path("./CustomCSV",input$customSpList))
         }
         
-
+        
         
         HDMSpp_NO <- rv$TaxonList$TAXON_ID[rv$TaxonList$Include=="Yes"]
         writeSp <- rv$TaxonList$TAXON_ID[rv$TaxonList$WriteSpeciesRaster == "Yes"]
@@ -281,7 +281,7 @@ server <- function(session,input, output) {
         }else{
           print("doing 75m version makeHDMValsfromRasters")
           HDMVals<-makeHDMValsfromRasters(myHDMSpp_NO = HDMSpp_NO,
-                                           myCropDetails = rv$cropRasters)
+                                          myCropDetails = rv$cropRasters)
           
         }
         #print(paste("dim hdmvals =",dim(HDMVals)))
@@ -300,29 +300,31 @@ server <- function(session,input, output) {
                                                         "VBA_CODE")]  #Select the file giving the fauna relative abundance inputs you wish to use
         AbundDataByGS$FireTypeNo[AbundDataByGS$FireType=="High"]<-2
         AbundDataByGS$FireTypeNo[AbundDataByGS$FireType=="Low"]<-1
-
+        
         
         AbundDataLong = merge(AbundDataByGS, EFG_TSF_4GS, by=c('EFG_NO','GS4_NO'))
         AbundDataLong <- AbundDataLong[order(AbundDataLong$VBA_CODE),]
         print("making Spp abund LU List")
         LU_List <- make_Spp_LU_list(myHDMSpp_NO = HDMSpp_NO,
-                                     myAbundDataLong = AbundDataLong)
+                                    myAbundDataLong = AbundDataLong)
         
         
         if (exists("rv$TaxonList"))
           print("Making spYearSumm")
         
-        SpYearSummWide <- calc_SpeciesRA(myFHAnalysis=rv$FHAnalysis,
-                                      myAllCombs <- rv$allCombs,
-                                      myHDMSpp_NO = HDMSpp_NO, 
-                                      myWriteSpRasters = input$makeRArasters,
-                                      myResultsDir = ResultsDir,
-                                      myLU_List = LU_List,
-                                      myHDMVals = HDMVals,
-                                      myTaxonList = rv$TaxonList,
-                                      writeYears = NULL,#input$yearsForRasters,
-                                      myWriteSp = writeSp)
-        rv$SpYearSummWide <- SpYearSummWide
+        SpYearSumm <- calc_SpeciesRA(myFHAnalysis=rv$FHAnalysis,
+                                         myAllCombs <- rv$allCombs,
+                                         myHDMSpp_NO = HDMSpp_NO, 
+                                         myWriteSpRasters = input$makeRArasters,
+                                         myResultsDir = ResultsDir,
+                                         myLU_List = LU_List,
+                                         myHDMVals = HDMVals,
+                                         myTaxonList = rv$TaxonList,
+                                         writeYears = NULL,#input$yearsForRasters,
+                                         myWriteSp = writeSp)
+        rv$SpYearSumm <- SpYearSumm
+        utils::write.csv(SpYearSumm$SpYearSummLong, file.path(ResultsDir, "SpYearSummLong.csv"))
+        utils::write.csv(SpYearSumm$SpYearSummWide, file.path(ResultsDir, "SpYearSummWide.csv"))
         #write.csv(SpYearSumm,file.path(ResultsDir,"SpYearSumm.csv"),row.names=F)
         print("finished sp year summ")    
         Baseline<-ifelse(input$endBaseline>input$startBaseline,input$startBaseline:input$endBaseline,input$startBaseline)
@@ -332,7 +334,7 @@ server <- function(session,input, output) {
                                        myBaseline = Baseline,
                                        myResultsDir = ResultsDir)
         print("finished deltaabund")
-        })
+      })
     })
   })
   # Observer to get update years for calculations-----------------------------------------------------
@@ -353,9 +355,9 @@ server <- function(session,input, output) {
   }
   )
   
-  # Observer to run TFI related calcuations---------------------
+  # Observer to run TFI  and BBTFI related calculations---------------------
   observeEvent(
-    input$runTFI|input$runRA_TFI,
+    {input$runTFI|input$runRA_TFI},
     ignoreInit = T,{
       withBusyIndicatorServer("runTFI", {
         withBusyIndicatorServer("runRA_TFI", {
@@ -365,7 +367,7 @@ server <- function(session,input, output) {
           )
           print("running TFI calc")
           
-          TFI_Result <- calc_TFI_2(
+          TFI<- calc_TFI_2(
             myFHAnalysis = rv$FHAnalysis,
             myAllCombs = rv$allCombs,
             myTFI_LUT = TFI_LUT,
@@ -375,9 +377,17 @@ server <- function(session,input, output) {
           
           print("Finished my TFI")
           
-          rv$TFI<-TFI_Result
+          # need to change the sort order for the factor to get correct stacking
+          # order ( no alphabetical) on chart
+          TFI$TFI_STATUS<-factor(TFI$TFI_STATUS,levels =c("BELOW_MIN_TFI",
+                                                          "WITHIN_TFI",
+                                                          "ABOVE_MAX_TFI",
+                                                          "NONE"))
           
-          save(TFI_Result,
+          
+          rv$TFI<-TFI<<-TFI
+          
+          save(TFI,
                file=file.path(
                  ResultsDir,
                  paste(file_path_sans_ext(rv$FHAnalysis$name),
@@ -385,24 +395,8 @@ server <- function(session,input, output) {
                )
           )
           
-        })
-      })
-    }
-  )
-  
-  # Observer to run BBTFI calcuations---------------------
-  observeEvent(
-    input$runBBTFI|input$runRA_TFI,
-    ignoreInit = T,{
-      withBusyIndicatorServer("runBBTFI", {
-        withBusyIndicatorServer("runRA_TFI", {
-          validate(
-            need(rv$FHAnalysis,
-                 'You need to select a FH analysis to use')
-          )
-          
           print ("calculating BBTFI")
-
+          
           BBTFI<-calcBBTFI_2(
             myFHAnalysis = rv$FHAnalysis,
             myAllCombs = rv$allCombs,
@@ -411,21 +405,22 @@ server <- function(session,input, output) {
           )
           print("finished BBTFI calcs")
           
-          rv$BBTFI<-BBTFI
+          rv$BBTFI<-BBTFI<-BBTFI
           
-          save(myBBTFI,
+          save(BBTFI,
                
                file=file.path(
                  ResultsDir,
                  paste(file_path_sans_ext(rv$FHAnalysis$name),
                        "BBTFI.rdata")
-                 )
+               )
           )
           
-          })
+        })
       })
     }
   )
+  
   # Observer to run GS calculations-----------------------
   observeEvent(
     input$runGS|input$runRA_TFI,
@@ -444,7 +439,7 @@ server <- function(session,input, output) {
           )
           print("finished GS calcs")
           
-          rv$GS_Summary<-GS_Summary
+          rv$GS_Summary<-GS_Summary<<-GS_Summary
           
           save(GS_Summary,
                file=file.path(
@@ -466,9 +461,9 @@ server <- function(session,input, output) {
   
   
   
-  # Observer to display TFI and BBTFI plots when availible--------------------------------------------
+  # Observer to display TFI and BBTFI plots when available--------------------------------------------
   
-  observeEvent(rv$TFI,ignoreInit = T,{
+  observeEvent({rv$TFI},ignoreInit = T,{
     myChoices<-unique(rv$TFI$EFG_NAME)
     myChoices<-myChoices[!is.na(myChoices)]
     updateSelectInput(session,"EFGChoices",choices=myChoices)
@@ -477,44 +472,55 @@ server <- function(session,input, output) {
     maxSEASON<-max(rv$TFI$SEASON)
     updateSliderInput(session,"tfiSeasonChoices",min=minSEASON,max=maxSEASON,value=c(1980,maxSEASON))
     
-  })
+  
+  
+  
+  
   output$TFItrendPlot<-renderPlotly({
-    rv$TFI%>% 
+    rv$TFI%>%
       filter(EFG_NAME == input$EFGChoices)%>%
       group_by(TFI_STATUS,SEASON) %>%
       summarise(Area = sum(Hectares))%>%
-      plot_ly(x=~SEASON, y=~Area, group=~TFI_STATUS,
-              type="bar",color=~TFI_STATUS)%>%
+      plot_ly(x=~SEASON,
+              y=~Area,
+              group=~TFI_STATUS,
+              type="bar",
+              color=~TFI_STATUS,
+              colors = c("BELOW_MIN_TFI" = "#fb8072",
+                         "WITHIN_TFI"= "#8dd3c7",
+                         "ABOVE_MAX_TFI" = "#80b1d3",
+                         "NONE" = "#ffffb3"))%>%
       layout(title = paste0(input$EFGChoices,"\n","TFI Status"),
              yaxis = list(rangemode = "tozero",title = "Area (ha)"),
-             #xaxis= list(range = as.numeric(input$tfiSeasonChoices)),
+             xaxis= list(range = (input$tfiSeasonChoices)),
              barmode = 'stack')
-    
-  })
-  
-  
-  
-  
-  observeEvent(rv$myBBTFI,ignoreInit = T,{
-    #cdata <- session$clientData
-    
-    
-    output$BBTFIPlot<-renderPlotly({
-      p2<-ggplot(data = rv$myBBTFI$BBTFI_EFG_Area_SEASON[rv$myBBTFI$BBTFI_EFG_Area_SEASON$EFG==input$EFGChoices,],
-                 aes(x = SEASON,
-                     y = ha,
-                     fill=as.factor(Times_BBTFI))) +
-        geom_col()+
-        labs(fill = "Times BBTFI")+
-        ggtitle(paste0("Number of times burned below TFI\n",rv$EFG_text))+
-        xlim(input$tfiSeasonChoices)+
-        ylab("Area (ha)")
-      ggplotly(p2)#,width = cdata$output_pid_width, height = cdata$output_pid_height
     }
+  )
+  
+  output$BBTFIPlot<-renderPlotly(
+    { 
+      # validate(
+      #   need(input$EFGChoices%in%unique(rv$BBTFI$BBTFI_LONG$EFG_NAME==FALSE),
+      #        "There is no Area BBTFI in this EFG")
+      # )
+      
+      rv$BBTFI$BBTFI_LONG%>%
+        filter(EFG_NAME == input$EFGChoices)%>%
+        mutate(TBTFI =as.factor(TBTFI))%>%
+        group_by(TBTFI,SEAS) %>%
+        summarise(Area = sum(Hectares))%>%
+        plot_ly(x=~SEAS, y=~Area,
+                type="bar",color=~TBTFI)%>%
+        layout(title = paste0(input$EFGChoices,"\n","Times burned below TFI"),
+               yaxis = list(rangemode = "tozero",title = "Area (ha)"),
+               xaxis= list(range = input$tfiSeasonChoices),
+               barmode = 'stack')
+      }
     )
-    
   })
-  # Observers make RA charts when availible--------------------------------------------
+
+  
+  # Observers make RA charts when available--------------------------------------------
   observeEvent(rv$SpYearSumm,ignoreInit = T,{
     
     myChoices<-unique(rv$SpYearSumm$COMMON_NAME)
@@ -574,19 +580,19 @@ server <- function(session,input, output) {
       
       
       calc_Spp_EFG_LMU(REG_NO = input$spREGION_NO,#REG_NO of defined region from input (1:6) or 0 for statewide or 7 for Ad Hoc Poly),
-                      RasterRes = 225,
-                      PUBLIC_LAND_ONLY = input$sppublic,
-                      myPoly = myPoly,#shapefile ofLF_REGIONs( default)or  adhoc region,
-                      generalRasterDir = "./InputGeneralRasters",
-                      splist ="./ReferenceTables/DraftTaxonListStatewidev2.csv",
-                      myHDMVals=HDMVals225,
-                      #EFGRas="./InputGeneralRasters/EFG_NUM_225.tif",
-                      TFI_LUT = TFI_LUT)
+                       RasterRes = 225,
+                       PUBLIC_LAND_ONLY = input$sppublic,
+                       myPoly = myPoly,#shapefile ofLF_REGIONs( default)or  adhoc region,
+                       generalRasterDir = "./InputGeneralRasters",
+                       splist ="./ReferenceTables/DraftTaxonListStatewidev2.csv",
+                       myHDMVals=HDMVals225,
+                       #EFGRas="./InputGeneralRasters/EFG_NUM_225.tif",
+                       TFI_LUT = TFI_LUT)
       
     })
   })
   
-
+  
   # })
   #Run Aspatial GSO-------------------------------------------------
   
@@ -635,8 +641,8 @@ server <- function(session,input, output) {
     })
   })
   
-
-# observer to shut down server
+  
+  # observer to shut down server
   observeEvent(input$close, {
     js$closeWindow()
     system("sudo shutdown")
