@@ -3,6 +3,8 @@ options(shiny.reactlog = TRUE)
 
 
 options(stringsAsFactors = F)
+
+library(aws.s3)
 library(dplyr)
 library(fasterize)
 library(sf)
@@ -15,8 +17,10 @@ library(plotly)
 library(raster)
 library(Rfast)
 library(shiny)
+library(shinycssloaders)
 library(shinydashboard)
 library(shinyFiles)
+library(shinyjs)
 library(tabularaster)
 library(tibble)
 library(tidyr)
@@ -31,6 +35,8 @@ library(shinycssloaders)
 library(shinyjs)
 library(FAMEFMR)
 
+#run once only to copy all the input files from AWS bucket-----------------------------
+source 
 #for debugging------------------
 options(warn = -1)
 
