@@ -677,9 +677,8 @@ server <- function(session, input, output) {
           colors = c("Old" = "#80b1d3",
                      "Mature" = "#8dd3c7",
                      "Adolescent" = "#fb8072",
-                     "Juvenile" = "#ffffb3"
-          )
-        ) %>%
+                     "Juvenile" = "#ffffb3")
+          ) %>%
         layout(
           title = paste0(input$EFGChoices, "\n", "Growth Stages"),
           yaxis = list(rangemode = "tozero", title = "Area (ha)"),
