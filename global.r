@@ -3,10 +3,11 @@ options(shiny.reactlog = TRUE)
 
 
 options(stringsAsFactors = F)
-library(dplyr)
-library(fasterize)
-library(sf)
+library(dashboardthemes)
 library(doParallel)
+library(dplyr)
+library(FAMEFMR)
+library(fasterize)
 library(foreach)
 library(gdalUtils)
 library(knitr)
@@ -14,28 +15,21 @@ library(Matrix.utils)
 library(plotly)
 library(raster)
 library(Rfast)
+library(sf)
 library(shiny)
+library(shinycssloaders)
 library(shinydashboard)
 library(shinyFiles)
+library(shinyjs)
 library(tabularaster)
 library(tibble)
 library(tidyr)
 library(tools)
 
 
-
-
-
-
-library(shinycssloaders)
-library(shinyjs)
-library(FAMEFMR)
-
-#for debugging------------------
-options(warn = -1)
-
-
-#library(shinythemes)
+#get version of FAMEFMR in use and set app version 
+versionDate = "Version 1.9 February 28 2021"
+versionFAMEFMR = paste ("R", getRversion(),"FAMEFMR",packageVersion("FAMEFMR"))
 
 #loads functions used in TFI and RA calculations
 #source("EcoResFunctionsShiny.r")
