@@ -40,7 +40,10 @@ ui <- dashboardPage(
         "Aspatial GSO Calc" ,
         tabName = "GSO",
         icon = icon("calculator")
-      )
+      ),
+      p(versionDate),
+      p(versionFAMEFMR)
+      
     ),
     absolutePanel(
       conditionalPanel(
@@ -60,6 +63,9 @@ ui <- dashboardPage(
     
   ),
   dashboardBody(
+    shinyDashboardThemes(
+      theme = "purple_gradient"
+    ),
     useShinyjs(),
     tags$style(appCSS),
     # tags$head(
@@ -72,8 +78,7 @@ ui <- dashboardPage(
                 8,
                 
                 img(src = "FAME.png"),
-                img(src = "08732250_before_after_2014_fire.jpg"),
-                h3("Version 1.1 September 26 2019")
+                img(src = "08732250_before_after_2014_fire.jpg")
                 
               ),
               column(4))),
@@ -552,5 +557,9 @@ ui <- dashboardPage(
                 )
               ))
     )
-  )
+  ),
+  tags$head(tags$style(HTML("
+    .skin- .main-sidebar {
+        background-color:  green;
+                            }"))),
 )
