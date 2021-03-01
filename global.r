@@ -44,8 +44,7 @@ package.check <- lapply(
   }
 )
 
-
-tools::
+devtools::install_github("nevilamos/FAMEFMR/CodeReview")
 library(FAMEFMR)
 
 #run once only to copy all the input files from AWS bucket-----------------------------
