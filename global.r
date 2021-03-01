@@ -33,7 +33,7 @@ packages = c("aws.s3",
              "tidyr",
              "tools")
 
-## Now load or install&load all
+## Now load or install&load all pakcages from cran
 package.check <- lapply(
   packages,
   FUN = function(x) {
@@ -44,8 +44,10 @@ package.check <- lapply(
   }
 )
 
-devtools::install_github("nevilamos/FAMEFMR/CodeReview")
-library(FAMEFMR)
+#check that FAMEFMR package is installed and get it fro github if not.
+if(require(FAMEFMR==FALSE)){
+devtools::install_github("nevilamos/FAMEFMR")
+library(FAMEFMR)}
 
 #run once only to copy all the input files from AWS bucket-----------------------------
 source 
@@ -92,7 +94,6 @@ removeEmptyDirs(rootDir = "./results")
 
 
 
-
 #Makes resultsDir
 ResultsDir <- file.path("./results", StartTimeString)
 
@@ -104,7 +105,7 @@ rm(d)
 dir.create(file.path(ResultsDir, "RA_Rasters"))
 dir.create(file.path(ResultsDir, "TFI_Rasters"))
 
-
+print(106)
 source("makeLUTS.R")
 
 cellSizes <- c(225, 75)
