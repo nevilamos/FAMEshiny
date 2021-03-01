@@ -33,7 +33,7 @@ packages = c("aws.s3",
              "tidyr",
              "tools")
 
-## Now load or install&load all pakcages from cran
+## Now load or install&load all packages from cran
 package.check <- lapply(
   packages,
   FUN = function(x) {
