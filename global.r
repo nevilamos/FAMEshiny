@@ -3,42 +3,49 @@ options(shiny.reactlog = TRUE)
 
 
 options(stringsAsFactors = F)
-<<<<<<< HEAD
 
-library(aws.s3)
-=======
-library(dashboardthemes)
-library(doParallel)
->>>>>>> NewSkin
-library(dplyr)
-library(FAMEFMR)
-library(fasterize)
-library(foreach)
-library(gdalUtils)
-library(knitr)
-library(Matrix.utils)
-library(plotly)
-library(raster)
-library(Rfast)
-library(sf)
-library(shiny)
-library(shinycssloaders)
-library(shinydashboard)
-library(shinyFiles)
-library(shinyjs)
-library(tabularaster)
-library(tibble)
-library(tidyr)
-library(tools)
+## If a package is installed, it will be loaded. If any 
+## are not, the missing package(s) will be installed 
+## from CRAN and then loaded.
+
+## First specify the packages of interest
+packages = c("aws.s3",
+             "dashboardthemes",
+             "doParallel",
+             "dplyr",
+             "fasterize",
+             "foreach",
+             "gdalUtils",
+             "knitr",
+             "Matrix.utils",
+             "plotly",
+             "raster",
+             "Rfast",
+             "rlang",
+             "sf",
+             "shiny",
+             "shinycssloaders",
+             "shinydashboard",
+             "shinyFiles",
+             "shinyjs",
+             "tabularaster",
+             "tibble",
+             "tidyr",
+             "tools")
+
+## Now load or install&load all
+package.check <- lapply(
+  packages,
+  FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+      install.packages(x, dependencies = TRUE)
+      library(x, character.only = TRUE)
+    }
+  }
+)
 
 
-<<<<<<< HEAD
-
-
-
-
-library(shinycssloaders)
-library(shinyjs)
+tools::
 library(FAMEFMR)
 
 #run once only to copy all the input files from AWS bucket-----------------------------
@@ -48,36 +55,16 @@ options(warn = -1)
 
 
 #library(shinythemes)
-=======
+
 #get version of FAMEFMR in use and set app version 
 versionDate = "Version 1.9 February 28 2021"
 versionFAMEFMR = paste ("R", getRversion(),"FAMEFMR",packageVersion("FAMEFMR"))
->>>>>>> NewSkin
 
-#loads functions used in TFI and RA calculations
-#source("EcoResFunctionsShiny.r")
-#source("TFI_functionsShiny.r")
+
+
 source("ButtonDisableHelpers.r")
 
 
-#temporary debugging for function overwrites package function with version stored in temp.r
-#source("temp.r")
-
-
-
-#set the number of cores to use
-# algorithm here to work out the best number of cores to use as a ratio of RAM currently assuming requirement of 8GB per core
-if (Sys.info()[1] == "Windows") {
-  maxCores <- as.integer(memory.limit(size = NA) / (1024 ^ 2 * 8))
-  
-} else {
-  maxCores <-
-    as.integer(as.integer(system(
-      "awk '/MemFree/ {print $2}' /proc/meminfo", intern = T
-    )) / (1024 ^ 2 * 8))
-}
-totalCores <- detectCores()
-Ncores <- ifelse(totalCores > maxCores, maxCores, totalCores - 1)
 
 
 Ncores = 4
