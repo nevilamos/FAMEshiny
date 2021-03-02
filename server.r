@@ -280,7 +280,7 @@ server <- function(session, input, output) {
       rv$allCombs <- allCombs
       print("made allcombs")
       
-      print(paste ("line", 249, ls(pattern = "FHAnalysis"), "exists"))
+
       #save analysis to enable reloading
       save(FHAnalysis,
            cropRasters,
@@ -478,7 +478,7 @@ server <- function(session, input, output) {
         )
         
         
-        print("Finished my TFI")
+        
         
         # need to change the sort order for the factor to get correct stacking
         # order ( no alphabetical) on chart
@@ -494,15 +494,14 @@ server <- function(session, input, output) {
           )
         
         
-        rv$TFI <- TFI <<- TFI
+        rv$TFI <- TFI 
+        #save TFI to the FHAnalysis.rdata
+        rv$FHAnalysis$TFI<-TFI
+
+        write.csv(TFI,
+                  file = file.path(ResultsDir,"TFI_LONG.csv"))
         
-        save(TFI,
-             file = file.path(ResultsDir,
-                              paste(
-                                file_path_sans_ext(rv$FHAnalysis$name),
-                                "TFI.rdata"
-                              )))
-        
+        print("Finished TFI calcualtions")
         print ("calculating BBTFI")
         
         BBTFI <- calcBBTFI_2(
@@ -513,17 +512,27 @@ server <- function(session, input, output) {
         )
         print("finished BBTFI calcs")
         
-        rv$BBTFI <- BBTFI <- BBTFI
+        rv$BBTFI <- BBTFI 
+        rv$FHAnalysis$BBTFI<-BBTFI
         
-        save(BBTFI,
-             
+        write.csv(BBTFI$BBTFI_LONG,
              file = file.path(
                ResultsDir,
-               paste(
-                 file_path_sans_ext(rv$FHAnalysis$name),
-                 "BBTFI.rdata"
+               "BBTFI_LONG.csv"
                )
-             ))
+             )
+        
+        write.csv(BBTFI$BBTFI_WIDE,
+             file = file.path(
+               ResultsDir,
+               "BBTFI_WIDE.csv"
+             )
+        )
+        
+        save(rv$FHAnalysis,  file = file.path(
+          "./FH_Outputs",
+          paste0(FHAnalysis$name, input$RasterRes, ".rdata")
+        ))
         
       })
     })
@@ -543,16 +552,27 @@ server <- function(session, input, output) {
                                       myAllCombs = rv$allCombs)
                      print("finished GS calcs")
                      
-                     rv$GS_Summary <- GS_Summary <<- GS_Summary
+                     rv$GS_Summary <- GS_Summary 
+                     FHAnalysis$GS_Summary<- GS_Summary
                      
-                     save(GS_Summary,
+                     write.csv(GS_Summary$GS_Summary_Long,
                           file = file.path(
                             ResultsDir,
-                            paste(
-                              file_path_sans_ext(rv$FHAnalysis$name),
-                              "GS_Summary.rdata"
+                            "GS_LONG.csv"
                             )
-                          ))
+                          )
+                     
+                     write.csv(GS_Summary$GS_Summary_wide,
+                          file = file.path(
+                            ResultsDir,
+                            "GS_WIDE.csv"
+                          )
+                     )
+                     
+                     save(rv$FHAnalysis,  file = file.path(
+                       "./FH_Outputs",
+                       paste0(FHAnalysis$name, input$RasterRes, ".rdata")
+                     ))
                      
                    })
                  })
@@ -609,7 +629,8 @@ server <- function(session, input, output) {
           title = paste0(input$EFGChoices, "\n", "TFI Status"),
           yaxis = list(rangemode = "tozero", title = "Area (ha)"),
           xaxis = list(range = (input$tfiSeasonChoices)),
-          barmode = 'stack'
+          barmode = 'stack',
+          showlegend=T
         )
     })
     
@@ -634,7 +655,8 @@ server <- function(session, input, output) {
           title = paste0(input$EFGChoices, "\n", "Times burned below TFI"),
           yaxis = list(rangemode = "tozero", title = "Area (ha)"),
           xaxis = list(range = input$tfiSeasonChoices),
-          barmode = 'stack'
+          barmode = 'stack',
+          showlegend=T
         )
     })
   })
@@ -683,7 +705,8 @@ server <- function(session, input, output) {
           title = paste0(input$EFGChoices, "\n", "Growth Stages"),
           yaxis = list(rangemode = "tozero", title = "Area (ha)"),
           xaxis = list(range = input$GSSeasonChoices),
-          barmode = 'stack'
+          barmode = 'stack',
+          showlegend=T
         )
     })
   })
@@ -722,7 +745,8 @@ server <- function(session, input, output) {
           layout(
             yaxis = list(rangemode = "tozero",
                          title = "Sum of relative abundance x 100"),
-            xaxis = list(range = input$raSeasonChoices)
+            xaxis = list(range = input$raSeasonChoices),
+            showlegend=T
           )
         
         
@@ -744,7 +768,8 @@ server <- function(session, input, output) {
           layout(
             yaxis = list(rangemode = "tozero",
                          title = "Change in relative abundance\ncompared to baseline"),
-            xaxis = list(range = input$raSeasonChoices)
+            xaxis = list(range = input$raSeasonChoices),
+            showlegend=T
           )
       }
     })
