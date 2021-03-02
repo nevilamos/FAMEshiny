@@ -44,13 +44,14 @@ package.check <- lapply(
   }
 )
 
-#check that FAMEFMR package is installed and get it fro github if not.
-if(require(FAMEFMR==FALSE)){
-devtools::install_github("nevilamos/FAMEFMR")
-library(FAMEFMR)}
+#check that FAMEFMR package is installed and get it from github if not.
+if(require("FAMEFMR")==FALSE){
+  devtools::install_github("nevilamos/FAMEFMR")
+  }
+
 
 #run once only to copy all the input files from AWS bucket-----------------------------
-source 
+source("download_FAME_inputs_from_S3.R")
 #for debugging------------------
 options(warn = -1)
 
@@ -62,7 +63,8 @@ versionDate = "Version 1.9 February 28 2021"
 versionFAMEFMR = paste ("R", getRversion(),"FAMEFMR",packageVersion("FAMEFMR"))
 
 
-
+# file that disables buttons while processes ar running to prevent multi-clicks
+# and lengthy operations running multiple times
 source("ButtonDisableHelpers.r")
 
 
@@ -83,14 +85,12 @@ jscode <- "shinyjs.closeWindow = function() { window.close(); }"
 #MAKE RESULTS DIRECTORIES
 #create a unique results directory for each run of scenarios
 #using starting time as a string for Results directory name
-#this is zipped for downlaod of
+#this is zipped for download of results.
 
 
 StartTimeString <- format(Sys.time(), "%Y%m%d_%H%M")
 
 WD <- getwd()
-#cleans up old resultsdirs which are empty
-removeEmptyDirs(rootDir = "./results")
 
 
 
@@ -105,7 +105,7 @@ rm(d)
 dir.create(file.path(ResultsDir, "RA_Rasters"))
 dir.create(file.path(ResultsDir, "TFI_Rasters"))
 
-print(106)
+# make lookup tables used in app
 source("makeLUTS.R")
 
 cellSizes <- c(225, 75)

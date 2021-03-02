@@ -5,7 +5,7 @@ newDirPaths<-c("AdHocPolygons",
                "HDMS",
                "InputGeneralRasters",
                "rawFH",
-               "ReferenceShapeFiles",
+               "ReferenceShapefiles",
                "ReferenceTables",
                "results"
                )               
@@ -16,8 +16,8 @@ dir.create(mypath,recursive = T)
 
 
 
-Sys.setenv("AWS_ACCESS_KEY_ID" = ,
-           "AWS_SECRET_ACCESS_KEY" = ,
+Sys.setenv("AWS_ACCESS_KEY_ID" = "AKIASBSJ6EYMARPJLDLD",
+           "AWS_SECRET_ACCESS_KEY" ="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" ,
            "AWS_DEFAULT_REGION" = "ap-southeast-2")
 
 
