@@ -8,7 +8,8 @@ newDirPaths<-c("AdHocPolygons",
                "rawFH",
                "ReferenceShapefiles",
                "ReferenceTables",
-               "results"
+               "results",
+               "www"
                )               
 for(mypath in newDirPaths){
 if (file.exists(mypath)){} else{
