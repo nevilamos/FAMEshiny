@@ -37,7 +37,1558 @@ Table 1. Required attribute fields for Fire History and Fire Future input featur
 
 A polygon shapefile containing polygon(s) to be selected as the boundary of the analysis area to be clipped from FireHistory and FireScenario above.
 
+### Outputs## This document contains details of the inputs / outputs of the EcoRes1 Module.
+
+Inputs/Outputs for FAME v2.0
+
+This document regarding inputs and outputs is primarily designed for the module curator. It details the specific input files and scripts which will need to be stored and curated centrally within Policy and Planning Division. At this stage it is envisaged that MER or FFRA units will become the custodians of the module which comprises the shiny app, input data and other R functions.
+
+Guidance around the application of the outputs from the analysis module are provided in the Final report in Appendix B _Output 5 Conceptual Framework for application of ecological values in decision making._
+
+## ARCGIS/ Windows pre-processing:
+
+Pre-processing of the input fire history polygons is required in ArcGIS, this creates a file that is then loaded to the server for processing.
+
+Hardware and software requirements **:**
+
+Windows 10 PC with ARCGIS 10.5.1 or ARCGISPro , 16GB ram.
+
+### Inputs
+
+#### Code.
+
+ArcMap v10.3 toolbox &quot;EcoRes1.tbx&quot; and two associated python files &quot;makeFlattened.py&quot;
+
+&quot;Add1755BushfireToFireHistory.py&quot;
+
+#### Data Files
+
+Two fire sequence polygon datasets (either shapefiles or file geodatabase) in VICGRID94 projection, one giving the fire history (ie past fire events) and the other giving a future fire scenario. The Template is based on the required fields from the corporate FIRE\_HISTORY dataset. In each dataset the polygons must have at least the attributes SEASON and FIRETYPE (Table1). Other attributes can be present in the attribute table, they will be deleted from the output.
+
+Each combination of fire SEASON and FIRETYPE must be represented by a separate polygon (ie each polygon may only have one SEASON and FIRETYPE).
+
+| Field Name | Permissible values | Datatype | Length |
+| --- | --- | --- | --- |
+| SEASON | 4 digit year value for the SEASON of the fire event \&gt;=1755 | SHORT INTEGER |
+ |
+| FIRETYPE | &quot;BURN&quot;,&quot;BUSHFIRE&quot;,&quot;OTHER&quot;,&quot;UNKNOWN&quot; | STRING | 50 |
+
+Table 1. Required attribute fields for Fire History and Fire Future input feature classes.
+
+A polygon shapefile containing polygon(s) to be selected as the boundary of the analysis area to be clipped from FireHistory and FireScenario above.
+
 ### Outputs
+
+Shapefile with same fields (SEASON, FIRETYPE) as the input file, combining all the fire events into a single file clipped to the boundary selected.
+
+Server/ Locally based R processing **.**
+
+## Hardware requirements
+
+### Local PC
+
+Minimum 4 cores 16Gb RAM to run process for whole state at 225m pixel resolution. Data stored on SSD for speed. Windows 10 or linux ubuntu 18.04. Smaller areas can be run at 75m resolution with this much Ram 64Gb is recommended to run statewide analysis as 75m pixel resolution
+
+### AWS Server
+
+Minimum instance with 4 cores and 16gb RAM to run process for whole state at 225m pixel resolution. Linux Ubuntu 18.04. Smaller areas can be run at 75m resolution with this much Ram 64Gb is recommended to run statewide analysis as 75m pixel resolution
+
+## Software environment Requirements
+
+R version 4.02 or later: R-Studio 1.3 or later, (server to run on AWS server). Shinyserver to run on AWS server.
+
+For running on AWS server, a public pre-built image (AMI) is available on AWS EC2. For full details on this image see http://www.louisaslett.com/RStudio\_AMI/
+
+The current version of the image is: AMI-name:RStudio-1.3.1073\_R-4.0.2\_CUDA-10.1\_cuDNN-7.6.5\_ubuntu-18.04-LTS-64bit, AMI ID:ami-0c48131b082d5cb01. The image is accessed from a web browser on launch with the correct security permissions
+
+These requirements are listed primarily to enable building of the app from scratch. This should not be necessary. A user can initially all the necessary files by creating a new project in R-Studio using the correct permissions
+
+### CRAN packages:
+
+&quot;aws.s3&quot;, &quot;dashboardthemes&quot;, &quot;doParallel&quot;, &quot;dplyr&quot;, &quot;fasterize&quot;, &quot;foreach&quot;, &quot;gdalUtils&quot;, &quot;knitr&quot;, &quot;Matrix.utils&quot;, &quot;plotly&quot;, &quot;raster&quot;, &quot;Rfast&quot;, &quot;rlang&quot;, &quot;sf&quot;, &quot;shiny&quot;, &quot;shinycssloaders&quot;, &quot;shinydashboard&quot;, &quot;shinyFiles&quot;, &quot;shinyjs&quot;, &quot;tabularaster&quot;, &quot;tibble&quot;, &quot;tidyr&quot;, &quot;tools&quot;
+
+### GitHub Package
+
+FAMEFMR -installed from
+
+https://github.com/nevilamos/FAMEFMR
+
+For convenience, and to avoid the necessity of setup of Rstudio and Shinyserver on a basic Linux then the use of the pre prepared shinyserver image available from:
+
+http://www.louisaslett.com/RStudio\_AMI/
+
+is recommended.
+
+If it is preferred to use a sever image direct from AWS, then ubuntu 26.04 or above is recommended. Instruction on setup on AWS can be found here.
+
+https://towardsdatascience.com/how-to-host-a-r-shiny-app-on-aws-cloud-in-7-simple-steps-5595e7885722
+
+## Inputs
+
+### Directory structure.
+
+All files ( inputs and outputs) should be located in a single main (root)directory, and subdirectories thereof. Files are shown below with their unix &quot;dot notation&quot; to indicate their location in this root directory.
+
+The subdirectories contained in this main directory (./) are :
+
+./AdHocPolygons
+
+./CustomCSV
+
+./FH\_Outputs
+
+./GSO
+
+./GSOInputs
+
+./HDMS
+
+./HDMS/225m/BinaryThresholded
+
+./HDMS/225m/BinaryThresholded
+
+./InputGeneralRasters
+
+./rawFH
+
+./ReferenceShapefiles
+
+./ReferenceTables
+
+./results/\&lt;YYYYMMDDHHMM\&gt;
+
+subdirectories of the results directory are created each time the application is started, these are given the name of the numeric datetime string at their creation. Note that on AWS these times will be UTC not local time.
+
+./www
+
+## Files for spatial relative abundance TFI an BBTFI calculations
+
+### Fire History Shapefile
+
+Output File shapefile from Stage 1. Shapefile of selected polygons defining boundary for Ad Hoc study area boundary, if required. This file should be placed in the directory ./rawFH
+
+### R script files.
+
+./global.r
+
+./server.r
+
+./ui.r
+
+These three files are the constituent files required to run the shiny app – the global file provides setup and loads the functions and required r packages. The ui provides the user interface for shiny and the server serves data and outputs to the UI and saves results to disk
+
+### Reference / Lookup Tables
+
+.\ReferenceTables\DraftTaxonListStatewidev2.csv
+
+List of fauna HDM rasters (577) includes VBA species #, threat status, taxonomic divisions
+
+.\ReferenceTables\EFG\_EVD\_TFI.csv
+
+Look up of TFI parameters for EFGs csv copy of Lookup in CGDL &quot;EFG\_EVD\_TFI&quot;
+
+.\ReferenceTables\EFG\_TSF\_4GScorrectedAllEFGto400yrs.csv
+
+Growth stage to TSF lookup
+
+.\ReferenceTables\HDMSums225.csv
+
+Total # of thresholded cells of each HDM
+
+.\ReferenceTables\OrdinalExpertLong.csv
+
+Long table format of species responses based on expert opinion
+
+### Raster files used in calculations
+
+.\InputGeneralRasters\EFG\_NUM\_225.tif
+
+.\InputGeneralRasters\EFG\_NUM\_75.tif
+
+Rasters of EFG number for the state.
+
+.\InputGeneralRasters\IndexVals225.tif
+
+.\InputGeneralRasters\IndexVals75.tif
+
+Rasters providing a sequential index number for each cell in the state.
+
+.\InputGeneralRasters\LF\_REGION\_225.tif
+
+.\InputGeneralRasters\LF\_REGION\_75.tif
+
+Rasters providing numbered cells (1:6) for the six DELWP fire regions in the state.
+
+### Thresholded Rasters of HDMs at 75m and 225m pixel size and associated R sparse arrays
+
+./HDMS/225m/BinaryThresholded/\&lt;Common\_Name\&gt;\_SppXXXXX\_Thresholded\_Binary.tif
+
+./HDMS/225m/BinaryThresholded/\&lt;Common\_Name\&gt;\_SppXXXXX\_Thresholded\_Binary.tif
+
+There are two directories of HDM files, one for each resolution stored as subdirectories of ./HDMS. The file names in each directory are identical. File names follow the format \&lt;Common\_Name\&gt;\_SppXXXXX\_Thresholded\_Binary.tif where \&lt;Common\_Name\&gt; is the Common Name of the species and XXXXX is the TAXON\_ID used in the Victoria Biodiversity Atlas(VBA) as of April2016, with \_ replacing spaces between names. There are currently 577 taxa covered by these files (Appendix 1). These rasters are summarised into the sparse matrices (below), they are not used directly in the module.
+
+./HDMS/ HDMVals225.rdata
+
+In addition to the rasters there are two R data files (one for each resolution) these each contain a single r object – a sparse binary matrix of 577 columns each column represents the footprint of the 577 binary HDMs thecolumn name for each column is the VBA TAXON\_ID for the species. the rows of these rasters are indexed to .\InputGeneralRasters\IndexVals225.tif and .\InputGeneralRasters\IndexVals75.tif. The R script to generate these sparse matrices is ./makeHDMVals.r. These sparse arrays provide faster loading and look-up of the HDM footprints and are used instead of the HDM rasters themselves in the module.
+
+### Input settings
+
+In addition to the input files there are a number of settings that must be, or can optionally be chosen before running the Spatial Relative Abundance , and TFI caclautions.
+
+| Setting name | Purpose | Values |
+| --- | --- | --- |
+| Fire scenario shapefile | The fire sequence (combination of fire history and future fire scenario) to be analysed. | Shapefile produced in the preparatory ARCGIS tool and uploaded to module |
+| Region for analysis | Sets the boundary of the analysis. Analysis should be restricted to only the area of interest to minimise computation time. Usually this boundary should correspond to the clipping boundary used in the ARCGIS preparatory too to create the fire sequence for analysis, however the analysis will still run if these boundaries differ ( as long as they overlap each other. Areas outside the clipping of the Fire scenario will be set to NA. If the region chosen is within the Fire Scenario area clipped, the analysis will be restricted to the region chosen. | Whole of State (Default)Ad Hoc polygon (user-provided shapefile in VG94 projection of the boundary of the region of interest) orOne of the DELWP Fire regions &quot;BARWON SOUTH WEST&quot;=1,&quot;GIPPSLAND&quot;=2 ,&quot;GRAMPIANS&quot;=3,&quot;HUME&quot;=4,&quot;LODDON MALLEE&quot;=5,&quot;PORT PHILLIP&quot;=6, |
+| Raster Resolution | Sets the resolution used for analysis, this is important in determining memory requirements and processing speed. Use of 75m raster increases processing and memory requirements ~10x | 225 m (default)75 m |
+| Public Land Only | The analysis can be carried out across both public and private land, however fire history is much less complete for private land. | Yes(Default)No |
+| Other and Unknown fire value | Fire history may contain fires of unknown type, you need to decide how to treat these in the analysis.They may be treated as either a bushfire or a burn, or alternatively areas with an unknow fire type may be treated as &quot;NA&quot; values. If the latter is chosen then TFI status, and relative abundance for the cell cannot be calculated based on that fire. | Bushfire (Default)BurnNA |
+| First season for analysis output | Start the analysis at the first season which may be of interest, this reduces processing time, particularly in the Relative abundance calculations (that loop year by year). Calculations occur for each season from the first chosen to the maximum season value in the fire sequence. | 1980 (default)Any season after the first season in the fire sequence file provided |
+| Spatial TFI and Relative abundance calculations |
+| Start and end of abundance baseline period | Set the seasons to be used to calculate the baseline relative abundance used to calculate % change from baseline. It can be a single year or a range of years.
+ | 1980,1980(default)Any single year, or range of years after 1979 contained in the fire sequence For a single year chose the same value for start and end |
+| Custom species list |
+ | Default: Standard species list ( all species that have RA data avaible are calculated whether or not they occur in the region of interest).Alternative values: Uploaded manually edited draft species list produced using the &quot;create draft species list utility in the app |
+| Make relative abundance rasters | Whether to output individual Species x Season relative abundance rasters. These provide the spatial view of changes in abundance for each taxon through the fire sequence, however they increase the computation time.
+
+ | No (default for more rapid computationYes (if spatial output is desired). Note if yes is chosen the default is to do this for each species for each year from the first year for analysis- This can result in a very large number of files being created, and require increased download and storage space. |
+| Make TFI status/BBTFI rasters | Whether to output individual season TFI status rasters. Has slight increase in computation time. And data storage/ download requirements | No (default)Yes |
+
+## Outputs
+
+## Preparatory ARGIS tool – separate process on windows PC.
+
+Shapefile (four component files .shp,.dbf, .shx, .prj) in Vicgrid94 projection. Required as precursor to all subsequent spatial RA and TFI related calculations in the module.
+
+## Outputs created by the module.
+
+All outputs created by the module are saved in ./Results/YYMMDDHHMM/ directory or subdirectories thereof.
+
+## Fire scenario analysis.
+
+The initial fire scenario analysis replaces the previous corporate &quot;FireHAT&quot; processing. It creates a shapefile that contains on polygon for each unique spatial sequence of fire events. The attributes table (.dbf) of the shapefile contains the following fields The file ( actually 4 files .shp,.shx,.prj.and .dbf. Collectively these are referred to form heron as the &quot;FH\_anaylsis&quot;. An R data file is also saved this contains the same data, plus metadata about the analysis and a raster with the polygon ID valuses (to allow linking of the FHanalysis vector data to further analysis in a raster environment.
+
+The file names and locations:
+
+./FH\_analysis\_\&lt;name\_of\_input\_rawFH file\&gt;.shp
+
+./FH\_analysis\_\&lt;name\_of\_input\_rawFH file\&gt;..Rdata
+
+The polygon attributes ( in the shapefile dbf and the SimpleFeatures Dataframe sotred in .rdata file are:
+
+| Field Name(s) | Description of values contained | Example/ or possible values |
+| --- | --- | --- |
+| SEAS01 … SEASxx | The date of sequential fire seasons for fires in the area of the polygon, SEAS01 gives the date of the first( oldest recorded) fire at each location. SEASON02 the next fire for SEASxx, xx= greatest number of sequential fires occurring in the study area. | Four digit integer fire SEASON eg 1980 or 2055.
+0= No fireNA= No fire R Sf\_DataFrame |
+| FireType01 … FiretypeXX | The Fire type corresponding to the SEAS01 … SEASON xx value | Single digit integer1=Burn2=Bushfire3=Other4=Unknown0=NULLNA=NULL in R Sf\_DataFrame |
+| INT01 … INTyy where yy=xx-1 | The inter-fire interval between sequential fires at a location. INT01 is the interval ( in years) SEAS02-SEAS01 | Integer value \&gt;=10= No intervalNA=No interval in R Sf\_DataFrame |
+| YSFXXXX … (one field for each) year including and after the First season for analysis output | The number of years (fire seasons) since the last fire at the location prior to season date XXXX |
+ |
+| ID | 1 based index unique id for each polygonPresent in shapefile and R SFDF | 1:number of polygons |
+| FID | Zero based index unique ID for each feature in shapefile, not present in SFDF | 0:(number of polygons-1) |
+
+An Rdata file named &quot;FH\_analysis\_&quot;\&lt;name\_of\_input\_rawFH file\&gt;.Rdata stored in the same directory contains two R obects, each of these is a list containing further objects
+
+| R - Object | Objects listed within it | Details |
+| --- | --- | --- |
+| FHanalysis | TimeSpan | Time span of fire seasons contained in the input fire scenario Min(SEASON):max(SEASON) |
+|
+ | YSFNames | Names of the YSF fields in the FHanalysis |
+|
+ | LBYNames | Names of the YSF fields in the FHanalysis |
+|
+ | LFTNames | Names of the YSF fields in the FHanalysis |
+|
+ | FireScenario | The input fire scenario shapefile analysed &quot; |
+|
+ | RasterRes | The raster resolution output from the anaysis(75 or 225) |
+|
+ | ClipPolygonFile | The polygon used to clip the analysis extent if one of the standard options is used then this will be &quot;LF\_REGIONS.shp&quot;, if an Ad hoc polygon was selected it will be the name of the ad hoc polygons shapefile. |
+|
+ | Region\_No | Integer value corresponding to the Region selected for the clipping polygon (see Inputs: Region for analysis) |
+|
+ | PUBLIC\_ONLY | Whether the analysis was restricted to public land only (&quot;Yes&quot; or No&quot;) |
+|
+ | name | The name of the output FHanalysis . Rdata file |
+|
+ | FH\_IDr | R raster object with the extent of the clip polygon. Cell values are the values of the FHanalysis polygon ID values (Note not the FID values from the shapefile) |
+|
+ | OutDF | The R Simple Features Dataframe containing the results of the vector FHanalysis. |
+| CropRasters | Raster | R raster with extent equal to the Clippolygon, positive integer value for cells within the Clippolygon (value = FHanalysis$ Region\_No) NA for all other cells. |
+|
+ | Extent | Extent object for Raster above |
+|
+ | clipIDX | Index values for all cells within the clip polygon from .\InputGeneralRasters\IndexVals225.tif or .\InputGeneralRasters\IndexVals75.tifCorresponding to RasterRes,Used for fast extraction of HDM values etc from corresponding rasters and arrays
+ |
+|
+ | IDX | Indeces of cells of .\InputGeneralRasters\IndexVals225.tif or .\InputGeneralRasters\IndexVals75.tifCorresponding to RasterRes,For each cell of cropRasters$Raster
+ |
+|
+ | EFG | Cell wise EFG\_NO values for cells in the rectangular extent of cropRasters$Raster |
+|
+ | RGN | Cell wise Region\_No values for cells in the rectangular extent of cropRasters$Raster |
+|
+ | HDM\_RASTER\_PATH | The path to the HDM raster files corresponding to the RasterRes |
+|
+ |
+ |
+ |
+
+The firehat analysis file.
+
+This shapefile contains polygons each with a unique fire history. The Polygon
+
+## Files for aspatial GSO calculator cosen in iputs
+
+The process for running the GSO calculator from R studio was documented previously. A revised version of this file describing the process for running GSO from the shiny app is appended (appendix 2)
+
+### R and Rmarkdown files.
+
+./GSO/GSOAnalysisCodeShiny.R
+
+./GSO/GSOAnalysisOutput.Rmd
+
+### Lookup and settings files (excel and CSV files)
+
+./GSO/VBA\_FAUNA.xlsx
+
+Common names and codes for fauna (Ideally this file would be replaced with the similar .\ReferenceTables\DraftTaxonListStatewidev2.csv used in the spatial relative abundance part of the module, Reconciliation of fieldnames in the GSO will be required before this can occur).
+
+./GSO/Reference data.xlsx
+
+sheet=&#39;Ordinal expert data&#39;
+
+Expert opinion data for Fauna relative abundance, each EFG simplified Growth stage has a column, each data point has a row species. (Ideally this file would be replaced with the similar .\ReferenceTables\DraftTaxonListStatewidev2.csv used in the spatial relative abundance part of the module, Reconciliation of fieldnames in the GSO will be required before this can occur).
+
+sheet=&#39;GS lookup&#39;
+
+data to calculate growth stage category given the EFG and TSF . (Ideally this file would be replaced with the similar .\ReferenceTables\ EFG\_TSF\_4GScorrectedAllEFGto400yrs.csv used in the spatial relative abundance part of the module. Reconciliation of fieldnames in the GSO will be required before this can occur).
+
+./GSO/TBL\_VegetationGrowthStages.xlsx
+
+Source of lookup for EFG full names. (Ideally this file would be replaced with the similar .\ .\ReferenceTables\EFG\_EVD\_TFI.csv.csv used in the spatial relative abundance part of the module, Reconciliation of fieldnames in the GSO will be required before this can occur).
+
+./GSO/ExpertEstimate.xlsx
+
+Expert opinion data as an amount of birds, used in recalibration of expert opinion data for use in conjunction with observation data.
+
+## Appendix 1. List of HDM Raster Files.
+
+Agile\_Antechinus\_Spp11028\_Thresholded\_Binary.tif
+
+Alpine\_Bog\_Skink\_Spp12992\_Thresholded\_Binary.tif
+
+Alpine\_She\_oak\_Skink\_Spp12987\_Thresholded\_Binary.tif
+
+Alpine\_Tree\_Frog\_Spp63907\_Thresholded\_Binary.tif
+
+Alpine\_Water\_Skink\_Spp12550\_Thresholded\_Binary.tif
+
+Apostlebird\_Spp10675\_Thresholded\_Binary.tif
+
+Australasian\_Bittern\_Spp10197\_Thresholded\_Binary.tif
+
+Australasian\_Grebe\_Spp10061\_Thresholded\_Binary.tif
+
+Australasian\_Pipit\_Spp10647\_Thresholded\_Binary.tif
+
+Australasian\_Shoveler\_Spp10212\_Thresholded\_Binary.tif
+
+Australian\_Bustard\_Spp10176\_Thresholded\_Binary.tif
+
+Australian\_Hobby\_Spp10235\_Thresholded\_Binary.tif
+
+Australian\_King\_Parrot\_Spp10281\_Thresholded\_Binary.tif
+
+Australian\_Magpie\_Spp10705\_Thresholded\_Binary.tif
+
+Australian\_Owlet\_nightjar\_Spp10317\_Thresholded\_Binary.tif
+
+Australian\_Painted\_Snipe\_Spp10170\_Thresholded\_Binary.tif
+
+Australian\_Pelican\_Spp10106\_Thresholded\_Binary.tif
+
+Australian\_Pratincole\_Spp10173\_Thresholded\_Binary.tif
+
+Australian\_Raven\_Spp10930\_Thresholded\_Binary.tif
+
+Australian\_Shelduck\_Spp10207\_Thresholded\_Binary.tif
+
+Australian\_Spotted\_Crake\_Spp10049\_Thresholded\_Binary.tif
+
+Australian\_White\_Ibis\_Spp10179\_Thresholded\_Binary.tif
+
+Australian\_Wood\_Duck\_Spp10202\_Thresholded\_Binary.tif
+
+Azure\_Kingfisher\_Spp10319\_Thresholded\_Binary.tif
+
+Baillons\_Crake\_Spp10050\_Thresholded\_Binary.tif
+
+Banded\_Lapwing\_Spp10135\_Thresholded\_Binary.tif
+
+Banded\_Stilt\_Spp10147\_Thresholded\_Binary.tif
+
+Bandy\_Bandy\_Spp12734\_Thresholded\_Binary.tif
+
+Bar\_shouldered\_Dove\_Spp10032\_Thresholded\_Binary.tif
+
+Bar\_tailed\_Godwit\_Spp10153\_Thresholded\_Binary.tif
+
+Bardick\_Spp12667\_Thresholded\_Binary.tif
+
+Barking\_Marsh\_Frog\_Spp13059\_Thresholded\_Binary.tif
+
+Barking\_Owl\_Spp10246\_Thresholded\_Binary.tif
+
+Bassian\_Thrush\_Spp10779\_Thresholded\_Binary.tif
+
+Baw\_Baw\_Frog\_Spp13106\_Thresholded\_Binary.tif
+
+Beaded\_Gecko\_Spp12109\_Thresholded\_Binary.tif
+
+Beaked\_Gecko\_Spp12137\_Thresholded\_Binary.tif
+
+Bearded\_Dragon\_Spp12177\_Thresholded\_Binary.tif
+
+Beautiful\_Firetail\_Spp10650\_Thresholded\_Binary.tif
+
+Bell\_Miner\_Spp10633\_Thresholded\_Binary.tif
+
+Black\_Bittern\_Spp60196\_Thresholded\_Binary.tif
+
+Black\_chinned\_Honeyeater\_Spp10580\_Thresholded\_Binary.tif
+
+Black\_eared\_Cuckoo\_Spp10341\_Thresholded\_Binary.tif
+
+Black\_eared\_Miner\_Spp10967\_Thresholded\_Binary.tif
+
+Black\_faced\_Cormorant\_Spp10098\_Thresholded\_Binary.tif
+
+Black\_faced\_Cuckoo\_shrike\_Spp10424\_Thresholded\_Binary.tif
+
+Black\_faced\_Monarch\_Spp10373\_Thresholded\_Binary.tif
+
+Black\_faced\_Woodswallow\_Spp10546\_Thresholded\_Binary.tif
+
+Black\_Falcon\_Spp10238\_Thresholded\_Binary.tif
+
+Black\_fronted\_Dotterel\_Spp10144\_Thresholded\_Binary.tif
+
+Black\_Honeyeater\_Spp10589\_Thresholded\_Binary.tif
+
+Black\_Kite\_Spp10229\_Thresholded\_Binary.tif
+
+Black\_Rock\_Skink\_Spp62938\_Thresholded\_Binary.tif
+
+Black\_shouldered\_Kite\_Spp10232\_Thresholded\_Binary.tif
+
+Black\_Swan\_Spp10203\_Thresholded\_Binary.tif
+
+Black\_tailed\_Godwit\_Spp528553\_Thresholded\_Binary.tif
+
+Black\_tailed\_Native\_hen\_Spp10055\_Thresholded\_Binary.tif
+
+Black\_Wallaby\_Spp11242\_Thresholded\_Binary.tif
+
+Black\_winged\_Stilt\_Spp528555\_Thresholded\_Binary.tif
+
+Blotched\_Blue\_tongued\_Lizard\_Spp12578\_Thresholded\_Binary.tif
+
+Blue\_billed\_Duck\_Spp10216\_Thresholded\_Binary.tif
+
+Blue\_Bonnet\_Spp10297\_Thresholded\_Binary.tif
+
+Blue\_faced\_Honeyeater\_Spp10641\_Thresholded\_Binary.tif
+
+Blue\_Mountains\_Tree\_Frog\_Spp13175\_Thresholded\_Binary.tif
+
+Blue\_winged\_Parrot\_Spp10306\_Thresholded\_Binary.tif
+
+Booroolong\_Tree\_Frog\_Spp13168\_Thresholded\_Binary.tif
+
+Bougainvilles\_Skink\_Spp12475\_Thresholded\_Binary.tif
+
+Boulengers\_Skink\_Spp12526\_Thresholded\_Binary.tif
+
+Broad\_toothed\_Rat\_Spp11438\_Thresholded\_Binary.tif
+
+Brolga\_Spp10177\_Thresholded\_Binary.tif
+
+Brookss\_Striped\_Skink\_Spp62933\_Thresholded\_Binary.tif
+
+Brown\_Cuckoo\_Dove\_Spp10029\_Thresholded\_Binary.tif
+
+Brown\_Falcon\_Spp10239\_Thresholded\_Binary.tif
+
+Brown\_Gerygone\_Spp10454\_Thresholded\_Binary.tif
+
+Brown\_Goshawk\_Spp10221\_Thresholded\_Binary.tif
+
+Brown\_headed\_Honeyeater\_Spp10583\_Thresholded\_Binary.tif
+
+Brown\_Quail\_Spp10010\_Thresholded\_Binary.tif
+
+Brown\_Songlark\_Spp10508\_Thresholded\_Binary.tif
+
+Brown\_Thornbill\_Spp10475\_Thresholded\_Binary.tif
+
+Brown\_Toadlet\_Spp13117\_Thresholded\_Binary.tif
+
+Brown\_Treecreeper\_(south\_eastern\_ssp)\_Spp60555\_Thresholded\_Binary.tif
+
+Brush\_Bronzewing\_Spp10035\_Thresholded\_Binary.tif
+
+Brush\_Cuckoo\_Spp10339\_Thresholded\_Binary.tif
+
+Brush\_tailed\_Phascogale\_Spp11017\_Thresholded\_Binary.tif
+
+Brush\_tailed\_Rock\_wallaby\_Spp11215\_new\_Thresholded\_Binary.tif
+
+Budgerigar\_Spp10310\_Thresholded\_Binary.tif
+
+Buff\_banded\_Rail\_Spp10046\_Thresholded\_Binary.tif
+
+Buff\_rumped\_Thornbill\_Spp10484\_Thresholded\_Binary.tif
+
+Burtons\_Snake\_Lizard\_Spp12170\_Thresholded\_Binary.tif
+
+Bush\_Rat\_Spp11395\_Thresholded\_Binary.tif
+
+Bush\_Stone\_curlew\_Spp10174\_Thresholded\_Binary.tif
+
+Butlers\_Legless\_Lizard\_Spp12167\_Thresholded\_Binary.tif
+
+Bynoes\_Gecko\_Spp12105\_Thresholded\_Binary.tif
+
+Cape\_Barren\_Goose\_Spp10198\_Thresholded\_Binary.tif
+
+Carnabys\_Wall\_Skink\_Spp12326\_Thresholded\_Binary.tif
+
+Carpet\_Python\_Spp62969\_Thresholded\_Binary.tif
+
+Cattle\_Egret\_Spp10977\_Thresholded\_Binary.tif
+
+Central\_Bearded\_Dragon\_Spp12204\_Thresholded\_Binary.tif
+
+Channel\_billed\_Cuckoo\_Spp10348\_Thresholded\_Binary.tif
+
+Chestnut\_crowned\_Babbler\_Spp10446\_Thresholded\_Binary.tif
+
+Chestnut\_Quail\_thrush\_Spp10437\_Thresholded\_Binary.tif
+
+Chestnut\_rumped\_Heathwren\_Spp10498\_Thresholded\_Binary.tif
+
+Chestnut\_rumped\_Thornbill\_Spp10481\_Thresholded\_Binary.tif
+
+Chestnut\_Teal\_Spp10210\_Thresholded\_Binary.tif
+
+Chocolate\_Wattled\_Bat\_Spp11351\_Thresholded\_Binary.tif
+
+Clamorous\_Reed\_Warbler\_Spp10524\_Thresholded\_Binary.tif
+
+Cockatiel\_Spp10274\_Thresholded\_Binary.tif
+
+Collared\_Sparrowhawk\_Spp10222\_Thresholded\_Binary.tif
+
+Common\_Bent\_wing\_Bat\_(eastern\_ssp)\_Spp61342\_Thresholded\_Binary.tif
+
+Common\_Bent\_wing\_Bat\_(sth\_ssp)\_Spp61343\_Thresholded\_Binary.tif
+
+Common\_Blue\_tongued\_Lizard\_Spp12580\_Thresholded\_Binary.tif
+
+Common\_Bronzewing\_Spp10034\_Thresholded\_Binary.tif
+
+Common\_Brushtail\_Possum\_Spp11113\_Thresholded\_Binary.tif
+
+Common\_Cicadabird\_Spp10429\_Thresholded\_Binary.tif
+
+Common\_Death\_Adder\_Spp12640\_Thresholded\_Binary.tif
+
+Common\_Dunnart\_Spp11061\_new\_Thresholded\_Binary.tif
+
+Common\_Froglet\_Spp13134\_Thresholded\_Binary.tif
+
+Common\_Greenshank\_Spp10158\_Thresholded\_Binary.tif
+
+Common\_Ringtail\_Possum\_Spp11129\_Thresholded\_Binary.tif
+
+Common\_Sandpiper\_Spp10157\_Thresholded\_Binary.tif
+
+Common\_Scaly\_foot\_Spp12174\_Thresholded\_Binary.tif
+
+Common\_Spadefoot\_Toad\_Spp13086\_Thresholded\_Binary.tif
+
+Common\_Wombat\_Spp11165\_Thresholded\_Binary.tif
+
+Copper\_tailed\_Skink\_Spp12386\_Thresholded\_Binary.tif
+
+Corangamite\_Water\_Skink\_Spp62958\_Thresholded\_Binary.tif
+
+Coventrys\_Skink\_Spp12458\_Thresholded\_Binary.tif
+
+Crescent\_Honeyeater\_Spp10630\_Thresholded\_Binary.tif
+
+Crested\_Bellbird\_Spp10419\_Thresholded\_Binary.tif
+
+Crested\_Pigeon\_Spp10043\_Thresholded\_Binary.tif
+
+Crested\_Shrike\_tit\_Spp10416\_Thresholded\_Binary.tif
+
+Crested\_Tern\_Spp10115\_Thresholded\_Binary.tif
+
+Crimson\_Chat\_Spp10449\_Thresholded\_Binary.tif
+
+Crimson\_Rosella\_Spp10282\_Thresholded\_Binary.tif
+
+Cunninghams\_Skink\_Spp12408\_Thresholded\_Binary.tif
+
+Curl\_Snake\_Spp12722\_Thresholded\_Binary.tif
+
+Curlew\_Sandpiper\_Spp10161\_Thresholded\_Binary.tif
+
+Darter\_Spp10101\_Thresholded\_Binary.tif
+
+Delicate\_Skink\_Spp12450\_Thresholded\_Binary.tif
+
+Dendys\_Toadlet\_Spp13120\_Thresholded\_Binary.tif
+
+Desert\_Skink\_Spp12413\_Thresholded\_Binary.tif
+
+Diamond\_Dove\_Spp10031\_Thresholded\_Binary.tif
+
+Diamond\_Firetail\_Spp10652\_Thresholded\_Binary.tif
+
+Diamond\_Python\_Spp62968\_Thresholded\_Binary.tif
+
+Dollarbird\_Spp10318\_Thresholded\_Binary.tif
+
+Double\_banded\_Plover\_Spp10140\_Thresholded\_Binary.tif
+
+Double\_barred\_Finch\_Spp10655\_Thresholded\_Binary.tif
+
+Dusky\_Antechinus\_Spp11033\_Thresholded\_Binary.tif
+
+Dusky\_Moorhen\_Spp10056\_Thresholded\_Binary.tif
+
+Dusky\_Woodswallow\_Spp10547\_Thresholded\_Binary.tif
+
+Dwyers\_Snake\_Spp12726\_Thresholded\_Binary.tif
+
+Eastern\_Bristlebird\_Spp10519\_Thresholded\_Binary.tif
+
+Eastern\_Broad\_nosed\_Bat\_Spp11811\_Thresholded\_Binary.tif
+
+Eastern\_Brown\_Snake\_Spp12699\_Thresholded\_Binary.tif
+
+Eastern\_Curlew\_Spp10149\_Thresholded\_Binary.tif
+
+Eastern\_Dwarf\_Tree\_Frog\_Spp13183\_Thresholded\_Binary.tif
+
+Eastern\_False\_Pipistrelle\_Spp11372\_Thresholded\_Binary.tif
+
+Eastern\_Freetail\_Bat\_Spp11839\_Thresholded\_Binary.tif
+
+Eastern\_Great\_Egret\_Spp10187\_Thresholded\_Binary.tif
+
+Eastern\_Grey\_Kangaroo\_Spp11265\_Thresholded\_Binary.tif
+
+Eastern\_Horseshoe\_Bat\_Spp11303\_Thresholded\_Binary.tif
+
+Eastern\_Koel\_Spp10347\_Thresholded\_Binary.tif
+
+Eastern\_Pygmy\_possum\_Spp11150\_Thresholded\_Binary.tif
+
+Eastern\_Reef\_Egret\_Spp10191\_Thresholded\_Binary.tif
+
+Eastern\_Rosella\_Spp10288\_Thresholded\_Binary.tif
+
+Eastern\_She\_oak\_Skink\_Spp12988\_Thresholded\_Binary.tif
+
+Eastern\_Small\_eyed\_Snake\_Spp12650\_Thresholded\_Binary.tif
+
+Eastern\_Spinebill\_Spp10591\_Thresholded\_Binary.tif
+
+Eastern\_Striped\_Skink\_Spp12936\_Thresholded\_Binary.tif
+
+Eastern\_Three\_lined\_Skink\_Spp12682\_Thresholded\_Binary.tif
+
+Eastern\_Wallaroo\_Spp61266\_Thresholded\_Binary.tif
+
+Eastern\_Water\_Skink\_Spp12557\_Thresholded\_Binary.tif
+
+Eastern\_Whipbird\_Spp10421\_Thresholded\_Binary.tif
+
+Eastern\_Yellow\_Robin\_Spp10392\_Thresholded\_Binary.tif
+
+Egernia\_PLAIN\_BACK\_MORPH\_Spp62942\_Thresholded\_Binary.tif
+
+Egernia\_SPOTTED\_BACK\_MORPH\_Spp62941\_Thresholded\_Binary.tif
+
+Elegant\_Parrot\_Spp10307\_Thresholded\_Binary.tif
+
+Emu\_Spp10001\_Thresholded\_Binary.tif
+
+Eurasian\_Coot\_Spp10059\_Thresholded\_Binary.tif
+
+Fairy\_Martin\_Spp10360\_Thresholded\_Binary.tif
+
+Fan\_tailed\_Cuckoo\_Spp10338\_Thresholded\_Binary.tif
+
+Fat\_tailed\_Dunnart\_Spp11072\_Thresholded\_Binary.tif
+
+Feathertail\_Glider\_Spp11147\_Thresholded\_Binary.tif
+
+Flame\_Robin\_Spp10382\_Thresholded\_Binary.tif
+
+Forest\_Raven\_Spp10868\_Thresholded\_Binary.tif
+
+Fork\_tailed\_Swift\_Spp10335\_Thresholded\_Binary.tif
+
+Four\_toed\_Skink\_Spp12446\_Thresholded\_Binary.tif
+
+Freckled\_Duck\_Spp10214\_Thresholded\_Binary.tif
+
+Fuscous\_Honeyeater\_Spp10613\_Thresholded\_Binary.tif
+
+Galah\_Spp10273\_Thresholded\_Binary.tif
+
+Gang\_gang\_Cockatoo\_Spp10268\_Thresholded\_Binary.tif
+
+Garden\_Skink\_Spp12451\_Thresholded\_Binary.tif
+
+Gelochelidon\_nilotica\_macrotarsa\_Spp10111\_Thresholded\_Binary.tif
+
+Giant\_Bullfrog\_Spp13060\_Thresholded\_Binary.tif
+
+Giant\_Burrowing\_Frog\_Spp13042\_Thresholded\_Binary.tif
+
+Gilberts\_Whistler\_Spp10403\_Thresholded\_Binary.tif
+
+Giles\_Planigale\_Spp11050\_Thresholded\_Binary.tif
+
+Gippsland\_Water\_Dragon\_Spp62919\_Thresholded\_Binary.tif
+
+Glossy\_Black\_Cockatoo\_Spp10265\_Thresholded\_Binary.tif
+
+Glossy\_Grass\_Skink\_Spp12683\_Thresholded\_Binary.tif
+
+Glossy\_Ibis\_Spp10178\_Thresholded\_Binary.tif
+
+Golden\_headed\_Cisticola\_Spp10525\_Thresholded\_Binary.tif
+
+Golden\_Whistler\_Spp10398\_Thresholded\_Binary.tif
+
+Goulds\_Long\_eared\_Bat\_Spp11334\_Thresholded\_Binary.tif
+
+Goulds\_Wattled\_Bat\_Spp11349\_Thresholded\_Binary.tif
+
+Grassland\_Earless\_Dragon\_Spp12922\_Thresholded\_Binary.tif
+
+Grays\_Blind\_Snake\_Spp12599\_Thresholded\_Binary.tif
+
+Great\_Cormorant\_Spp10096\_Thresholded\_Binary.tif
+
+Great\_Crested\_Grebe\_Spp10060\_Thresholded\_Binary.tif
+
+Great\_Knot\_Spp10165\_Thresholded\_Binary.tif
+
+Greater\_Glider\_Spp11133\_Thresholded\_Binary.tif
+
+Greater\_Long\_eared\_Bat\_Spp61332\_Thresholded\_Binary.tif
+
+Greater\_Sand\_Plover\_Spp10141\_Thresholded\_Binary.tif
+
+Green\_and\_Golden\_Bell\_Frog\_Spp13166\_Thresholded\_Binary.tif
+
+Green\_Stream\_Frog\_Spp19002\_Thresholded\_Binary.tif
+
+Grey\_Butcherbird\_Spp10702\_Thresholded\_Binary.tif
+
+Grey\_crowned\_Babbler\_Spp10443\_Thresholded\_Binary.tif
+
+Grey\_Currawong\_Spp10697\_Thresholded\_Binary.tif
+
+Grey\_Falcon\_Spp10236\_Thresholded\_Binary.tif
+
+Grey\_Fantail\_Spp10361\_Thresholded\_Binary.tif
+
+Grey\_fronted\_Honeyeater\_Spp10623\_new\_Thresholded\_Binary.tif
+
+Grey\_Goshawk\_Spp10220\_Thresholded\_Binary.tif
+
+Grey\_headed\_Flying\_fox\_Spp11280\_Thresholded\_Binary.tif
+
+Grey\_Plover\_Spp10136\_Thresholded\_Binary.tif
+
+Grey\_Shrike\_thrush\_Spp10408\_Thresholded\_Binary.tif
+
+Grey\_tailed\_Tattler\_Spp10155\_Thresholded\_Binary.tif
+
+Grey\_Teal\_Spp10211\_Thresholded\_Binary.tif
+
+Greys\_Skink\_Spp12519\_Thresholded\_Binary.tif
+
+Ground\_Cuckoo\_shrike\_Spp10423\_Thresholded\_Binary.tif
+
+Ground\_Parrot\_Spp10311\_Thresholded\_Binary.tif
+
+Growling\_Grass\_Frog\_Spp13207\_Thresholded\_Binary.tif
+
+Gymnobelideus\_leadbeateri\_Spp11141\_Thresholded\_Binary.tif
+
+Hardhead\_Spp10215\_Thresholded\_Binary.tif
+
+Haswells\_Froglet\_Spp13103\_Thresholded\_Binary.tif
+
+Heath\_Mouse\_Spp11468\_Thresholded\_Binary.tif
+
+Highland\_Copperhead\_Spp12972\_Thresholded\_Binary.tif
+
+Hoary\_headed\_Grebe\_Spp10062\_Thresholded\_Binary.tif
+
+Hooded\_Plover\_Spp10138\_Thresholded\_Binary.tif
+
+Hooded\_Robin\_Spp10385\_Thresholded\_Binary.tif
+
+Hooded\_Scaly\_foot\_Spp12176\_Thresholded\_Binary.tif
+
+Horsfields\_Bronze\_Cuckoo\_Spp10342\_Thresholded\_Binary.tif
+
+Horsfields\_Bushlark\_Spp10648\_Thresholded\_Binary.tif
+
+Inland\_Broad\_nosed\_Bat\_Spp11364\_Thresholded\_Binary.tif
+
+Inland\_Dotterel\_Spp10145\_Thresholded\_Binary.tif
+
+Inland\_Forest\_Bat\_Spp11819\_Thresholded\_Binary.tif
+
+Inland\_Freetail\_Bat\_Spp11809\_Thresholded\_Binary.tif
+
+Inland\_Thornbill\_Spp10476\_Thresholded\_Binary.tif
+
+Intermediate\_Egret\_Spp10186\_Thresholded\_Binary.tif
+
+Jacky\_Winter\_Spp10377\_Thresholded\_Binary.tif
+
+Kefersteins\_Tree\_Frog\_Spp528551\_Thresholded\_Binary.tif
+
+King\_Quail\_Spp10012\_new\_Thresholded\_Binary.tif
+
+Koala\_Spp11162\_Thresholded\_Binary.tif
+
+Lace\_Goanna\_Spp12283\_Thresholded\_Binary.tif
+
+Large\_billed\_Scrubwren\_Spp10494\_Thresholded\_Binary.tif
+
+Large\_Brown\_Tree\_Frog\_Spp13936\_Thresholded\_Binary.tif
+
+Large\_Forest\_Bat\_Spp11381\_Thresholded\_Binary.tif
+
+Large\_Striped\_Skink\_Spp12375\_Thresholded\_Binary.tif
+
+Lathams\_Snipe\_Spp10168\_Thresholded\_Binary.tif
+
+Laughing\_Kookaburra\_Spp10322\_Thresholded\_Binary.tif
+
+Leaden\_Flycatcher\_Spp10365\_Thresholded\_Binary.tif
+
+Lerista\_timida\_Spp12492\_Thresholded\_Binary.tif
+
+Lesser\_Long\_eared\_Bat\_Spp11335\_Thresholded\_Binary.tif
+
+Lesser\_Sand\_Plover\_Spp10139\_Thresholded\_Binary.tif
+
+Lesueurs\_Frog\_Spp13192\_Thresholded\_Binary.tif
+
+Lewins\_Honeyeater\_Spp10605\_Thresholded\_Binary.tif
+
+Lewins\_Rail\_Spp10045\_Thresholded\_Binary.tif
+
+Lined\_Earless\_Dragon\_Spp62921\_Thresholded\_Binary.tif
+
+Liopholis\_guthega\_Spp12432\_Thresholded\_Binary.tif
+
+Little\_Bittern\_Spp10195\_Thresholded\_Binary.tif
+
+Little\_Black\_Cormorant\_Spp10097\_Thresholded\_Binary.tif
+
+Little\_Broad\_nosed\_Bat\_Spp11362\_Thresholded\_Binary.tif
+
+Little\_Button\_quail\_Spp10018\_Thresholded\_Binary.tif
+
+Little\_Corella\_Spp10271\_Thresholded\_Binary.tif
+
+Little\_Crow\_Spp10691\_Thresholded\_Binary.tif
+
+Little\_Eagle\_Spp10225\_Thresholded\_Binary.tif
+
+Little\_Egret\_Spp10185\_Thresholded\_Binary.tif
+
+Little\_Forest\_Bat\_Spp11379\_Thresholded\_Binary.tif
+
+Little\_Friarbird\_Spp10646\_Thresholded\_Binary.tif
+
+Little\_Grassbird\_Spp10522\_Thresholded\_Binary.tif
+
+Little\_Lorikeet\_Spp10260\_Thresholded\_Binary.tif
+
+Little\_Pied\_Cormorant\_Spp10100\_Thresholded\_Binary.tif
+
+Little\_Pygmy\_possum\_Spp11152\_Thresholded\_Binary.tif
+
+Little\_Raven\_Spp10954\_Thresholded\_Binary.tif
+
+Little\_Wattlebird\_Spp10637\_Thresholded\_Binary.tif
+
+Little\_Whip\_Snake\_Spp12727\_Thresholded\_Binary.tif
+
+Long\_billed\_Corella\_Spp10272\_Thresholded\_Binary.tif
+
+Long\_footed\_Potoroo\_Spp11179\_Thresholded\_Binary.tif
+
+Long\_nosed\_Bandicoot\_Spp11097\_Thresholded\_Binary.tif
+
+Long\_nosed\_Potoroo\_Spp11175\_Thresholded\_Binary.tif
+
+Long\_toed\_Stint\_Spp10965\_Thresholded\_Binary.tif
+
+Lowland\_Copperhead\_Spp12973\_Thresholded\_Binary.tif
+
+Magpie\_Goose\_Spp10199\_Thresholded\_Binary.tif
+
+Magpie\_lark\_Spp10415\_Thresholded\_Binary.tif
+
+Major\_Mitchells\_Cockatoo\_Spp10270\_Thresholded\_Binary.tif
+
+Mallee\_Dragon\_Spp12185\_Thresholded\_Binary.tif
+
+Mallee\_Emu\_wren\_Spp10527\_Thresholded\_Binary.tif
+
+Mallee\_Ningaui\_Spp11055\_Thresholded\_Binary.tif
+
+Mallee\_Ringneck\_Spp60291\_Thresholded\_Binary.tif
+
+Mallee\_Spadefoot\_Toad\_Spp13085\_Thresholded\_Binary.tif
+
+Mallee\_Worm\_Lizard\_Spp12141\_Thresholded\_Binary.tif
+
+Malleefowl\_Spp10007\_Thresholded\_Binary.tif
+
+Marbled\_Gecko\_Spp12126\_Thresholded\_Binary.tif
+
+Marsh\_Sandpiper\_Spp10159\_Thresholded\_Binary.tif
+
+Martins\_Toadlet\_Spp13930\_Thresholded\_Binary.tif
+
+Masked\_Lapwing\_Spp10133\_Thresholded\_Binary.tif
+
+Masked\_Owl\_Spp10250\_Thresholded\_Binary.tif
+
+Masked\_Woodswallow\_Spp10544\_Thresholded\_Binary.tif
+
+Masters\_Snake\_Spp12666\_Thresholded\_Binary.tif
+
+McCoys\_Skink\_Spp12444\_Thresholded\_Binary.tif
+
+Metallic\_Skink\_Spp12462\_Thresholded\_Binary.tif
+
+Millewa\_Skink\_Spp12445\_Thresholded\_Binary.tif
+
+Mistletoebird\_Spp10564\_Thresholded\_Binary.tif
+
+Mitchells\_Hopping\_mouse\_Spp11480\_Thresholded\_Binary.tif
+
+Mitchells\_Short\_tailed\_Snake\_Spp12724\_Thresholded\_Binary.tif
+
+Mountain\_Brushtail\_Possum\_Spp11115\_Thresholded\_Binary.tif
+
+Mountain\_Dragon\_Anglesea\_form\_Spp63940\_Thresholded\_Binary.tif
+
+Mountain\_Dragon\_Grampians\_form\_Spp63941\_Thresholded\_Binary.tif
+
+Mountain\_Dragon\_Spp12182\_Thresholded\_Binary.tif
+
+Mountain\_Pygmy\_possum\_Spp11156\_Thresholded\_Binary.tif
+
+Mountain\_Skink\_Spp12433\_Thresholded\_Binary.tif
+
+Mulga\_Parrot\_Spp10296\_Thresholded\_Binary.tif
+
+Murray\_Striped\_Skink\_Spp12342\_Thresholded\_Binary.tif
+
+Musk\_Duck\_Spp10217\_Thresholded\_Binary.tif
+
+Musk\_Lorikeet\_Spp10258\_Thresholded\_Binary.tif
+
+Nankeen\_Kestrel\_Spp10240\_Thresholded\_Binary.tif
+
+Nankeen\_Night\_Heron\_Spp10192\_Thresholded\_Binary.tif
+
+New\_Holland\_Honeyeater\_Spp10631\_Thresholded\_Binary.tif
+
+New\_Holland\_Mouse\_Spp11455\_new\_Thresholded\_Binary.tif
+
+Nobbi\_Dragon\_Spp19000\_Thresholded\_Binary.tif
+
+Nobbi\_Dragon\_subsp\_coggeri\_Spp62917\_Thresholded\_Binary.tif
+
+Nobbi\_Dragon\_subsp\_nobbi\_Spp19009\_Thresholded\_Binary.tif
+
+Noisy\_Friarbird\_Spp10645\_Thresholded\_Binary.tif
+
+Noisy\_Miner\_Spp10634\_Thresholded\_Binary.tif
+
+Norriss\_Dragon\_Spp12209\_Thresholded\_Binary.tif
+
+Obscure\_Skink\_Spp12529\_Thresholded\_Binary.tif
+
+Olive\_backed\_Oriole\_Spp10671\_Thresholded\_Binary.tif
+
+Olive\_Legless\_Lizard\_Spp12160\_Thresholded\_Binary.tif
+
+Olive\_Whistler\_Spp10405\_Thresholded\_Binary.tif
+
+Orange\_bellied\_Parrot\_Spp10305\_new\_Thresholded\_Binary.tif
+
+Orange\_Chat\_Spp10450\_Thresholded\_Binary.tif
+
+Pacific\_Barn\_Owl\_Spp10249\_Thresholded\_Binary.tif
+
+Pacific\_Black\_Duck\_Spp10208\_Thresholded\_Binary.tif
+
+Pacific\_Golden\_Plover\_Spp10137\_Thresholded\_Binary.tif
+
+Pacific\_Gull\_Spp60126\_Thresholded\_Binary.tif
+
+Painted\_Button\_quail\_Spp10014\_Thresholded\_Binary.tif
+
+Painted\_Dragon\_Spp12199\_Thresholded\_Binary.tif
+
+Painted\_Honeyeater\_Spp10598\_Thresholded\_Binary.tif
+
+Pallid\_Cuckoo\_Spp10337\_Thresholded\_Binary.tif
+
+Peaceful\_Dove\_Spp10030\_Thresholded\_Binary.tif
+
+Pectoral\_Sandpiper\_Spp10978\_Thresholded\_Binary.tif
+
+Peregrine\_Falcon\_Spp10237\_Thresholded\_Binary.tif
+
+Perons\_Tree\_Frog\_Spp13204\_Thresholded\_Binary.tif
+
+Peterss\_Blind\_Snake\_Spp12588\_Thresholded\_Binary.tif
+
+Pied\_Butcherbird\_Spp10700\_Thresholded\_Binary.tif
+
+Pied\_Cormorant\_Spp10099\_Thresholded\_Binary.tif
+
+Pied\_Currawong\_Spp10694\_Thresholded\_Binary.tif
+
+Pied\_Oystercatcher\_Spp10130\_Thresholded\_Binary.tif
+
+Pilotbird\_Spp10506\_Thresholded\_Binary.tif
+
+Pink\_eared\_Duck\_Spp10213\_Thresholded\_Binary.tif
+
+Pink\_nosed\_Worm\_Lizard\_Spp12143\_Thresholded\_Binary.tif
+
+Pink\_Robin\_Spp10383\_Thresholded\_Binary.tif
+
+Pink\_tailed\_Worm\_Lizard\_Spp12144\_Thresholded\_Binary.tif
+
+Plains\_Brown\_Tree\_Frog\_Spp13203\_Thresholded\_Binary.tif
+
+Plains\_Froglet\_Spp13131\_Thresholded\_Binary.tif
+
+Plains\_wanderer\_Spp10020\_Thresholded\_Binary.tif
+
+Platypus\_Spp5136\_Thresholded\_Binary.tif
+
+Plumed\_Whistling\_Duck\_Spp10205\_Thresholded\_Binary.tif
+
+Pobblebonk\_Frog\_subsp\_dumerilii\_Spp63913\_Thresholded\_Binary.tif
+
+Pobblebonk\_Frog\_subsp\_insularis\_Spp63914\_Thresholded\_Binary.tif
+
+Pobblebonk\_Frog\_subsp\_variegatus\_Spp63915\_Thresholded\_Binary.tif
+
+Port\_Lincoln\_Snake\_Spp12813\_Thresholded\_Binary.tif
+
+Powerful\_Owl\_Spp10248\_Thresholded\_Binary.tif
+
+Purple\_crowned\_Lorikeet\_Spp10259\_Thresholded\_Binary.tif
+
+Purple\_gaped\_Honeyeater\_Spp10620\_Thresholded\_Binary.tif
+
+Purple\_Swamphen\_Spp10058\_Thresholded\_Binary.tif
+
+Rainbow\_Bee\_eater\_Spp10329\_Thresholded\_Binary.tif
+
+Rainbow\_Lorikeet\_Spp10254\_Thresholded\_Binary.tif
+
+Red\_backed\_Kingfisher\_Spp10325\_Thresholded\_Binary.tif
+
+Red\_bellied\_Black\_Snake\_Spp12693\_Thresholded\_Binary.tif
+
+Red\_browed\_Finch\_Spp10662\_Thresholded\_Binary.tif
+
+Red\_browed\_Treecreeper\_Spp10560\_Thresholded\_Binary.tif
+
+Red\_capped\_Plover\_Spp10143\_Thresholded\_Binary.tif
+
+Red\_capped\_Robin\_Spp10381\_Thresholded\_Binary.tif
+
+Red\_chested\_Button\_quail\_Spp10019\_Thresholded\_Binary.tif
+
+Red\_Kangaroo\_Spp11275\_Thresholded\_Binary.tif
+
+Red\_kneed\_Dotterel\_Spp10132\_Thresholded\_Binary.tif
+
+Red\_Knot\_Spp10164\_Thresholded\_Binary.tif
+
+Red\_lored\_Whistler\_Spp10402\_Thresholded\_Binary.tif
+
+Red\_naped\_Snake\_Spp12669\_Thresholded\_Binary.tif
+
+Red\_necked\_Avocet\_Spp10148\_Thresholded\_Binary.tif
+
+Red\_necked\_Stint\_Spp10162\_Thresholded\_Binary.tif
+
+Red\_necked\_Wallaby\_Spp11261\_Thresholded\_Binary.tif
+
+Red\_rumped\_Parrot\_Spp10295\_Thresholded\_Binary.tif
+
+Red\_tailed\_Black\_Cockatoo\_Spp10264\_Thresholded\_Binary.tif
+
+Red\_throated\_Skink\_Spp12464\_Thresholded\_Binary.tif
+
+Red\_Wattlebird\_Spp10638\_Thresholded\_Binary.tif
+
+Redthroat\_Spp10497\_Thresholded\_Binary.tif
+
+Regal\_Striped\_Skink\_Spp12374\_Thresholded\_Binary.tif
+
+Regent\_Honeyeater\_Spp10603\_Thresholded\_Binary.tif
+
+Regent\_Parrot\_Spp10278\_Thresholded\_Binary.tif
+
+Restless\_Flycatcher\_Spp10369\_Thresholded\_Binary.tif
+
+Rose\_Robin\_Spp10384\_Thresholded\_Binary.tif
+
+Rosenbergs\_Goanna\_Spp12287\_Thresholded\_Binary.tif
+
+Royal\_Spoonbill\_Spp10181\_Thresholded\_Binary.tif
+
+Ruddy\_Turnstone\_Spp10129\_Thresholded\_Binary.tif
+
+Rufous\_Bristlebird\_(coorong\_subsp)\_Spp19010\_Thresholded\_Binary.tif
+
+Rufous\_Bristlebird\_(Otway)\_Spp19011\_Thresholded\_Binary.tif
+
+Rufous\_Bristlebird\_Spp10521\_new\_Thresholded\_Binary.tif
+
+Rufous\_Fantail\_Spp10362\_Thresholded\_Binary.tif
+
+Rufous\_Fieldwren\_Spp10502\_Thresholded\_Binary.tif
+
+Rufous\_Songlark\_Spp10509\_Thresholded\_Binary.tif
+
+Rufous\_Whistler\_Spp10401\_Thresholded\_Binary.tif
+
+Rugose\_Toadlet\_Spp13151\_Thresholded\_Binary.tif
+
+Sacred\_Kingfisher\_Spp10326\_Thresholded\_Binary.tif
+
+Saltbush\_Striped\_Skink\_Spp19008\_Thresholded\_Binary.tif
+
+Samphire\_Skink\_Spp12525\_Thresholded\_Binary.tif
+
+Sand\_Goanna\_Spp12271\_Thresholded\_Binary.tif
+
+Sanderling\_Spp10166\_Thresholded\_Binary.tif
+
+Satin\_Bowerbird\_Spp10679\_Thresholded\_Binary.tif
+
+Satin\_Flycatcher\_Spp10366\_Thresholded\_Binary.tif
+
+Scaly\_breasted\_Lorikeet\_Spp10256\_Thresholded\_Binary.tif
+
+Scarlet\_chested\_Parrot\_Spp10303\_Thresholded\_Binary.tif
+
+Scarlet\_Honeyeater\_Spp10586\_Thresholded\_Binary.tif
+
+Scarlet\_Robin\_Spp10380\_Thresholded\_Binary.tif
+
+Sharp\_tailed\_Sandpiper\_Spp10163\_Thresholded\_Binary.tif
+
+Shining\_Bronze\_Cuckoo\_Spp10344\_Thresholded\_Binary.tif
+
+Short\_beaked\_Echidna\_Spp11003\_Thresholded\_Binary.tif
+
+Shy\_Heathwren\_Spp10499\_Thresholded\_Binary.tif
+
+Silky\_Mouse\_Spp11457\_Thresholded\_Binary.tif
+
+Silver\_Gull\_Spp10125\_Thresholded\_Binary.tif
+
+Silvereye\_Spp10574\_Thresholded\_Binary.tif
+
+Singing\_Honeyeater\_Spp10608\_Thresholded\_Binary.tif
+
+Slender\_billed\_Thornbill\_Spp10482\_Thresholded\_Binary.tif
+
+Sloanes\_Froglet\_Spp13135\_Thresholded\_Binary.tif
+
+Smoky\_Mouse\_Spp11458\_Thresholded\_Binary.tif
+
+Smooth\_Toadlet\_Spp13158\_Thresholded\_Binary.tif
+
+Sooty\_Owl\_Spp10253\_Thresholded\_Binary.tif
+
+Sooty\_Oystercatcher\_Spp10131\_Thresholded\_Binary.tif
+
+Southern\_Barred\_Frog\_Spp13073\_Thresholded\_Binary.tif
+
+Southern\_Boobook\_Spp10242\_Thresholded\_Binary.tif
+
+Southern\_Brown\_Bandicoot\_Spp61092\_Thresholded\_Binary.tif
+
+Southern\_Brown\_Tree\_Frog\_SOUTHERN\_Spp63903\_Thresholded\_Binary.tif
+
+Southern\_Brown\_Tree\_Frog\_Spp13182\_Thresholded\_Binary.tif
+
+Southern\_Bullfrog\_(ssp\_unknown)\_Spp13058\_Thresholded\_Binary.tif
+
+Southern\_Emu\_wren\_Spp10526\_Thresholded\_Binary.tif
+
+Southern\_Forest\_Bat\_Spp11378\_Thresholded\_Binary.tif
+
+Southern\_Freetail\_Bat\_Spp11808\_Thresholded\_Binary.tif
+
+Southern\_Grass\_Skink\_Spp12994\_Thresholded\_Binary.tif
+
+Southern\_Legless\_Lizard\_Spp12154\_Thresholded\_Binary.tif
+
+Southern\_Myotis\_Spp11357\_Thresholded\_Binary.tif
+
+Southern\_Rainbow\_Skink\_Spp12318\_Thresholded\_Binary.tif
+
+Southern\_Scrub\_robin\_Spp10441\_Thresholded\_Binary.tif
+
+Southern\_Smooth\_Froglet\_Spp13029\_Thresholded\_Binary.tif
+
+Southern\_Spiny\_tailed\_Gecko\_Spp12059\_Thresholded\_Binary.tif
+
+Southern\_Toadlet\_Spp13125\_Thresholded\_Binary.tif
+
+Southern\_Water\_Skink\_Spp62956\_Thresholded\_Binary.tif
+
+Southern\_Whiteface\_Spp10466\_Thresholded\_Binary.tif
+
+Spangled\_Drongo\_Spp10673\_Thresholded\_Binary.tif
+
+Speckled\_Warbler\_Spp10504\_Thresholded\_Binary.tif
+
+Spencers\_Skink\_Spp12541\_Thresholded\_Binary.tif
+
+Spiny\_cheeked\_Honeyeater\_Spp10640\_Thresholded\_Binary.tif
+
+Splendid\_Fairy\_wren\_Spp10532\_Thresholded\_Binary.tif
+
+Spot\_tailed\_Quoll\_Spp11008\_Thresholded\_Binary.tif
+
+Spotless\_Crake\_Spp10051\_Thresholded\_Binary.tif
+
+Spotted\_Bowerbird\_Spp10680\_Thresholded\_Binary.tif
+
+Spotted\_Burrowing\_Skink\_Spp12499\_Thresholded\_Binary.tif
+
+Spotted\_Harrier\_Spp10218\_Thresholded\_Binary.tif
+
+Spotted\_Marsh\_Frog\_(race\_unknown)\_Spp13063\_Thresholded\_Binary.tif
+
+Spotted\_Marsh\_Frog\_NCR\_Spp63917\_Thresholded\_Binary.tif
+
+Spotted\_Marsh\_Frog\_SCR\_Spp63918\_Thresholded\_Binary.tif
+
+Spotted\_Nightjar\_Spp10331\_Thresholded\_Binary.tif
+
+Spotted\_Pardalote\_Spp10565\_Thresholded\_Binary.tif
+
+Spotted\_Quail\_thrush\_Spp10436\_Thresholded\_Binary.tif
+
+Spotted\_Tree\_Frog\_Spp13195\_Thresholded\_Binary.tif
+
+Square\_tailed\_Kite\_Spp10230\_Thresholded\_Binary.tif
+
+Squirrel\_Glider\_Spp11137\_Thresholded\_Binary.tif
+
+Sternula\_albifrons\_sinensis\_Spp10117\_Thresholded\_Binary.tif
+
+Straw\_necked\_Ibis\_Spp10180\_Thresholded\_Binary.tif
+
+Striated\_Fieldwren\_Spp10500\_Thresholded\_Binary.tif
+
+Striated\_Grasswren\_Spp10513\_Thresholded\_Binary.tif
+
+Striated\_Heron\_Spp10193\_Thresholded\_Binary.tif
+
+Striated\_Pardalote\_Spp10976\_Thresholded\_Binary.tif
+
+Striated\_Thornbill\_Spp10470\_Thresholded\_Binary.tif
+
+Striped\_Honeyeater\_Spp10585\_Thresholded\_Binary.tif
+
+Striped\_Legless\_Lizard\_Spp12159\_Thresholded\_Binary.tif
+
+Striped\_Marsh\_Frog\_Spp13061\_Thresholded\_Binary.tif
+
+Striped\_Worm\_Lizard\_Spp12150\_Thresholded\_Binary.tif
+
+Stubble\_Quail\_Spp10009\_Thresholded\_Binary.tif
+
+Stumpy\_tailed\_Lizard\_Spp12583\_Thresholded\_Binary.tif
+
+Sugar\_Glider\_Spp11138\_Thresholded\_Binary.tif
+
+Sulphur\_crested\_Cockatoo\_Spp10269\_Thresholded\_Binary.tif
+
+Superb\_Fairy\_wren\_Spp10529\_Thresholded\_Binary.tif
+
+Superb\_Lyrebird\_Spp10350\_Thresholded\_Binary.tif
+
+Superb\_Parrot\_Spp10277\_Thresholded\_Binary.tif
+
+Swamp\_Antechinus\_Spp11034\_Thresholded\_Binary.tif
+
+Swamp\_Harrier\_Spp10219\_Thresholded\_Binary.tif
+
+Swamp\_Rat\_Spp11398\_Thresholded\_Binary.tif
+
+Swamp\_Skink\_Spp12407\_Thresholded\_Binary.tif
+
+Swift\_Parrot\_Spp10309\_Thresholded\_Binary.tif
+
+Tawny\_crowned\_Honeyeater\_Spp10593\_Thresholded\_Binary.tif
+
+Tawny\_Frogmouth\_Spp10313\_Thresholded\_Binary.tif
+
+Terek\_Sandpiper\_Spp10160\_Thresholded\_Binary.tif
+
+Tessellated\_Gecko\_Spp12076\_Thresholded\_Binary.tif
+
+Thick\_tailed\_Gecko\_Spp12138\_Thresholded\_Binary.tif
+
+Three\_toed\_Skink\_Spp12441\_Thresholded\_Binary.tif
+
+Tiger\_Snake\_Spp12681\_Thresholded\_Binary.tif
+
+Tree\_Dragon\_Spp12194\_Thresholded\_Binary.tif
+
+Tree\_Dtella\_Spp12092\_Thresholded\_Binary.tif
+
+Tree\_Martin\_Spp10359\_Thresholded\_Binary.tif
+
+Tree\_Skink\_Spp12429\_Thresholded\_Binary.tif
+
+Turquoise\_Parrot\_Spp10302\_Thresholded\_Binary.tif
+
+Tussock\_Skink\_Spp12993\_Thresholded\_Binary.tif
+
+Tylers\_Toadlet\_Spp13931\_Thresholded\_Binary.tif
+
+Varied\_Sittella\_Spp10549\_Thresholded\_Binary.tif
+
+Variegated\_Fairy\_wren\_Spp10536\_Thresholded\_Binary.tif
+
+Verreauxs\_Frog\_Spp13215\_Thresholded\_Binary.tif
+
+Verreauxs\_Tree\_Frog\_Spp63906\_Thresholded\_Binary.tif
+
+Victorian\_Smooth\_Froglet\_Spp13033\_Thresholded\_Binary.tif
+
+Water\_Dragon\_Spp18999\_Thresholded\_Binary.tif
+
+Water\_Rat\_Spp11415\_Thresholded\_Binary.tif
+
+Weasel\_Skink\_Spp12452\_Thresholded\_Binary.tif
+
+Wedge\_tailed\_Eagle\_Spp10224\_Thresholded\_Binary.tif
+
+Weebill\_Spp10465\_Thresholded\_Binary.tif
+
+Welcome\_Swallow\_Spp10357\_Thresholded\_Binary.tif
+
+West\_Australian\_Dark\_spined\_Blind\_Snake\_Spp12586\_Thresholded\_Binary.tif
+
+Western\_Blue\_tongued\_Lizard\_Spp12579\_new\_Thresholded\_Binary.tif
+
+Western\_Brown\_Snake\_Spp12698\_Thresholded\_Binary.tif
+
+Western\_Gerygone\_Spp10463\_Thresholded\_Binary.tif
+
+Western\_Grey\_Kangaroo\_Spp11263\_Thresholded\_Binary.tif
+
+Western\_Pygmy\_possum\_Spp11151\_Thresholded\_Binary.tif
+
+Western\_Whipbird\_(Mallee)\_Spp10422\_Thresholded\_Binary.tif
+
+Whimbrel\_Spp10150\_Thresholded\_Binary.tif
+
+Whistling\_Kite\_Spp10228\_Thresholded\_Binary.tif
+
+White\_backed\_Swallow\_Spp10358\_Thresholded\_Binary.tif
+
+White\_bellied\_Cuckoo\_shrike\_Spp10425\_Thresholded\_Binary.tif
+
+White\_bellied\_Sea\_Eagle\_Spp10226\_Thresholded\_Binary.tif
+
+White\_breasted\_Woodswallow\_Spp10543\_Thresholded\_Binary.tif
+
+White\_browed\_Babbler\_Spp10445\_Thresholded\_Binary.tif
+
+White\_browed\_Scrubwren\_Spp10488\_Thresholded\_Binary.tif
+
+White\_browed\_Treecreeper\_Spp10561\_Thresholded\_Binary.tif
+
+White\_browed\_Woodswallow\_Spp10545\_Thresholded\_Binary.tif
+
+White\_eared\_Honeyeater\_Spp10617\_Thresholded\_Binary.tif
+
+White\_faced\_Heron\_Spp10188\_Thresholded\_Binary.tif
+
+White\_footed\_Dunnart\_Spp11069\_Thresholded\_Binary.tif
+
+White\_fronted\_Chat\_Spp10448\_Thresholded\_Binary.tif
+
+White\_fronted\_Honeyeater\_Spp10594\_Thresholded\_Binary.tif
+
+White\_headed\_Pigeon\_Spp10028\_Thresholded\_Binary.tif
+
+White\_lipped\_Snake\_Spp12665\_Thresholded\_Binary.tif
+
+White\_naped\_Honeyeater\_Spp10578\_Thresholded\_Binary.tif
+
+White\_necked\_Heron\_Spp10189\_Thresholded\_Binary.tif
+
+White\_plumed\_Honeyeater\_Spp10625\_Thresholded\_Binary.tif
+
+White\_striped\_Freetail\_Bat\_Spp11324\_Thresholded\_Binary.tif
+
+White\_throated\_Gerygone\_Spp10453\_Thresholded\_Binary.tif
+
+White\_throated\_Needletail\_Spp10334\_Thresholded\_Binary.tif
+
+White\_throated\_Nightjar\_Spp10330\_Thresholded\_Binary.tif
+
+White\_throated\_Treecreeper\_Spp10558\_Thresholded\_Binary.tif
+
+White\_winged\_Chough\_Spp10693\_Thresholded\_Binary.tif
+
+White\_winged\_Fairy\_wren\_Spp10535\_Thresholded\_Binary.tif
+
+White\_winged\_Triller\_Spp10430\_Thresholded\_Binary.tif
+
+Willie\_Wagtail\_Spp10364\_Thresholded\_Binary.tif
+
+Wonga\_Pigeon\_Spp10044\_Thresholded\_Binary.tif
+
+Wood\_Gecko\_Spp12077\_Thresholded\_Binary.tif
+
+Wood\_Sandpiper\_Spp10154\_new\_Thresholded\_Binary.tif
+
+Woodland\_Blind\_Snake\_Spp12603\_Thresholded\_Binary.tif
+
+Yellow\_bellied\_Glider\_Spp11136\_Thresholded\_Binary.tif
+
+Yellow\_bellied\_Sheathtail\_Bat\_Spp11321\_Thresholded\_Binary.tif
+
+Yellow\_bellied\_Water\_Skink\_Spp12957\_Thresholded\_Binary.tif
+
+Yellow\_billed\_Spoonbill\_Spp10182\_Thresholded\_Binary.tif
+
+Yellow\_faced\_Honeyeater\_Spp10614\_Thresholded\_Binary.tif
+
+Yellow\_faced\_Whip\_Snake\_Spp12655\_Thresholded\_Binary.tif
+
+Yellow\_footed\_Antechinus\_Spp11027\_Thresholded\_Binary.tif
+
+Yellow\_plumed\_Honeyeater\_Spp10622\_Thresholded\_Binary.tif
+
+Yellow\_rumped\_Thornbill\_Spp10486\_Thresholded\_Binary.tif
+
+Yellow\_tailed\_Black\_Cockatoo\_Spp10267\_Thresholded\_Binary.tif
+
+Yellow\_Thornbill\_Spp10471\_Thresholded\_Binary.tif
+
+Yellow\_throated\_Miner\_Spp10635\_Thresholded\_Binary.tif
+
+Yellow\_tufted\_Honeyeater\_Spp10619\_Thresholded\_Binary.tif
+
+Zebra\_Finch\_Spp10653\_Thresholded\_Binary.tif
+
+## Appendix 2
+
+# Growth stage optimisation in _Shiny_
+
+This document is a guide to using the growth stage optimisation (GSO) tool from the ERP1 shiny app.
+
+## File formatting
+
+There are several files that you need to create in Excel to run the GSO in _R_.
+
+Currently these files are in either .csv ( comma separated value text files) or micorsoft Excel (.xlxs) formats as noted below. It is desirable that each xlsx worksheet will ultimately be replaced by a corresponding .csv file. This has not been completed in as part of ERP1.
+
+They require that you use the same headers and name endings otherwise errors in the code may occur. (the name can be prefixed with individual details of the file ,for instance the LMU name), Please note that _ **R** _ **is case sensitive**. The files should be stored in **./GSOinputs&quot;**. This is taken care of by uploading them to the shiny server from the app interface.
+
+The first csvfile required is ends with&quot;Spp\_EFG\_LMU.csv&quot; which can be generated using…. The file includes the species that could be expected to be found in each EFG within the LMU and has the form,
+
+![](RackMultipart20210305-4-pm90fu_html_f06848bfe0aaeb52.png)
+
+The second file required &quot;LMU Area.csv&quot; has the total area of each EFG within the LMU, with its EFG name and number.
+
+![](RackMultipart20210305-4-pm90fu_html_9e5489e34a31528a.png)
+
+The file ending &quot;LMU\_Scenarios.csv&quot; has the information about the scenarios to be compared. The &quot;PercLandscape&quot; column is the proportion of that EFG in that GS. Therefore, they need to sum to 1 for an EFG within each scenario. For instance, in EFG 6 in the 2017 (current) scenario the proportions are 0.04, 0.06, 0.42 and 0.48, which add up to 1 (or 100%).
+
+![](RackMultipart20210305-4-pm90fu_html_8fa81d28c62e7246.png)
+
+The next required is &quot;ObsData.csv&quot;. This contains the observational data, with each row containing the observations for one species at one survey site.
+
+![](RackMultipart20210305-4-pm90fu_html_db869b8030ef9bea.png)
+
+## Options for GSO in Selected in shiny app
+
+The shiny app provides a single screen GUI to select the four.csv file required and select all the settings required for t GSO to be run ( these were previously handled by editing the text in the R file). The options are given in the table below.
+
+Shiny GSO GUI
+
+![](RackMultipart20210305-4-pm90fu_html_5f58aede535e762b.png)
+
+GSO Options
+
+| Option | **Name in _R_** | Options |
+| --- | --- | --- |
+| Most recent fire type | FireType | &quot;Low&quot; or &quot;High&quot; |
+| The scenario to use for comparisons | Comparison | This will depend on which scenario you want to set for comparisons, and what you called your scenarios. If you want to use the optimised solution, then type &quot;Optimisation&quot;. |
+| Which combination of data to use. Options range from exclusive use of expert opinion or observational data to various combinations of both. See ?? for what each option means. | Rule | &quot;Rule0&quot;, &quot;Rule1&quot;, &quot;Rule1a&quot;, &quot;Rule1b&quot;, &quot;Rule1c&quot;, &quot;Rule2&quot;, &quot;Rule2a&quot;, &quot;Rule2b&quot;, &quot;Rule2c&quot;, &quot;Rule3&quot;, &quot;Rule3a&quot;, &quot;Rule3b&quot; or &quot;Rule3c&quot; |
+| The weight to use when combining expert opinion and observational data if using &quot;Rule2&quot;. | dWt | A number between 0 and 1, with 0 meaning no weight goes to the survey data (effectively &quot;Rule0&quot;) and 1 meaning all weight goes to survey data (where available, effectively &quot;Rule1&quot;). |
+| The number of times we resample from the data to estimate the abundance index. | nrep | Number greater than 0. Default is 100. |
+| The number of times we simulate the process, used to generate 95% confidence intervals. | nsim | Number greater than 0. |
+
+## Running the GSO
+
+Once the data files are saved in the folder &quot;./GSOInputs&quot; and the model options are selected in the second coloured box the GSO is ready to run. To run the model, you just need to click the &quot;Run GSO button at the bottom left of the GDSO shiny app window.
+
+**Note: this process may take some time** depending on the amount of observational data, number of simulations required and the speed of the computer.
+
+Once the analysis has run two files will be created. &quot;GSO\_Analysis\_Output.docx which can be used as the basis of a report. It documents the options used, including model choices, EFGs and species used and produces some tables, plots and comparisons. A file &quot;GSO Species Changes.csv&quot; is also created to store the change in abundance index for each species and scenario. **Note** these file will be overwritten if the &quot;Run GSO&quot; button is pushed again.
+
+![](RackMultipart20210305-4-pm90fu_html_8364f73a6574c228.gif)
+
+OFFICIAL
+
+Output 7: Inputs and outputs for Eco Res Module 34
 
 Shapefile with same fields (SEASON, FIRETYPE) as the input file, combining all the fire events into a single file clipped to the boundary selected.
 
