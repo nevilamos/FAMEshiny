@@ -382,7 +382,8 @@ ui <- dashboardPage(
                                 sep = ""
                               )
                             )
-                          )),
+                          )
+                          , ),
                 fluidRow(plotlyOutput("TFItrendPlot"),
                          plotlyOutput("BBTFIPlot"),)
                 
@@ -413,7 +414,8 @@ ui <- dashboardPage(
                                 sep = ""
                               )
                             )
-                          )),
+                          ),
+                          ),
                 fluidRow(plotlyOutput("GSPlot"),
                          )
                 
@@ -448,8 +450,8 @@ ui <- dashboardPage(
                       value = c(1980, 2020),
                       sep = ""
                     )
-                  ))
-                ),
+                  )),
+                   ),
                 
                 fluidRow(plotlyOutput("RAtrendPlot"),
                          plotlyOutput("RADeltaPlot"))

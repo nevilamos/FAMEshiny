@@ -628,7 +628,7 @@ server <- function(session, input, output) {
         layout(
           title = paste0(input$EFGChoices, "\n", "TFI Status"),
           yaxis = list(rangemode = "tozero", title = "Area (ha)"),
-          xaxis = list(range = (input$tfiSeasonChoices)),
+          xaxis = list(range = (input$tfiSeasonChoices +c(-0.5,0.5))),
           barmode = 'stack',
           showlegend=T
         )
@@ -654,7 +654,7 @@ server <- function(session, input, output) {
         layout(
           title = paste0(input$EFGChoices, "\n", "Times burned below TFI"),
           yaxis = list(rangemode = "tozero", title = "Area (ha)"),
-          xaxis = list(range = input$tfiSeasonChoices),
+          xaxis = list(range = input$tfiSeasonChoices +c(-0.5,0.5)),
           barmode = 'stack',
           showlegend=T
         )
@@ -704,7 +704,7 @@ server <- function(session, input, output) {
         layout(
           title = paste0(input$EFGChoices, "\n", "Growth Stages"),
           yaxis = list(rangemode = "tozero", title = "Area (ha)"),
-          xaxis = list(range = input$GSSeasonChoices),
+          xaxis = list(range = input$GSSeasonChoices +c(-0.5,0.5)),
           barmode = 'stack',
           showlegend=T
         )
@@ -745,7 +745,7 @@ server <- function(session, input, output) {
           layout(
             yaxis = list(rangemode = "tozero",
                          title = "Sum of relative abundance x 100"),
-            xaxis = list(range = input$raSeasonChoices),
+            xaxis = list(range = input$raSeasonChoices +c(-0.5,0.5)),
             showlegend=T
           )
         
@@ -768,7 +768,7 @@ server <- function(session, input, output) {
           layout(
             yaxis = list(rangemode = "tozero",
                          title = "Change in relative abundance\ncompared to baseline"),
-            xaxis = list(range = input$raSeasonChoices),
+            xaxis = list(range = input$raSeasonChoices +c(-0.5,0.5)),
             showlegend=T
           )
       }
