@@ -64,7 +64,7 @@ options(warn = -1)
 #library(shinythemes)
 
 #get version of FAMEFMR in use and set app version 
-versionDate = "Version 1.9 February 28 2021"
+versionDate = "Version 1.9.1 March 10 2021"
 versionFAMEFMR = paste ("R", getRversion(),"FAMEFMR",packageVersion("FAMEFMR"))
 
 
