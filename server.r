@@ -340,7 +340,7 @@ server <- function(session, input, output) {
         } else{
           print("doing 75m version makeHDMValsfromRasters")
           HDMVals <- makeHDMValsfromRasters(myHDMSpp_NO = HDMSpp_NO,
-                                            myCropDetails = rv$cropRasters)
+                                            myCropRasters =  rv$cropRasters)
           
         }
         #print(paste("dim hdmvals =",dim(HDMVals)))
