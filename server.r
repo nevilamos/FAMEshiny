@@ -330,10 +330,10 @@ server <- function(session, input, output) {
         
         print("getting HDMvals")
         if (rv$FHAnalysis$RasterRes == "225") {
-          load(paste0(
+          HDMVals <-qread(paste0(
             "./HDMS/HDMVals",
             rv$FHAnalysis$RasterRes,
-            ".rdata"
+            ".qs"
           ))
           HDMVals <-
             HDMVals[rv$cropRasters$IDX, as.character(HDMSpp_NO)]
