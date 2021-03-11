@@ -62,17 +62,18 @@ server <- function(session, input, output) {
     
   })
   #download handlers for utilities page --------------------------------------------------
-  downloadToolFileName <- "FAMEPreProcessing.zip"
+  downloadToolFileName <- "./FAMEPreProcessing/FAMEPreProcessing.zip"
   output$downloadTool <- downloadHandler(
     filename = function() {
-      downloadToolFileName
+      basename(downloadToolFileName)
     },
-    content = function(downloadToolFileName) {
-      fs <- dir("./FAMEPreProcessing", full.names = T)
-      zip(zipfile = downloadToolFileName, files = fs)
-    },
-    contentType = "application/zip"
+    content = function(file) {
+      file.copy(from = downloadToolFileName,
+                to = file,
+                overwrite = T)
+    }
   )
+
   
   downloadManualFileName <- "FAME_Manual.pdf"
   output$downloadManual <- downloadHandler(
@@ -308,6 +309,8 @@ server <- function(session, input, output) {
   }, ignoreInit = T, {
     withBusyIndicatorServer("runRA", {
       withBusyIndicatorServer("runRA_TFI", {
+        validate(need(rv$FHAnalysis,
+                      'You need to select a FH analysis to use'))
         if (input$spListChoice == FALSE) {
           rv$TaxonList <-
             read.csv("./ReferenceTables/DraftTaxonListStatewidev2.csv")
