@@ -329,21 +329,12 @@ server <- function(session, input, output) {
         
         
         print("getting HDMvals")
-        if (rv$FHAnalysis$RasterRes == "225") {
           HDMVals <-qread(paste0(
             "./HDMS/HDMVals",
             rv$FHAnalysis$RasterRes,
-            ".qs"
+            "list.qs"
           ))
-          HDMVals <-
-            HDMVals[rv$cropRasters$IDX, as.character(HDMSpp_NO)]
-        } else{
-          print("doing 75m version makeHDMValsfromRasters")
-          HDMVals <- makeHDMValsfromRasters(myHDMSpp_NO = HDMSpp_NO,
-                                            myCropRasters =  rv$cropRasters)
-          
-        }
-        #print(paste("dim hdmvals =",dim(HDMVals)))
+
         print("Loaded HDMVals")
         
         if (input$spResponseChoice == FALSE) {
@@ -386,7 +377,8 @@ server <- function(session, input, output) {
           myTaxonList = rv$TaxonList,
           writeYears = NULL,
           #input$yearsForRasters,
-          myWriteSp = writeSp
+          myWriteSp = writeSp,
+          myIDX = rv$cropRasters$IDX
         )
         
         rv$SpYearSumm <- SpYearSumm <<- SpYearSumm
