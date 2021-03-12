@@ -16,11 +16,16 @@ packages = c("aws.s3",
              "fasterize",
              "foreach",
              "gdalUtils",
+             "ggplot2",
              "knitr",
              "Matrix.utils",
+             "nloptr",
              "plotly",
+             "qs",
              "raster",
+             "readxl",
              "Rfast",
+             "rmarkdown",
              "rlang",
              "sf",
              "shiny",
@@ -28,6 +33,7 @@ packages = c("aws.s3",
              "shinydashboard",
              "shinyFiles",
              "shinyjs",
+             "stringr",
              "tabularaster",
              "tibble",
              "tidyr",
@@ -59,7 +65,7 @@ options(warn = -1)
 #library(shinythemes)
 
 #get version of FAMEFMR in use and set app version 
-versionDate = "Version 1.9 February 28 2021"
+versionDate = "Version 1.9.1 March 10 2021"
 versionFAMEFMR = paste ("R", getRversion(),"FAMEFMR",packageVersion("FAMEFMR"))
 
 

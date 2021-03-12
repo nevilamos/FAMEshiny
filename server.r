@@ -62,17 +62,18 @@ server <- function(session, input, output) {
     
   })
   #download handlers for utilities page --------------------------------------------------
-  downloadToolFileName <- "FAMEPreProcessing.zip"
+  downloadToolFileName <- "./FAMEPreProcessing/FAMEPreProcessing.zip"
   output$downloadTool <- downloadHandler(
     filename = function() {
-      downloadToolFileName
+      basename(downloadToolFileName)
     },
-    content = function(downloadToolFileName) {
-      fs <- dir("./FAMEPreProcessing", full.names = T)
-      zip(zipfile = downloadToolFileName, files = fs)
-    },
-    contentType = "application/zip"
+    content = function(file) {
+      file.copy(from = downloadToolFileName,
+                to = file,
+                overwrite = T)
+    }
   )
+
   
   downloadManualFileName <- "FAME_Manual.pdf"
   output$downloadManual <- downloadHandler(
@@ -308,6 +309,8 @@ server <- function(session, input, output) {
   }, ignoreInit = T, {
     withBusyIndicatorServer("runRA", {
       withBusyIndicatorServer("runRA_TFI", {
+        validate(need(rv$FHAnalysis,
+                      'You need to select a FH analysis to use'))
         if (input$spListChoice == FALSE) {
           rv$TaxonList <-
             read.csv("./ReferenceTables/DraftTaxonListStatewidev2.csv")
@@ -327,17 +330,17 @@ server <- function(session, input, output) {
         
         print("getting HDMvals")
         if (rv$FHAnalysis$RasterRes == "225") {
-          load(paste0(
+          HDMVals <-qread(paste0(
             "./HDMS/HDMVals",
             rv$FHAnalysis$RasterRes,
-            ".rdata"
+            ".qs"
           ))
           HDMVals <-
             HDMVals[rv$cropRasters$IDX, as.character(HDMSpp_NO)]
         } else{
           print("doing 75m version makeHDMValsfromRasters")
           HDMVals <- makeHDMValsfromRasters(myHDMSpp_NO = HDMSpp_NO,
-                                            myCropDetails = rv$cropRasters)
+                                            myCropRasters =  rv$cropRasters)
           
         }
         #print(paste("dim hdmvals =",dim(HDMVals)))
@@ -628,7 +631,7 @@ server <- function(session, input, output) {
         layout(
           title = paste0(input$EFGChoices, "\n", "TFI Status"),
           yaxis = list(rangemode = "tozero", title = "Area (ha)"),
-          xaxis = list(range = (input$tfiSeasonChoices)),
+          xaxis = list(range = (input$tfiSeasonChoices +c(-0.5,0.5))),
           barmode = 'stack',
           showlegend=T
         )
@@ -654,7 +657,7 @@ server <- function(session, input, output) {
         layout(
           title = paste0(input$EFGChoices, "\n", "Times burned below TFI"),
           yaxis = list(rangemode = "tozero", title = "Area (ha)"),
-          xaxis = list(range = input$tfiSeasonChoices),
+          xaxis = list(range = input$tfiSeasonChoices +c(-0.5,0.5)),
           barmode = 'stack',
           showlegend=T
         )
@@ -704,7 +707,7 @@ server <- function(session, input, output) {
         layout(
           title = paste0(input$EFGChoices, "\n", "Growth Stages"),
           yaxis = list(rangemode = "tozero", title = "Area (ha)"),
-          xaxis = list(range = input$GSSeasonChoices),
+          xaxis = list(range = input$GSSeasonChoices +c(-0.5,0.5)),
           barmode = 'stack',
           showlegend=T
         )
@@ -745,7 +748,7 @@ server <- function(session, input, output) {
           layout(
             yaxis = list(rangemode = "tozero",
                          title = "Sum of relative abundance x 100"),
-            xaxis = list(range = input$raSeasonChoices),
+            xaxis = list(range = input$raSeasonChoices +c(-0.5,0.5)),
             showlegend=T
           )
         
@@ -768,7 +771,7 @@ server <- function(session, input, output) {
           layout(
             yaxis = list(rangemode = "tozero",
                          title = "Change in relative abundance\ncompared to baseline"),
-            xaxis = list(range = input$raSeasonChoices),
+            xaxis = list(range = input$raSeasonChoices +c(-0.5,0.5)),
             showlegend=T
           )
       }

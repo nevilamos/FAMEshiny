@@ -9,19 +9,36 @@ newDirPaths<-c("AdHocPolygons",
                "ReferenceShapefiles",
                "ReferenceTables",
                "results",
-               "www"
-               )               
+               "dummyname"# this name is a workaround for the shinyapp a directory and files ./www is required but s3sync will not open the directory so this name is used instead and renamed at the end of the process
+)
+
+
+Sys.setenv("AWS_DEFAULT_REGION" = "ap-southeast-2")
+
+
 for(mypath in newDirPaths){
-if (file.exists(mypath)){} else{
-
-dir.create(mypath,recursive = T)
-
-
-
-Sys.setenv("AWS_ACCESS_KEY_ID" = "AKIASBSJ6EYMARPJLDLD",
-           "AWS_SECRET_ACCESS_KEY" ="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" ,
-           "AWS_DEFAULT_REGION" = "ap-southeast-2")
-
-
-aws.s3::s3sync(path=paste0("./",mypath),bucket = "ecological-risk-analysis",prefix = paste0("FAME_FMR","/",mypath), check_region = F,direction = "download")}
+  
+  if (file.exists(mypath)){
+    
+  } else {
+    dir.create(mypath,recursive = T)
+    
+    aws.s3::s3sync(path=paste0("./",mypath),
+                   bucket = "ecological-risk-analysis",
+                   prefix = paste0("FAME_FMR","/",mypath),
+                   check_region = F,
+                   direction = "download"
+                   
+    )
+    
+    
+  }
+  
+  
 }
+
+
+try(file.rename("dummyname","www"))
+try(dir.create("dummyname"))
+#rm(AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY)
+
