@@ -1,0 +1,161 @@
+---
+title: "Growth stage optimisation "
+author: "" 
+date: '`r strftime(Sys.Date(),"%d %b, %Y")`'
+output: word_document
+
+---
+
+```{r setup, include=FALSE,}
+knitr::opts_chunk$set(echo = TRUE,fig.height = 6,fig.width = 8,root.dir="./")
+print(getwd())
+                                                           
+# Packages
+library(readxl);library(dplyr);library(tidyr);library(stringr);library(nloptr);library(ggplot2);
+```
+
+
+```{r Options,include=FALSE, cache=FALSE}
+source("tempsettings.r")
+
+print("line before R script runs")
+source("GSOAnalysisCodeShiny.R")
+```
+
+## Overview
+
+The amount of each growth stage (*GS*) available within an ecological fire group (*EFG*) can be manipulated with different fire regimes. Therefore, it is possible that the allocation of each *GS* within an *EFG* could be optimised along some environmental index according to species abundance in each growth. One such index is the geometric mean abundance (*GMA*) of species. The *GMA* of species can be used as an index of biodiversity monitoring and has been shown to be proportional to the mean time to extinction (McCarthy *et al* 2014).
+
+GMA has been adopted by DELWP to inform decision making to support the objective of maintaining or improving ecosystem resilience as specified in Victoria’s Code of Practice for Bushfire Management on Public Land. For the *GMA* to be meaningful, it is effectively comparing percentage changes in relative abundance.
+
+To optimise the *GMA*, the proportion of each *GS* within each *EFG* we need to  have common assessment of the utilisation of that *EFG* by each species of interest. The problem is that not all species within each *GS*s within each *EFG* have suitable data available. However, expert opinion has been elicited for most relevant species at each *GS* within an *EFG*. Therefore it in some instances it may be usefulmakes sense to use include observational data where available, and expert opinion where unavailable.
+
+## Methodology
+
+The *GMA* for an area can be calculated using the relative abundance of each species across *EFG* *GS*s weighted by the fraction of that *GS* in that *EFG* available in the area of interest. Then using non-linear optimisation, the optimal allocation of *GS*s within each *EFG* can be calculated, giving a single answer, based on the input from the observational data and expert opinion supplied. However, there is a level of uncertainty with this data that should be accounted for, as those inputs are only estimates.
+
+The uncertainty of the growth stage optimisation (*GSO*) is estimated using a bootstrapping process. The observations used to provide the relative abundance estimates are randomly sampled at the sampling event level (with replacement). The relative abundance of this random sample is then calculated and used to generate a *GSO*. This result is stored and a new random sample and *GSO* is generated and stored. This process is repeated a number of times (let us say 200). From this collection of randomly generated relative abundances and respective *GSO* the mean lower and upper 2.5% quantiles are calculated and used to estimate the mean *GSO* and its 95% confidence intervals.
+
+## Your options
+
+The best way to use observational data and expert opinion in combination is not yet settled, and potentially different for different objectives and scenarios. Hence, some decisions still need to be made as to how the expert opinion and observational data should be combined. Currently there are 9 options:
+
+* Rule 0 uses only the expert opinion;
+* Rule 1 uses the mean of the observational data where available, and the expert opinion otherwise;
+    + Rule 1a is similar to Rule 1, but uses the maximum instead of the mean;
+    + Rule 1b is similar to Rule 1, but  uses the median instead of the mean;
+    + Rule 1c is similar to Rule 1, but  uses the upper quartile instead of the mean;
+* Rule 2 uses a weighted average of the mean of the observational data and the expert opinion where available, and the expert opinion otherwise.
+    + Rule 2a is similar to Rule 2, but uses the maximum instead of the mean;
+    + Rule 2b is similar to Rule 2,  uses the median instead of the mean;
+    + Rule 2c is similar to Rule 2,  uses the upper quartile instead of the mean;
+* Rule 3 uses the mean of the observational data does not use the expert opinion. Please note this will restrict the model to *EFG* *GS* with observational data, and may therefore have a vastly reduced number of species.
+    + Rule 3a is similar to Rule 3, but uses the maximum instead of the mean;
+    + Rule 3b is similar to Rule 3,  uses the median instead of the mean;
+    + Rule 3c is similar to Rule 3,  uses the upper quartile instead of the mean;
+
+In this analysis `r Rule` was selected. This rule uses the `r RuleText$Text[which(RuleText$Rule==Rule)]`
+
+In this analysis only fauna responses to where the most recent fire severity was `r FireType` were considered.
+
+The *EFG* analysed for this study area are listed in Table 1. The species you have chosen toincluded in the analysis are include are listed in Table 2. Species that are present in the study area but for which there is no suitable data available are included in '*List of species without suitable data.csv*'.
+
+```{r EFGTable,echo=FALSE}
+options(knitr.kable.NA = '')
+EFGT <- GSOArea
+names(EFGT) <- c('EFT Number', 'EFG name', 'Overall area (ha)')
+#col.names(EFGT) <- NULL
+knitr::kable(
+  EFGT,booktabs=TRUE,caption = 'Table 1: Ecological fire groups considered within the area of interest.')
+```
+
+
+```{r SppTable,echo=FALSE}
+options(knitr.kable.NA = '')
+SppT <- unique(na.omit(WorkData[which(WorkData$FireType==FireType),])$COMMON_NAME)
+lSppt <- length(SppT)
+SppT <- if(lSppt%%3==0){SppT}else{c(SppT,rep(NA,3-lSppt%%3))}
+SppT <- matrix(SppT,ncol=3,byrow = TRUE)
+knitr::kable(
+  SppT,booktabs=TRUE,caption = paste0('Table 2: List of the ', lSppt, ' species considered within the area of interest.'),longtable = TRUE)
+```
+
+<!-- # ```{r SppTableNoDat,echo=FALSE} -->
+<!-- # options(knitr.kable.NA = '') -->
+<!-- # SppNTB <- unique(na.omit(NoData$COMMON_NAME[which(NoData$DIVNAME=='Birds')])) -->
+<!-- # if(length(SppNTB)==0){SppNTB<-'None'} -->
+<!-- # SppNTB <- if(length(SppNTB)%%3==0){SppNTB}else{c(SppNTB,rep(NA,3-length(SppNTB)%%3))} -->
+<!-- # SppNTB <- matrix(SppNTB,ncol=3,byrow = TRUE) -->
+<!-- # knitr::kable( -->
+<!-- #   SppNTB,booktabs=TRUE,caption = 'Table 3: Bird species that are present in the study area but for which there is no suitable data available.',longtable = TRUE) -->
+<!-- # SppNTC <- unique(na.omit(NoData$COMMON_NAME[which(NoData$DIVNAME=='Crustaceans')])) -->
+<!-- # if(length(SppNTC)==0){SppNTC<-'None'} -->
+<!-- # SppNTC <- if(length(SppNTC)%%3==0){SppNTC}else{c(SppNTC,rep(NA,3-length(SppNTC)%%3))} -->
+<!-- # SppNTC <- matrix(SppNTC,ncol=3,byrow = TRUE) -->
+<!-- # knitr::kable( -->
+<!-- #   SppNTC,booktabs=TRUE,caption = 'Table 4: Crustacean species that are present in the study area but for which there is no suitable data available.',longtable = TRUE) -->
+<!-- # SppNTFi <- unique(na.omit(NoData$COMMON_NAME[which(NoData$DIVNAME=='Fishes')])) -->
+<!-- # if(length(SppNTFi)==0){SppNTFi<-'None'} -->
+<!-- # SppNTFi <- if(length(SppNTFi)%%3==0){SppNTFi}else{c(SppNTFi,rep(NA,3-length(SppNTFi)%%3))} -->
+<!-- # SppNTFi <- matrix(SppNTFi,ncol=3,byrow = TRUE) -->
+<!-- # knitr::kable( -->
+<!-- #   SppNTFi,booktabs=TRUE,caption = 'Table 5: Fish species that are present in the study area but for which there is no suitable data available.',longtable = TRUE) -->
+<!-- # SppNTFr <- unique(na.omit(NoData$COMMON_NAME[which(NoData$DIVNAME=='Frogs')])) -->
+<!-- # if(length(SppNTFr)==0){SppNTFr<-'None'} -->
+<!-- # SppNTFr <- if(length(SppNTFr)%%3==0){SppNTFr}else{c(SppNTFr,rep(NA,3-length(SppNTFr)%%3))} -->
+<!-- # SppNTFr <- matrix(SppNTFr,ncol=3,byrow = TRUE) -->
+<!-- # knitr::kable( -->
+<!-- #   SppNTFr,booktabs=TRUE,caption = 'Table 6: Frog species that are present in the study area but for which there is no suitable data available.',longtable = TRUE) -->
+<!-- # SppNTM <- unique(na.omit(NoData$COMMON_NAME[which(NoData$DIVNAME=='Mammals')])) -->
+<!-- # if(length(SppNTM)==0){SppNTM<-'None'} -->
+<!-- # SppNTM <- if(length(SppNTM)%%3==0){SppNTM}else{c(SppNTM,rep(NA,3-length(SppNTM)%%3))} -->
+<!-- # SppNTM <- matrix(SppNTM,ncol=3,byrow = TRUE) -->
+<!-- # knitr::kable( -->
+<!-- #   SppNTM,booktabs=TRUE,caption = 'Table 7: Mammal species that are present in the study area but for which there is no suitable data available.',longtable = TRUE) -->
+<!-- # SppNTR <- unique(na.omit(NoData$COMMON_NAME[which(NoData$DIVNAME=='Reptiles')])) -->
+<!-- # if(length(SppNTR)==0){SppNTR<-'None'} -->
+<!-- # SppNTR <- if(length(SppNTR)%%3==0){SppNTR}else{c(SppNTR,rep(NA,3-length(SppNTR)%%3))} -->
+<!-- # SppNTR <- matrix(SppNTR,ncol=3,byrow = TRUE) -->
+<!-- # knitr::kable( -->
+<!-- #   SppNTR,booktabs=TRUE,caption = 'Table 8: Reptile species that are present in the study area but for which there is no suitable data available.',longtable = TRUE) -->
+<!-- # ``` -->
+
+## Results
+
+The *GSO* resulted in a estimated *GMA* of `r round(OptCI0$Prop[1],3)` (with 95% CI from `r round(OptCI0$LB[1],3)` to `r round(OptCI0$UB[1],3)`). The improvement in *GMA* (and therefore mean-time-to-extinction) in the given scenarios compared to `r Comparison` is given in Table 3. Differences at the species level to `r Comparison` for the other scenarios is contained in '*GSO Species Changes.csv*'
+
+```{r GSOComp,echo=FALSE}
+OptComp <- data.frame(Scenarios=row.names(OptCIC), round(100*(OptCIC-1),1)[,c(1,3,2)])[which(row.names(OptCIC)!=Comparison),]
+names(OptComp) <- c('Scenario', paste0('Estimated change from ', Comparison), 'Lower bound', 'Upper bound')
+row.names(OptComp)<-NULL
+if(Rule=='Rule0'){
+  knitr::kable(OptComp[,1:2],booktabs=TRUE,caption = paste0('Table 3: The estimated percentage change in *GMA* of species from the ', Comparison, ' *GS* within *EFG* in the area of interest.'),longtable = TRUE)
+} else {
+  knitr::kable(OptComp,booktabs=TRUE,caption = paste0('Table 3: The estimated percentage change in *GMA* of species from the ', Comparison, ' *GS* within *EFG* in the area of interest, with 95% confidence intervals.'),longtable = TRUE)
+}
+SppDecT <- data.frame(Scenario=names(SppDec)[-1], Over20=t(as.vector(SppDec[1,-1])), Over50=t(as.vector(SppDec[2,-1])), All=t(as.vector(SppDec[3,-1])))
+names(SppDecT) <- c('Scenario', 'Species declining by more than 20%', 'Species declining by more than 50%', '100% decline (local extinction)')
+row.names(SppDecT)<-NULL
+knitr::kable(
+  SppDecT,booktabs=TRUE,caption = paste0('Table 4: Number of species declining by 20%, 50% or 100% from the ', Comparison, ' for the other scenarios.'),longtable = TRUE)
+```
+
+The optimal allocation of *GS* within *EFG* is displayed in Figure 1 and Table 5.
+
+```{r GSOPlot, echo=FALSE, fig.cap='Figure 1: Allocation of *GS* within *EFG* to optimise the *GMA* of species in the area of interest.'}
+ggplot(OptCIS, aes(x=GS, y=Prop,ymin=LB,ymax=UB)) + geom_pointrange() + facet_wrap(~ EFG) + labs(x="Growth stage", y="Proportion of ecological fire group")
+
+OptCIT <- OptCIS[,c(6:7,3:5)]
+OptCIT[,3:5] <- round(OptCIT[,3:5],3)
+names(OptCIT) <- c('EFG Number', 'Growth stage', 'Proportion', 'Lower Bound', 'Upper bound')
+row.names(OptCIT)<-NULL
+knitr::kable(
+  OptCIT,booktabs=TRUE,caption = 'Table 5: Allocation of *GS* within *EFG* to optimise the *GMA* of species in the area of interest, with 95% condifence intervals.',longtable = TRUE)
+```
+
+
+
+
+## References
+
+McCarthy, M. A., Moore, A. L., Krauss, J., Morgan, J. W., & Clements, C. F. (2014). "Linking indices for biodiversity monitoring to extinction risk theory". *Conservation biology*, 28(6), 1575-1583.
