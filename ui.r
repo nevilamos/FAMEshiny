@@ -41,11 +41,11 @@ ui <- dashboardPage(
         tabName = "GSO",
         icon = icon("calculator")
       ),
-      menuItem(
-        "Aspatial GSO Report" ,
-        tabName = "GSOReport",
-        icon = icon("calculator")
-      ),
+      # menuItem(
+      #   "Aspatial GSO Report" ,
+      #   tabName = "GSOReport",
+      #   icon = icon("calculator")
+      # ),
       p(versionDate),
       p(versionFAMEFMR)
       
@@ -562,15 +562,17 @@ ui <- dashboardPage(
                     withBusyIndicatorUI(actionButton("runGSO", "Run Aspatial GSO"))
                   )
                 )
-              )),
-        #Tab  GSO report charts --------------------------------------------------------------------
-  tabItem(tabName = "GSOReport",
-          fluidPage(
-            
-            fluidRow(h2("markdown")
-            )
-            
-          ))),  
+              ))
+  #     ,
+  #       #Tab  GSO report charts --------------------------------------------------------------------
+  # tabItem(tabName = "GSOReport",
+  #         fluidPage(
+  #           
+  #           fluidRow(h2("markdown")
+  #           )
+  #           
+  #         ))
+  ),  
 
   ),
 
