@@ -18,7 +18,7 @@ library(readxl);library(dplyr);library(tidyr);library(stringr);library(nloptr);l
 ```{r Options,include=FALSE, cache=FALSE}
 source("tempsettings.r")
 
-print("line before R script runs")
+print("Running GSO Analysis")
 source("GSOAnalysisCodeShiny.R")
 ```
 
@@ -77,7 +77,7 @@ lSppt <- length(SppT)
 SppT <- if(lSppt%%3==0){SppT}else{c(SppT,rep(NA,3-lSppt%%3))}
 SppT <- matrix(SppT,ncol=3,byrow = TRUE)
 knitr::kable(
-  SppT,booktabs=TRUE,caption = paste0('Table 2: List of the ', lSppt, ' species considered within the area of interest.'),longtable = TRUE)
+  SppT,booktabs=TRUE,col.names=NULL,caption = paste0('Table 2: List of the ', lSppt, ' species considered within the area of interest.'),longtable = TRUE)
 ```
 
 <!-- # ```{r SppTableNoDat,echo=FALSE} -->

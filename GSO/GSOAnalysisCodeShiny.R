@@ -9,7 +9,7 @@ library(stringr)
 library(nloptr)
 library(ggplot2)
 
-source("./GSO/GSO_Functions.R")
+source("./GSO_Functions.R")
 #source(file.path("GSO","tempsettings.r"))
 #### Pre-written text ####
 ## Pre-written text to be selected, depending on users choices in markdown document.
