@@ -785,7 +785,7 @@ server <- function(session, input, output) {
         RasterRes = 225,
         myPoly = myPoly,
         PUBLIC_LAND_ONLY = input$sppublic,
-        myHDMVals = HDMVals225
+        myHDMVals = "./HDMS/HDMVals225.qs"
       )
       print (head(myDraftSpList))
       write.csv(myDraftSpList,
@@ -813,7 +813,7 @@ server <- function(session, input, output) {
         #shapefile ofLF_REGIONs( default)or  adhoc region,
         generalRasterDir = "./InputGeneralRasters",
         splist = "./ReferenceTables/DraftTaxonListStatewidev2.csv",
-        myHDMVals = HDMVals225,
+        myHDMVals = "./HDMS/HDMVals225.qs",
         #EFGRas="./InputGeneralRasters/EFG_NUM_225.tif",
         TFI_LUT = TFI_LUT
       )
