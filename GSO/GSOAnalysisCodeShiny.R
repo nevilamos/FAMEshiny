@@ -10,7 +10,7 @@ library(nloptr)
 library(ggplot2)
 
 source("./GSO_Functions.R")
-#source(file.path("GSO","tempsettings.r"))
+#source(file.path("tempsettings.r"))
 #### Pre-written text ####
 ## Pre-written text to be selected, depending on users choices in markdown document.
 
@@ -66,10 +66,10 @@ RuleText <-
 
 #### Data loading ####
 ## Common names and codes for fauna
-FaunaCodes = read_excel("VBA_FAUNA.xlsx", sheet = 1)
-#%>%
-#mutate(across(c(SPEC_NO,VBA_CODE),as.integer))
-
+#FaunaCodes = read_excel("VBA_FAUNA.xlsx", sheet = 1)
+FaunaCodes = read.csv("../ReferenceTables/DraftTaxonListStatewidev2.csv")
+FaunaCodes<- FaunaCodes%>%
+  dplyr::select(COMMON_NAME,NAME,DIVNAME,TAXON_ID)
 
 ## Species to EFG to LMU data
 #SpEFGLMU <- read.csv(input$spEFGLMU,na='NA')
@@ -77,7 +77,7 @@ FaunaCodes = read_excel("VBA_FAUNA.xlsx", sheet = 1)
 names(SpEFGLMU)[1] <- 'COMMON_NAME'
 SpEFGLMU <- left_join(SpEFGLMU, FaunaCodes, by = 'COMMON_NAME') %>%
   mutate(efgID = paste0('EFG', str_sub(as.character(EFG_NO + 100), 2, 3)),
-         efgIDsp = paste(efgID, VBA_CODE, sep = '_'))
+         efgIDsp = paste(efgID, TAXON_ID, sep = '_'))
 
 ## EFGs areas and scenarios
 #GSOScen<-read.csv(input$lmuScenarios,na='NA')
@@ -118,7 +118,7 @@ names(ExpertData)[1] <- 'COMMON_NAME'
 ExpertScore <-
   read_excel('ExpertEstimate.xlsx', sheet = 1, na = '') %>% arrange(Code) %>% left_join(FaunaCodes, by =
                                                                                           'COMMON_NAME') %>%
-  dplyr::select(Code, COMMON_NAME, `0`, `1`, `2`, `3`, VBA_CODE)
+  dplyr::select(Code, COMMON_NAME, `0`, `1`, `2`, `3`, TAXON_ID)
 ExpertScore$Code <- toupper(ExpertScore$Code)
 names(ExpertScore) <-  c('SPECIES_CODE',
                          'COMMON_NAME',
@@ -126,7 +126,7 @@ names(ExpertScore) <-  c('SPECIES_CODE',
                          'Few',
                          'Some',
                          'Lots',
-                         'VBA_CODE')
+                         'TAXON_ID')
 
 
 #### Construct data into the required format ####
@@ -152,18 +152,18 @@ EFGData <-SurveyData %>%
 ## Convert the expert data to longer form, each row is an observation of species at a particular EFG GS
 ExpertData2 <-
   left_join(ExpertData,
-            dplyr::select(FaunaCodes, COMMON_NAME, VBA_CODE),
+            dplyr::select(FaunaCodes, COMMON_NAME, TAXON_ID),
             by = 'COMMON_NAME') %>%
-  filter(VBA_CODE %in% ExpertScore$VBA_CODE)
+  filter(TAXON_ID %in% ExpertScore$TAXON_ID)
 
 for (i in 1:nrow(ExpertData2)) {
   for (j in 3:(ncol(ExpertData2) - 1)) {
     ExpertData2[i, j] <-
-      ConvertExpert(ExpertData2$VBA_CODE[i], ExpertData2[i, j])
+      ConvertExpert(ExpertData2$TAXON_ID[i], ExpertData2[i, j])
   }
 }
 ExpertData2 <-
-  ExpertData2[which(ExpertData2$VBA_CODE %in% unique(SpEFGLMU$VBA_CODE)),
+  ExpertData2[which(ExpertData2$TAXON_ID %in% unique(SpEFGLMU$TAXON_ID)),
               c(1, ncol(ExpertData2), 2:(ncol(ExpertData2) - 1))]
 ExpertData2 <-  ExpertData2 %>% 
   gather('efgID', 'Response', 4:ncol(ExpertData2))
@@ -175,12 +175,12 @@ WorkData <-  rbind(
   )
 WorkData <-  WorkData %>% 
   separate(efgID, c('EFG', 'GS'), sep = '_', remove = FALSE) %>%
-  filter(paste(EFG, VBA_CODE, sep = '_') %in% 
+  filter(paste(EFG, TAXON_ID, sep = '_') %in% 
            unique(SpEFGLMU$efgIDsp[which(SpEFGLMU$EFG_NO %in% GSOArea$EFG_NO)]))
 
 if (!Classes == "All") {
   WorkData <- WorkData %>% 
-    left_join(FaunaCodes[, 4:5], by = 'VBA_CODE') %>% 
+    left_join(FaunaCodes[, 4:5], by = 'TAXON_ID') %>% 
     filter(DIVNAME %in% Classes)
 }
 Usedefgs <-
@@ -190,11 +190,11 @@ NoData <-  SpEFGLMU %>%
   filter(EFG_NO %in% GSOArea$EFG_NO &
            !(efgIDsp %in% 
                unique( paste(WorkData$EFG[which(WorkData$FireType == FireType)],
-                             WorkData$VBA_CODE[which(WorkData$FireType == FireType)], sep = '_')
+                             WorkData$TAXON_ID[which(WorkData$FireType == FireType)], sep = '_')
                         ))) %>%
-  group_by(COMMON_NAME, VBA_CODE) %>% 
+  group_by(COMMON_NAME, TAXON_ID) %>% 
   summarise(n = n()) %>% 
-  left_join(FaunaCodes[, 3:5], by = 'VBA_CODE')
+  left_join(FaunaCodes[, 3:5], by = 'TAXON_ID')
 head(NoData)
 write.csv(NoData[, c(4, 1:2, 5)], file.path(GSOResultsDir, ('List of species without suitable data.csv')))
 

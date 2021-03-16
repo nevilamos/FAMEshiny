@@ -192,43 +192,43 @@ DataGen = function(data,
   nStages <- length(StageNames)
   SppList = as.data.frame(matrix(
     NA,
-    nrow = length(unique(data$VBA_CODE)),
+    nrow = length(unique(data$TAXON_ID)),
     ncol = nStages * length(efgs) + 1
   ))
   names(SppList) <-
     c('Species', paste(rep(efgs, each = nStages),
                        unique(data$GS[which(data$GS != 'NA')]),
                        sep ='_'))
-  SppList$Species = unique(data$VBA_CODE)
+  SppList$Species = unique(data$TAXON_ID)
   SppSource <- SppList
   data <- data[which(data$FireType == FT), ]
   if (Rand) {
     dataR <- data[which(data$Source == 'Expert' & data$Response >= 0), ]
-    dataR$ID <- paste0('s', dataR$VBA_CODE, dataR$efgID)
+    dataR$ID <- paste0('s', dataR$TAXON_ID, dataR$efgID)
     dataS <-
       data[which(
         data$Source == 'Survey' &
-          paste0('s', data$VBA_CODE, data$efgID) %in%
+          paste0('s', data$TAXON_ID, data$efgID) %in%
           unique(dataR$ID)
       ), ]
     if (nrow(dataS) > 0) {
-      dataS$ID <- paste0('s', dataS$VBA_CODE, dataS$efgID)
+      dataS$ID <- paste0('s', dataS$TAXON_ID, dataS$efgID)
       for (ii in 1:length(unique(dataS$efgID))) {
         dataT <- dataS[which(dataS$efgID == unique(dataS$efgID)[ii]), ]
-        Spp <- unique(dataT$VBA_CODE)
+        Spp <- unique(dataT$TAXON_ID)
         Sites <- unique(dataT$SurvID)
         Selection <-
           sample(1:length(Sites), size = NRep, replace = TRUE)
         for (jj in 1:length(Spp)) {
           dataR <-
-            rbind(dataR, dataT[which(dataT$VBA_CODE == Spp[jj]), ][Selection, ])
+            rbind(dataR, dataT[which(dataT$TAXON_ID == Spp[jj]), ][Selection, ])
         }
       }
     }
     data <- dataR
   }
   for (i in 1:nrow(SppList)) {
-    dat <- data[which(data$VBA_CODE == SppList$Species[i]), ]
+    dat <- data[which(data$TAXON_ID == SppList$Species[i]), ]
     if (rule == 'Rule0') {
       for (j in 2:ncol(SppList)) {
         dat1 <- dat[which(dat$efgID == names(SppList)[j]), ]
@@ -336,7 +336,7 @@ DataGen = function(data,
 
 ## Script to convert from old to new expert opinions
 ConvertExpert <- function(Code, x, Update = ExpertScore) {
-  New <- Update[which(Update$VBA_CODE == Code), ]
+  New <- Update[which(Update$TAXON_ID == Code), ]
   if (is.na(x) == TRUE) {
     y <- NA
   } else{
@@ -442,7 +442,7 @@ SppRes <- function(OptDat,
   res <-
     left_join(res, res2, by = 'efgID') %>% mutate(Optimisation = Optimal *
                                                     Area)
-  return(data.frame(VBA_CODE = OptDat$Species, as.matrix(OptDat[, -1]) %*% as.matrix(res[, -1:-3])))
+  return(data.frame(TAXON_ID = OptDat$Species, as.matrix(OptDat[, -1]) %*% as.matrix(res[, -1:-3])))
 }
 #### Model to use ####
 ## Inequality constraints.
