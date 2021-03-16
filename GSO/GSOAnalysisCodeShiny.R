@@ -2,52 +2,100 @@
 ######################### R script for running GSO in R ##################################################
 ##########################################################################################################
 
-library(readxl);library(dplyr);library(tidyr);library(stringr);library(nloptr);library(ggplot2)
+library(readxl)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(nloptr)
+library(ggplot2)
+
+source("./GSO/GSO_Functions.R")
 #source(file.path("GSO","tempsettings.r"))
 #### Pre-written text ####
 ## Pre-written text to be selected, depending on users choices in markdown document.
 
-RuleText <- data.frame(Rule=c('Rule0','Rule1','Rule1a','Rule1b','Rule1c','Rule2','Rule2a','Rule2b','Rule2c','Rule3','Rule3a',
-                              'Rule3b','Rule3c'),
-                       Text=c('expert opinion and no observational data.',
-                              'mean of observed data across surveys in that *EFG* growth stage where survey data is available for that species across all *EFG*s of interest, otherwise use the expert opinion.',
-                              'maximum of observed data across surveys in that *EFG* growth stage where survey data is available for that species across all *EFG*s of interest, otherwise use the expert opinion.',
-                              'median of observed data across surveys in that *EFG* growth stage where survey data is available for that species across all *EFG*s of interest, otherwise use the expert opinion.',
-                              'upper quartile of observed data across surveys in that *EFG* growth stage where survey data is available for that species across all *EFG*s of interest, otherwise use the expert opinion.',
-                              paste0('weighted mean of the mean of the survey data and the expert opinion, with ',100*dWt,'% of the weight going to the survey data, otherwise use the expert opinion.'),
-                              paste0('weighted mean of the maximum of the survey data and the expert opinion, with ',100*dWt,'% of the weight going to the survey data, otherwise use the expert opinion.'),
-                              paste0('weighted mean of the median of the survey data and the expert opinion, with ',100*dWt,'% of the weight going to the survey data, otherwise use the expert opinion.'),
-                              paste0('weighted mean of the upper quartile of the survey data and the expert opinion, with ',100*dWt,'% of the weight going to the survey data, otherwise use the expert opinion.'),
-                              'mean of observed data across surveys in that *EFG* growth stage and no expert opinion.',
-                              'maximum of observed data across surveys in that *EFG* growth stage and no expert opinion.',
-                              'median of observed data across surveys in that *EFG* growth stage and no expert opinion.',
-                              'upper quartile of observed data across surveys in that *EFG* growth stage and no expert opinion.'))
+RuleText <-
+  data.frame(
+    Rule = c(
+      'Rule0',
+      'Rule1',
+      'Rule1a',
+      'Rule1b',
+      'Rule1c',
+      'Rule2',
+      'Rule2a',
+      'Rule2b',
+      'Rule2c',
+      'Rule3',
+      'Rule3a',
+      'Rule3b',
+      'Rule3c'
+    ),
+    Text = c(
+      'expert opinion and no observational data.',
+      'mean of observed data across surveys in that *EFG* growth stage where survey data is available for that species across all *EFG*s of interest, otherwise use the expert opinion.',
+      'maximum of observed data across surveys in that *EFG* growth stage where survey data is available for that species across all *EFG*s of interest, otherwise use the expert opinion.',
+      'median of observed data across surveys in that *EFG* growth stage where survey data is available for that species across all *EFG*s of interest, otherwise use the expert opinion.',
+      'upper quartile of observed data across surveys in that *EFG* growth stage where survey data is available for that species across all *EFG*s of interest, otherwise use the expert opinion.',
+      paste0(
+        'weighted mean of the mean of the survey data and the expert opinion, with ',
+        100 * dWt,
+        '% of the weight going to the survey data, otherwise use the expert opinion.'
+      ),
+      paste0(
+        'weighted mean of the maximum of the survey data and the expert opinion, with ',
+        100 * dWt,
+        '% of the weight going to the survey data, otherwise use the expert opinion.'
+      ),
+      paste0(
+        'weighted mean of the median of the survey data and the expert opinion, with ',
+        100 * dWt,
+        '% of the weight going to the survey data, otherwise use the expert opinion.'
+      ),
+      paste0(
+        'weighted mean of the upper quartile of the survey data and the expert opinion, with ',
+        100 * dWt,
+        '% of the weight going to the survey data, otherwise use the expert opinion.'
+      ),
+      'mean of observed data across surveys in that *EFG* growth stage and no expert opinion.',
+      'maximum of observed data across surveys in that *EFG* growth stage and no expert opinion.',
+      'median of observed data across surveys in that *EFG* growth stage and no expert opinion.',
+      'upper quartile of observed data across surveys in that *EFG* growth stage and no expert opinion.'
+    )
+  )
 
 #### Data loading ####
 ## Common names and codes for fauna
-FaunaCodes=read_excel("VBA_FAUNA.xlsx",sheet=1)
+FaunaCodes = read_excel("VBA_FAUNA.xlsx", sheet = 1)
 #%>%
-  #mutate(across(c(SPEC_NO,VBA_CODE),as.integer))
+#mutate(across(c(SPEC_NO,VBA_CODE),as.integer))
 
 
 ## Species to EFG to LMU data
 #SpEFGLMU <- read.csv(input$spEFGLMU,na='NA')
 #SpEFGLMU <- read_excel(file.path("GSO",'Spp_EFG_LMU.xlsx'),sheet=1 ,na='NA')
 names(SpEFGLMU)[1] <- 'COMMON_NAME'
-SpEFGLMU <- left_join(SpEFGLMU,FaunaCodes,by='COMMON_NAME') %>%
-  mutate(efgID=paste0('EFG',str_sub(as.character(EFG_NO+100),2,3)), efgIDsp=paste(efgID,VBA_CODE,sep='_'))
+SpEFGLMU <- left_join(SpEFGLMU, FaunaCodes, by = 'COMMON_NAME') %>%
+  mutate(efgID = paste0('EFG', str_sub(as.character(EFG_NO + 100), 2, 3)),
+         efgIDsp = paste(efgID, VBA_CODE, sep = '_'))
 
 ## EFGs areas and scenarios
 #GSOScen<-read.csv(input$lmuScenarios,na='NA')
 #GSOScen <- read_excel('../GSO/ScenariosForGSO.xlsx',sheet='LMU Scenarios', na='NA')
-GSOScen$EFG <- paste0('EFG',str_sub(100+GSOScen$EFG_NO,-2,-1))
-GSOScen$efgID <- paste(GSOScen$EFG,str_sub(GSOScen$GS_NAME,1,1),sep='_')
+GSOScen$EFG <- paste0('EFG', str_sub(100 + GSOScen$EFG_NO, -2, -1))
+GSOScen$efgID <-
+  paste(GSOScen$EFG, str_sub(GSOScen$GS_NAME, 1, 1), sep = '_')
 #GSOArea<-read.csv(input$lmuArea)
 #GSOArea <- read_excel('../GSO/ScenariosForGSO.xlsx',sheet='LMU Area', na='NA')
 
 ## EFG full names
-GSONames <- read_excel('TBL_VegetationGrowthStages.xlsx',sheet=1, na='NA')
-GSONames <- GSONames %>% group_by(EFG_NAME) %>% summarise(efgID=paste0('EFG',str_sub(100+first(EFG_NO),-2,-1)))
+GSONames <-
+  read_excel('TBL_VegetationGrowthStages.xlsx',
+             sheet = 1,
+             na = 'NA')
+GSONames <-
+  GSONames %>% group_by(EFG_NAME) %>% summarise(efgID = paste0('EFG', str_sub(100 +
+                                                                                first(EFG_NO), -2, -1)))
 
 ## Suvey data, long format. Each species and data point has a row.
 
@@ -55,452 +103,101 @@ GSONames <- GSONames %>% group_by(EFG_NAME) %>% summarise(efgID=paste0('EFG',str
 #summary(SurveyData)
 
 ## Expert opinion data, each efg period has a column, each data point has a row species
-ExpertData=read_excel('Reference data.xlsx',sheet='Ordinal expert data',na='')
-StageNames <- str_sub(unique(GSOScen$GS_NAME),1,1)
-for(i in 3:ncol(ExpertData)){
-  names(ExpertData)[i] <- paste(str_sub(names(ExpertData)[i],1,5),StageNames[((i+1) %% length(StageNames) + 1)],sep='_')
+ExpertData = read_excel('Reference data.xlsx', sheet = 'Ordinal expert data', na =
+                          '')
+StageNames <- str_sub(unique(GSOScen$GS_NAME), 1, 1)
+for (i in 3:ncol(ExpertData)) {
+  names(ExpertData)[i] <-
+    paste(str_sub(names(ExpertData)[i], 1, 5), StageNames[((i + 1) %% length(StageNames) + 1)], sep =
+            '_')
 }
 names(ExpertData)[1] <- 'COMMON_NAME'
-# summary(ExpertData) 
+# summary(ExpertData)
 
 ## Expert opinion data as an amount of birds
-ExpertScore <- read_excel('ExpertEstimate.xlsx',sheet=1,na='') %>% arrange(Code) %>% left_join(FaunaCodes, by='COMMON_NAME') %>%
+ExpertScore <-
+  read_excel('ExpertEstimate.xlsx', sheet = 1, na = '') %>% arrange(Code) %>% left_join(FaunaCodes, by =
+                                                                                          'COMMON_NAME') %>%
   dplyr::select(Code, COMMON_NAME, `0`, `1`, `2`, `3`, VBA_CODE)
 ExpertScore$Code <- toupper(ExpertScore$Code)
-names(ExpertScore) <- c('SPECIES_CODE','COMMON_NAME','None','Few','Some','Lots', 'VBA_CODE')
+names(ExpertScore) <-  c('SPECIES_CODE',
+                         'COMMON_NAME',
+                         'None',
+                         'Few',
+                         'Some',
+                         'Lots',
+                         'VBA_CODE')
 
-#### Functions ####
-## Functions written to help with the analysis.
-
-# Paul's function
-
-## Function to assign growth stage category given the EFG and TSF
-EFGCodes=read_excel("Reference data.xlsx",sheet='GS lookup')
-GSfn <- function(efg,tsf,data=EFGCodes){
-  dat<-c(unique(arrange(data[which(data$EFG_NO==efg),],BGS_START)$BGS_START),1000)[-1]
-  c('Juvenility','Adolescence','Mature','Old')[which(dat>tsf)][1]
-}
-
-## Run models on scenarios as well
-Scenarios <- function(data, Scen=GSOScen, efg=UsedEFG){
-  Scena <- data.frame(Scenario=unique(Scen$Scenario),GMA=NA)
-  for(i in 1:nrow(Scena)){
-    Scena$GMA[i] <- geomean.fun(left_join(data.frame(efgID=names(data)[-1]), Scen[which(Scen$Scenario==Scena$Scenario[i]),], by='efgID')$PercLandscape,data[-1])
-  }
-  return(Scena)
-}
-
-## Use the expert opinion only
-Rule0 <- function(data,Max=1){
-  Resp <- mean(data$Response[which(data$Source=='Expert')],na.rm=TRUE)
-  return(Resp)
-}
-
-## If available, use the mean of survey data, otherwise use expert opinion
-Rule1 <- function(data){
-  if(sum(data$Source=='Survey')>0){
-    datR <- data$Response[which(data$Source=='Survey')]
-    Resp <- mean(datR,na.rm=TRUE)
-  }
-  else{
-    Resp <- mean(data$Response[which(data$Source=='Expert')])
-  }
-  return(Resp)
-}
-
-## If available, use the maximum of survey data, otherwise use expert opinion
-Rule1a <- function(data){
-  if(sum(data$Source=='Survey')>0){
-    datR <- data$Response[which(data$Source=='Survey')]
-    Resp <- max(datR,na.rm=TRUE)
-  }
-  else{
-    Resp <- max(data$Response[which(data$Source=='Expert')])
-  }
-  return(Resp)
-}
-
-## If available, use the median of survey data, otherwise use expert opinion
-Rule1b <- function(data){
-  if(sum(data$Source=='Survey')>0){
-    datR <- data$Response[which(data$Source=='Survey')]
-    Resp <- median(datR,na.rm=TRUE)
-  }
-  else{
-    Resp <- median(data$Response[which(data$Source=='Expert')])
-  }
-  return(Resp)
-}
-
-## If available, use the upper quartile (75th quantile) of survey data, otherwise use expert opinion
-Rule1c <- function(data){
-  if(sum(data$Source=='Survey')>0){
-    datR <- data$Response[which(data$Source=='Survey')]
-    Resp <- quantile(datR,probs = 0.75,na.rm=TRUE)
-  }
-  else{
-    Resp <- quantile(data$Response[which(data$Source=='Expert'),probs = 0.75])
-  }
-  return(Resp)
-}
-
-## If available, use the weighted mean of mean survey data and expert opinion, otherwise use expert opinion
-Rule2 <- function(data,Weight=0.5){
-  ExpOp <- mean(data$Response[which(data$Source=='Expert')])
-  if(sum(data$Source=='Survey')>0){
-    datR <- data$Response[which(data$Source=='Survey')]
-    Resp <- Weight*mean(datR) + (1-Weight)*ExpOp
-  }
-  else{
-    Resp <- ExpOp
-  }
-  return(Resp)
-}
-
-## If available, use the weighted mean of maximum survey data and expert opinion, otherwise use expert opinion
-Rule2a <- function(data,Weight=0.5){
-  ExpOp <- max(data$Response[which(data$Source=='Expert')])
-  if(sum(data$Source=='Survey')>0){
-    datR <- data$Response[which(data$Source=='Survey')]
-    Resp <- Weight*max(datR) + (1-Weight)*ExpOp
-  }
-  else{
-    Resp <- ExpOp
-  }
-  return(Resp)
-}
-
-## If available, use the weighted mean of median survey data and expert opinion, otherwise use expert opinion
-Rule2b <- function(data,Weight=0.5){
-  ExpOp <- median(data$Response[which(data$Source=='Expert')])
-  if(sum(data$Source=='Survey')>0){
-    datR <- data$Response[which(data$Source=='Survey')]
-    Resp <- Weight*median(datR) + (1-Weight)*ExpOp
-  }
-  else{
-    Resp <- ExpOp
-  }
-  return(Resp)
-}
-
-## If available, use the weighted mean of upper quartile (75th quantile) survey data and expert opinion, otherwise use expert opinion
-Rule2c <- function(data,Weight=0.5){
-  ExpOp <- quantile(data$Response[which(data$Source=='Expert'),probs = 0.75])
-  if(sum(data$Source=='Survey')>0){
-    datR <- data$Response[which(data$Source=='Survey')]
-    Resp <- Weight*quantile(datR,probs = 0.75,na.rm=TRUE) + (1-Weight)*ExpOp
-  }
-  else{
-    Resp <- ExpOp
-  }
-  return(Resp)
-}
-
-## Use the mean of survey data where avaiable, otherwise use nothing
-Rule3 <- function(data){
-  if(sum(data$Source=='Survey')>0){
-    datR <- data$Response[which(data$Source=='Survey')]
-    Resp <- mean(datR,na.rm=TRUE)
-  }
-  else{
-    Resp <- NA
-  }
-  return(Resp)
-}
-
-## Use the maximum of survey data where avaiable, otherwise use nothing
-Rule3a <- function(data){
-  if(sum(data$Source=='Survey')>0){
-    datR <- data$Response[which(data$Source=='Survey')]
-    Resp <- max(datR,na.rm=TRUE)
-  }
-  else{
-    Resp <- NA
-  }
-  return(Resp)
-}
-
-## Use the maximum of survey data where avaiable, otherwise use nothing
-Rule3b <- function(data){
-  if(sum(data$Source=='Survey')>0){
-    datR <- data$Response[which(data$Source=='Survey')]
-    Resp <- median(datR,na.rm=TRUE)
-  }
-  else{
-    Resp <- NA
-  }
-  return(Resp)
-}
-
-## Use the maximum of survey data where avaiable, otherwise use nothing
-Rule3c <- function(data){
-  if(sum(data$Source=='Survey')>0){
-    datR <- data$Response[which(data$Source=='Survey')]
-    Resp <- quantile(datR,probs = 0.75,na.rm=TRUE)
-  }
-  else{
-    Resp <- NA
-  }
-  return(Resp)
-}
-
-## Function that generates the scores to use in the growth stage optimisation, including random selection
-DataGen=function(data,efgs,area=GSOArea,rule='Rule0',FT='High',Wt=0.5,Rand=FALSE,NRep=20){
-  nStages <- length(StageNames)
-  SppList = as.data.frame(matrix(NA,nrow = length(unique(data$VBA_CODE)), ncol = nStages*length(efgs)+1))
-  names(SppList) <- c('Species',paste(rep(efgs,each=nStages),unique(data$GS[which(data$GS != 'NA')]),sep='_'))
-  SppList$Species=unique(data$VBA_CODE)
-  SppSource <- SppList
-  data <- data[which(data$FireType==FT),]
-  if(Rand){
-    dataR <- data[which(data$Source == 'Expert' & data$Response >= 0),]
-    dataR$ID <- paste0('s',dataR$VBA_CODE,dataR$efgID)
-    dataS <- data[which(data$Source == 'Survey' & paste0('s',data$VBA_CODE,data$efgID) %in% unique(dataR$ID)),]
-    if(nrow(dataS) > 0){
-      dataS$ID <- paste0('s',dataS$VBA_CODE,dataS$efgID)
-      for(ii in 1:length(unique(dataS$efgID))){
-        dataT <- dataS[which(dataS$efgID==unique(dataS$efgID)[ii]),]
-        Spp <- unique(dataT$VBA_CODE)
-        Sites <- unique(dataT$SurvID)
-        Selection <- sample(1:length(Sites),size = NRep, replace = TRUE)
-        for(jj in 1:length(Spp)){
-          dataR <- rbind(dataR,dataT[which(dataT$VBA_CODE==Spp[jj]),][Selection,])
-        }
-      }
-    }
-    data <- dataR
-  }
-  for(i in 1:nrow(SppList)){
-    dat <- data[which(data$VBA_CODE==SppList$Species[i]),]
-    if(rule=='Rule0'){
-      for(j in 2:ncol(SppList)){
-        dat1 <- dat[which(dat$efgID==names(SppList)[j]),]
-        SppList[i,j] <- Rule0(dat1)
-        SppSource[i,j] <- 0
-      }
-    }
-    if(rule=='Rule1'){
-      for(j in 2:ncol(SppList)){
-        dat1 <- dat[which(dat$efgID==names(SppList)[j]),]
-        SppList[i,j] <- Rule1(dat1)
-        SppSource[i,j] <- NA
-      }
-    }
-    if(rule=='Rule1a'){
-      for(j in 2:ncol(SppList)){
-        dat1 <- dat[which(dat$efgID==names(SppList)[j]),]
-        SppList[i,j] <- Rule1a(dat1)
-        SppSource[i,j] <- NA
-      }
-    }
-    if(rule=='Rule1b'){
-      for(j in 2:ncol(SppList)){
-        dat1 <- dat[which(dat$efgID==names(SppList)[j]),]
-        SppList[i,j] <- Rule1b(dat1)
-        SppSource[i,j] <- NA
-      }
-    }
-    if(rule=='Rule1c'){
-      for(j in 2:ncol(SppList)){
-        dat1 <- dat[which(dat$efgID==names(SppList)[j]),]
-        SppList[i,j] <- Rule1c(dat1)
-        SppSource[i,j] <- NA
-      }
-    }
-    if(rule=='Rule2'){
-      for(j in 2:ncol(SppList)){
-        dat1 <- dat[which(dat$efgID==names(SppList)[j]),]
-        SppList[i,j] <- Rule2(dat1,Wt)
-        SppSource[i,j] <- NA
-      }
-    }
-    if(rule=='Rule2a'){
-      for(j in 2:ncol(SppList)){
-        dat1 <- dat[which(dat$efgID==names(SppList)[j]),]
-        SppList[i,j] <- Rule2a(dat1,Wt)
-        SppSource[i,j] <- NA
-      }
-    }
-    if(rule=='Rule2b'){
-      for(j in 2:ncol(SppList)){
-        dat1 <- dat[which(dat$efgID==names(SppList)[j]),]
-        SppList[i,j] <- Rule2b(dat1,Wt)
-        SppSource[i,j] <- NA
-      }
-    }
-    if(rule=='Rule2c'){
-      for(j in 2:ncol(SppList)){
-        dat1 <- dat[which(dat$efgID==names(SppList)[j]),]
-        SppList[i,j] <- Rule2c(dat1,Wt)
-        SppSource[i,j] <- NA
-      }
-    }
-    if(rule=='Rule3'){
-      for(j in 2:ncol(SppList)){
-        dat1 <- dat[which(dat$efgID==names(SppList)[j]),]
-        SppList[i,j] <- Rule3(dat1)
-        SppSource[i,j] <- NA
-      }
-    }
-    if(rule=='Rule3a'){
-      for(j in 2:ncol(SppList)){
-        dat1 <- dat[which(dat$efgID==names(SppList)[j]),]
-        SppList[i,j] <- Rule3a(dat1)
-        SppSource[i,j] <- NA
-      }
-    }
-    if(rule=='Rule3b'){
-      for(j in 2:ncol(SppList)){
-        dat1 <- dat[which(dat$efgID==names(SppList)[j]),]
-        SppList[i,j] <- Rule3b(dat1)
-        SppSource[i,j] <- NA
-      }
-    }
-    if(rule=='Rule3c'){
-      for(j in 2:ncol(SppList)){
-        dat1 <- dat[which(dat$efgID==names(SppList)[j]),]
-        SppList[i,j] <- Rule3c(dat1)
-        SppSource[i,j] <- NA
-      }
-    }
-  }
-  Areas <- left_join(data.frame(EFG_NO=as.numeric(str_sub(names(SppList[,-1]),4,5)),by="EFG_NO"), area[,-2])$Area
-  SppList[,-1] <- sweep(SppList[,-1], MARGIN = 2, Areas, '*')
-  NoZero <- which(rowSums(SppList[,-1],na.rm=TRUE)!=0)
-  SppList[,-1] <- apply(SppList[,-1],c(1,2),function(x){ifelse(is.na(x),0,x)})
-  return(list(SppList[NoZero,],SppSource[NoZero,]))
-}
-
-## Script to convert from old to new expert opinions
-ConvertExpert <- function(Code,x,Update=ExpertScore){
-  New <- Update[which(Update$VBA_CODE==Code),]
-  if(is.na(x)==TRUE){
-    y <- NA
-  }else{
-    if(x<0.3){
-      y1 <- New$None
-      y2 <- New$Few
-      x1 <- 0
-      x2 <- 0.3
-    } else{
-      if(x<0.67){
-        y1 <- New$Few
-        y2 <- New$Some
-        x1 <- 0.3
-        x2 <- 0.67
-      } else{
-        y1 <- New$Some
-        y2 <- New$Lots
-        x1 <- 0.67
-        x2 <- 1
-      }
-    }
-    m <- (y2-y1)/(x2-x1)
-    b <- y1 - m*x1
-    y <- m*x + b
-  }
-  return(y)
-}
-
-# Matt Chick's functions
-
-## Handy helper function, constructing a n-length vector c(k, ..., k)
-const_vector <- function(n, k) {
-  return( sapply(seq_len(n), function (x) return(k)) )
-}
-
-## The original objective.
-geomean.fun <- function(x, spp){
-  logsum <- sum(log(apply(spp, 1, function (row) { sum(x*row, na.rm=TRUE)})))
-  exp(logsum/(dim(spp)[1]))
-}
-
-## The reformulated objective. nloptr expects a minimization problem.
-## The objective, constraints (and corresponding gradients) all take the
-## same set of extra arguments.
-geomean.obj <- function (x, spp) {
-  logsum <- sum(log(apply(spp, 1, function (row) { sum(x*row, na.rm=TRUE) })))
-  return(-logsum)
-}
-
-## The gradient of geomean.obj.
-## Returns a vector containing the partial derivatives wrt each var.
-geomean.grad <- function(x, spp) {
-  ## The contribution of each row to the gradient.
-  ## The derivative of log(sum(X*R)) wrt x is R[x]/(sum(X*R)).
-  contrib <- apply(spp, 1, function(row) { -row/(sum(x*row, na.rm=TRUE)) })
-  ## Sum the contribution vectors to get the gradient
-  grad <- apply(contrib, 1, function(dWt){sum(dWt, na.rm=TRUE)})
-  return(grad)
-}
-
-# Randon proportions function (used for generating starting values)
-props <- function(ncol, nrow, var.names=NULL){
-  if (ncol < 2) stop("ncol must be greater than 1")
-  p <- function(n){
-    ## I _think_ this should be near uniform
-    z <- sample(seq(0, 1, by=.01), n, replace=TRUE)
-    ## If we're very unlucky, sample may return all zeros.
-    if(sum(z) == 0) z <- const_vector(length(x), 1)
-    return(z/sum(z))
-  }
-  DM <- data.matrix(t(replicate(nrow, p(n=ncol))))
-  return(DM)
-}
-
-CIM <- function(x){
-  c(mean(x),quantile(x,probs=c(0.025,0.975)))
-}
-
-SppRes <- function(OptDat, OptRes, Scen = GSOScen, TArea=GSOArea){
-  res <- data.frame(efgID=names(OptRes[-length(OptRes)]), Optimal=as.vector(unclass(t(OptRes[1,-length(OptRes)]))))
-  res2 <- left_join(res, Scen) %>% left_join(TArea[,-2]) %>% mutate(Land=PercLandscape*Area) %>%
-    dplyr::select(efgID, Area, Scenario, Land) %>% spread(Scenario, Land)
-  res <- left_join(res, res2, by='efgID') %>% mutate(Optimisation=Optimal*Area)
-  return(data.frame(VBA_CODE=OptDat$Species, as.matrix(OptDat[,-1]) %*% as.matrix(res[,-1:-3])))
-}
 
 #### Construct data into the required format ####
 ## Add the GS_Name to the survey data
 SurveyData$GS_NAME <- NA
-for(i in 1:nrow(SurveyData)){
-  SurveyData$GS_NAME[i] <- GSfn(SurveyData$EFG_NO[i],SurveyData$TSF[i])
+for (i in 1:nrow(SurveyData)) {
+  SurveyData$GS_NAME[i] <-
+    GSfn(SurveyData$EFG_NO[i], SurveyData$TSF[i])
 }
-SurveyData$efgID <- paste0('EFG',ifelse(SurveyData$EFG_NO>9,'','0'),SurveyData$EFG_NO,'_',str_sub(SurveyData$GS_NAME,1,1))
-EFGData <- SurveyData %>% filter(!is.na(GS_NAME)) %>% group_by(efgID) %>% summarise(EFG=first(EFG_NO), GS = first(GS_NAME))
+SurveyData$efgID <-
+  paste0(
+    'EFG',
+    ifelse(SurveyData$EFG_NO > 9, '', '0'),
+    SurveyData$EFG_NO,
+    '_',
+    str_sub(SurveyData$GS_NAME, 1, 1)
+  )
+EFGData <-SurveyData %>%
+  filter(!is.na(GS_NAME)) %>% 
+  group_by(efgID) %>% 
+  summarise(EFG =  first(EFG_NO), GS = first(GS_NAME))
 
 ## Convert the expert data to longer form, each row is an observation of species at a particular EFG GS
-ExpertData2 <- left_join(ExpertData,dplyr::select(FaunaCodes,COMMON_NAME,VBA_CODE),by='COMMON_NAME') %>%
+ExpertData2 <-
+  left_join(ExpertData,
+            dplyr::select(FaunaCodes, COMMON_NAME, VBA_CODE),
+            by = 'COMMON_NAME') %>%
   filter(VBA_CODE %in% ExpertScore$VBA_CODE)
-for(i in 1:nrow(ExpertData2)){
-  for(j in 3:(ncol(ExpertData2)-1)){
-    ExpertData2[i,j] <- ConvertExpert(ExpertData2$VBA_CODE[i],ExpertData2[i,j])
+
+for (i in 1:nrow(ExpertData2)) {
+  for (j in 3:(ncol(ExpertData2) - 1)) {
+    ExpertData2[i, j] <-
+      ConvertExpert(ExpertData2$VBA_CODE[i], ExpertData2[i, j])
   }
 }
-ExpertData2 <- ExpertData2[which(ExpertData2$VBA_CODE %in% unique(SpEFGLMU$VBA_CODE)),c(1,ncol(ExpertData2),2:(ncol(ExpertData2)-1))]
-ExpertData2 <- ExpertData2 %>% gather('efgID','Response',4:ncol(ExpertData2))
+ExpertData2 <-
+  ExpertData2[which(ExpertData2$VBA_CODE %in% unique(SpEFGLMU$VBA_CODE)),
+              c(1, ncol(ExpertData2), 2:(ncol(ExpertData2) - 1))]
+ExpertData2 <-  ExpertData2 %>% 
+  gather('efgID', 'Response', 4:ncol(ExpertData2))
 
 ## Combine the survey and expert data frames together to be used in conversion and GSO
-WorkData <- rbind(data.frame(Source='Expert',SurvID='Expert', ExpertData2[,c(1:2,4,3,5)]),
-                  data.frame(Source='Survey', SurvID=SurveyData$SurvID, SurveyData[,c(4,3,11,7,8)]))
-WorkData <- WorkData %>% separate(efgID,c('EFG','GS'),sep = '_',remove = FALSE) %>%
-  filter(paste(EFG,VBA_CODE,sep='_') %in% unique(SpEFGLMU$efgIDsp[which(SpEFGLMU$EFG_NO %in% GSOArea$EFG_NO)]))
-if(!Classes=="All"){
-  WorkData <- WorkData %>% left_join(FaunaCodes[,4:5], by='VBA_CODE') %>% filter(DIVNAME %in% Classes)
+WorkData <-  rbind(
+    data.frame(Source = 'Expert', SurvID = 'Expert', ExpertData2[, c(1:2, 4, 3, 5)]),
+    data.frame(Source = 'Survey', SurvID = SurveyData$SurvID, SurveyData[, c(4, 3, 11, 7, 8)])
+  )
+WorkData <-  WorkData %>% 
+  separate(efgID, c('EFG', 'GS'), sep = '_', remove = FALSE) %>%
+  filter(paste(EFG, VBA_CODE, sep = '_') %in% 
+           unique(SpEFGLMU$efgIDsp[which(SpEFGLMU$EFG_NO %in% GSOArea$EFG_NO)]))
+
+if (!Classes == "All") {
+  WorkData <- WorkData %>% 
+    left_join(FaunaCodes[, 4:5], by = 'VBA_CODE') %>% 
+    filter(DIVNAME %in% Classes)
 }
-Usedefgs <- GSONames$efgID[which(as.numeric(str_sub(GSONames$efgID,-2,-1)) %in% GSOArea$EFG_NO)]
+Usedefgs <-
+  GSONames$efgID[which(as.numeric(str_sub(GSONames$efgID, -2, -1)) %in% GSOArea$EFG_NO)]
 
-NoData <- SpEFGLMU %>% filter(EFG_NO %in% GSOArea$EFG_NO & !(efgIDsp %in% unique(
-  paste(WorkData$EFG[which(WorkData$FireType==FireType)], WorkData$VBA_CODE[which(WorkData$FireType==FireType)],sep='_')))) %>%
-  group_by(COMMON_NAME,VBA_CODE) %>% summarise(n=n()) %>% left_join(FaunaCodes[,3:5], by = 'VBA_CODE')
+NoData <-  SpEFGLMU %>% 
+  filter(EFG_NO %in% GSOArea$EFG_NO &
+           !(efgIDsp %in% 
+               unique( paste(WorkData$EFG[which(WorkData$FireType == FireType)],
+                             WorkData$VBA_CODE[which(WorkData$FireType == FireType)], sep = '_')
+                        ))) %>%
+  group_by(COMMON_NAME, VBA_CODE) %>% 
+  summarise(n = n()) %>% 
+  left_join(FaunaCodes[, 3:5], by = 'VBA_CODE')
 head(NoData)
-write.csv(NoData[,c(4,1:2,5)],file.path(GSOResultsDir,('List of species without suitable data.csv')))
+write.csv(NoData[, c(4, 1:2, 5)], file.path(GSOResultsDir, ('List of species without suitable data.csv')))
 
-# Allefgs <- unique(WorkData$EFG)
-# Allefgs <- c('EFG06','EFG07','EFG11','EFG12','EFG13','EFG14','EFG26','EFG27','EFG28')
-## Limit data to three EFGs
-# efgs=c('EFG07','EFG12','EFG14')
-# WorkDataSub3 <- WorkData %>% filter(EFG %in% efgs)
 
 #### Model to use ####
 ## Inequality constraints.
@@ -510,9 +207,9 @@ write.csv(NoData[,c(4,1:2,5)],file.path(GSOResultsDir,('List of species without 
 
 eval_cs <- function(x, spp) {
   n <- length(StageNames)
-  Res <- rep(NA,length(x)/n)
-  for(i in 1:length(Res)){
-    Res[i] <- sum(x[1:n + (i-1)*n])-1
+  Res <- rep(NA, length(x) / n)
+  for (i in 1:length(Res)) {
+    Res[i] <- sum(x[1:n + (i - 1) * n]) - 1
   }
   return(Res)
 }
@@ -522,88 +219,158 @@ eval_cs <- function(x, spp) {
 ## coefficients of each varible in eval_cs.
 eval_cs_jac <- function(x, spp) {
   n <- length(StageNames)
-  return(matrix(rep(c(rep(1,n),rep(0,length(x))),length(x)/n),ncol=length(x),nrow=length(x)/n,byrow = TRUE))
+  return(matrix(
+    rep(c(rep(1, n), rep(0, length(
+      x
+    ))), length(x) / n),
+    ncol = length(x),
+    nrow = length(x) / n,
+    byrow = TRUE
+  ))
 }
 
 
 
-gso <- function(spp){
-  x0 <- const_vector(ncol(spp), 1/ncol(spp)) ## *** Corresponds to the number of columns in the input ***
-  run <- nloptr(x0 = x0, eval_f=geomean.obj, eval_grad_f = geomean.grad,
-                lb = const_vector(length(x0), 0),
-                ub = const_vector(length(x0), 1),
-                eval_g_ineq = eval_cs,
-                eval_jac_g_ineq = eval_cs_jac,
-                opts = list(
-                  ## Algorithm to use. 
-                  "algorithm" = "NLOPT_LD_MMA",
-                  ## Termination conditions
-                  "maxeval"=1000,
-                  "ftol_rel"=1.0e-15,
-                  "xtol_rel"=1.0e-8,
-                  ## Suppress output during optimization
-                  "print_level"=0
-                ),
-                spp = spp)
+gso <- function(spp) {
+  x0 <-
+    const_vector(ncol(spp), 1 / ncol(spp)) ## *** Corresponds to the number of columns in the input ***
+  run <-
+    nloptr(
+      x0 = x0,
+      eval_f = geomean.obj,
+      eval_grad_f = geomean.grad,
+      lb = const_vector(length(x0), 0),
+      ub = const_vector(length(x0), 1),
+      eval_g_ineq = eval_cs,
+      eval_jac_g_ineq = eval_cs_jac,
+      opts = list(
+        ## Algorithm to use.
+        "algorithm" = "NLOPT_LD_MMA",
+        ## Termination conditions
+        "maxeval" = 1000,
+        "ftol_rel" = 1.0e-15,
+        "xtol_rel" = 1.0e-8,
+        ## Suppress output during optimization
+        "print_level" = 0
+      ),
+      spp = spp
+    )
   ## Find the objective value corresponding to the optimal solution
   res <- rbind(c(run$solution, geomean.fun(run$solution, spp)))
-  colnames(res) <- c(names(spp),"geom")
+  colnames(res) <- c(names(spp), "geom")
   res <- data.frame(res)
   return (res)
 }
 
 
 ## Function to run repeated samlpes and calculate 95% CIs
-OptRunCI <- function(data, efgs, Scen=GSOScen ,area=GSOArea, rule='Rule0', FiTy='High', Weight=0.5, NRep=20, N = 10, Comp=Comparison){
-  OptData <- DataGen(data,efgs=efgs,rule = rule, FT=FiTy, Wt=Weight, Rand=TRUE, NRep=NRep)[[1]]
-  resultn <- gso(spp=OptData[,-1])
-  resultS <- Scenarios(OptData, Scen=Scen, efg=efgs)
-  resultS2 <- as.data.frame(t(c(resultS$GMA, resultn$geom)))
-  names(resultS2) <- c(levels(resultS$Scenario)[resultS$Scenario], 'Optimisation')
-  SpecRes <- SppRes(OptData, resultn, Scen = Scen, TArea = area)
-  SpList <- array(NA,dim = c(nrow(SpecRes), ncol(SpecRes), N))
-  SpList[,,1] <- as.matrix(SpecRes)
-  for(i in 2:N){
-    OptData <- DataGen(data,efgs=efgs,rule = rule, FT=FiTy, Wt=Weight, Rand=TRUE, NRep=NRep)[[1]]
-    resultn[i,] <- gso(spp=OptData[,-1])
-    resultS <- Scenarios(OptData, Scen=Scen, efg=efgs)
-    resultS2[i,] <- t(c(resultS$GMA, resultn$geom[i]))
-    SpList[,,i] <- as.matrix(SppRes(OptData, resultn, Scen = Scen, TArea = area))
+OptRunCI <-
+  function(data,
+           efgs,
+           Scen = GSOScen ,
+           area = GSOArea,
+           rule = 'Rule0',
+           FiTy = 'High',
+           Weight = 0.5,
+           NRep = 20,
+           N = 10,
+           Comp = Comparison) {
+    OptData <-
+      DataGen(
+        data,
+        efgs = efgs,
+        rule = rule,
+        FT = FiTy,
+        Wt = Weight,
+        Rand = TRUE,
+        NRep = NRep
+      )[[1]]
+    resultn <- gso(spp = OptData[, -1])
+    resultS <- Scenarios(OptData, Scen = Scen, efg = efgs)
+    resultS2 <- as.data.frame(t(c(resultS$GMA, resultn$geom)))
+    names(resultS2) <-
+      c(levels(resultS$Scenario)[resultS$Scenario], 'Optimisation')
+    SpecRes <- SppRes(OptData, resultn, Scen = Scen, TArea = area)
+    SpList <- array(NA, dim = c(nrow(SpecRes), ncol(SpecRes), N))
+    SpList[, , 1] <- as.matrix(SpecRes)
+    for (i in 2:N) {
+      OptData <-
+        DataGen(
+          data,
+          efgs = efgs,
+          rule = rule,
+          FT = FiTy,
+          Wt = Weight,
+          Rand = TRUE,
+          NRep = NRep
+        )[[1]]
+      resultn[i, ] <- gso(spp = OptData[, -1])
+      resultS <- Scenarios(OptData, Scen = Scen, efg = efgs)
+      resultS2[i, ] <- t(c(resultS$GMA, resultn$geom[i]))
+      SpList[, , i] <-
+        as.matrix(SppRes(OptData, resultn, Scen = Scen, TArea = area))
+    }
+    res <- as.data.frame(t(apply(resultn, 2, CIM)))
+    row.names(res)[nrow(res)] <- c('Optimisation')
+    Scens <-
+      as.data.frame(t(apply(resultS2 / resultS2[, which(names(resultS2) == Comp)], 2, CIM)))
+    Scens0 <- as.data.frame(t(apply(resultS2, 2, CIM)))
+    names(res) <- c('Prop', 'LB', 'UB')
+    names(Scens) <- c('Prop', 'LB', 'UB')
+    resultn2 <-
+      data.frame(Scenario = rule, efgID = colnames(resultn), res)[-length(resultn), ]
+    resultn2$EFG <- as.numeric(str_sub(resultn2$efgID, 4, 5))
+    resultn2$GS <- StageNames
+    resultsSp <- data.frame(apply(SpList, c(1, 2), mean))
+    colnames(resultsSp) <- names(SpecRes)
+    resultsSp <- left_join(resultsSp, FaunaCodes[, -1])
+    return(list(resultn2, res[nrow(res), ], Scens, Scens0, resultsSp))
+    # return(resultn)
   }
-  res <- as.data.frame(t(apply(resultn,2,CIM)))
-  row.names(res)[nrow(res)] <- c('Optimisation')
-  Scens <- as.data.frame(t(apply(resultS2/resultS2[,which(names(resultS2)==Comp)],2,CIM)))
-  Scens0 <- as.data.frame(t(apply(resultS2,2,CIM)))
-  names(res) <- c('Prop', 'LB', 'UB')
-  names(Scens) <- c('Prop', 'LB', 'UB')
-  resultn2 <- data.frame(Scenario=rule,efgID = colnames(resultn), res)[-length(resultn),]
-  resultn2$EFG <- as.numeric(str_sub(resultn2$efgID,4,5))
-  resultn2$GS <- StageNames
-  resultsSp <- data.frame(apply(SpList,c(1,2),mean))
-  colnames(resultsSp) <- names(SpecRes)
-  resultsSp <- left_join(resultsSp,FaunaCodes[,-1])
-  return(list(resultn2,res[nrow(res),],Scens,Scens0,resultsSp))
-  # return(resultn)
-}
 
 #### Optimisation ####
-## This conducts "bootstrapping" so that we get not only the optimal solution, but the 95% credibleinterval as well
-OptCI <- OptRunCI(WorkData,Usedefgs, area=GSOArea, rule = Rule, FiTy=FireType, Weight=dWt, N=nsim, NRep = nrep)
+## This conducts "bootstrapping" so that we get not only the optimal solution,
+## but the 95% credible interval as well
+OptCI <-
+  OptRunCI(
+    WorkData,
+    Usedefgs,
+    area = GSOArea,
+    rule = Rule,
+    FiTy = FireType,
+    Weight = dWt,
+    N = nsim,
+    NRep = nrep
+  )
 
 OptCIS <- OptCI[[1]]
 OptCI0 <- OptCI[[2]]
 OptCIC <- OptCI[[3]]
 OptCIR <- OptCI[[4]]
 OptCISp <- OptCI[[5]]
-OptCIS$GS <- factor(OptCIS$GS, levels=StageNames)
+OptCIS$GS <- factor(OptCIS$GS, levels = StageNames)
 
 ## Comparisons to other scenarios
-OptSpp <- OptCISp[,c(ncol(OptCISp)-1, ncol(OptCISp)-2, 1, ncol(OptCISp), 2:(ncol(OptCISp)-3))]
+OptSpp <-
+  OptCISp[, c(ncol(OptCISp) - 1,
+              ncol(OptCISp) - 2,
+              1,
+              ncol(OptCISp),
+              2:(ncol(OptCISp) - 3))]
 names(OptSpp)[-1:-4] <- row.names(OptCIC)
-OptSpp[,-1:-4] <- round(100*(OptSpp[,-1:-4]/OptSpp[,which(names(OptSpp)==Comparison)]-1),1)
-OptSpp <- OptSpp[,-which(names(OptSpp)==Comparison)]
-write.csv(OptSpp,file.path(GSOResultsDir,( 'GSO Species Changes.csv')), row.names = FALSE)
+OptSpp[, -1:-4] <-
+  round(100 * (OptSpp[, -1:-4] / OptSpp[, which(names(OptSpp) == Comparison)] -
+                 1), 1)
+OptSpp <- OptSpp[, -which(names(OptSpp) == Comparison)]
+write.csv(OptSpp, file.path(GSOResultsDir, ('GSO Species Changes.csv')), row.names = FALSE)
 
-SppDec <- data.frame(SpecDec=c('More than 20%', 'More than 50%', '100% (local extinction)'),
-                     rbind(colSums(OptSpp[,-1:-4] < -20), colSums(OptSpp[,-1:-4] < -50), colSums(OptSpp[,-1:-4] == -100)))
+SppDec <-
+  data.frame(
+    SpecDec = c('More than 20%', 'More than 50%', '100% (local extinction)'),
+    rbind(
+      colSums(OptSpp[, -1:-4] < -20),
+      colSums(OptSpp[, -1:-4] < -50),
+      colSums(OptSpp[, -1:-4] == -100)
+    )
+  )
 names(SppDec) <- c('Species declining by', names(OptSpp)[-1:-4])
