@@ -348,7 +348,7 @@ server <- function(session, input, output) {
                                                          "GS4_NO",
                                                          "FireType",
                                                          "Abund",
-                                                         "VBA_CODE")]  #Select the file giving the fauna relative abundance inputs you wish to use
+                                                         "TAXON_ID")]  #Select the file giving the fauna relative abundance inputs you wish to use
         AbundDataByGS$FireTypeNo[AbundDataByGS$FireType == "High"] <-
           2
         AbundDataByGS$FireTypeNo[AbundDataByGS$FireType == "Low"] <-
@@ -357,7 +357,7 @@ server <- function(session, input, output) {
         
         AbundDataLong = merge(AbundDataByGS, EFG_TSF_4GS, by = c('EFG_NO', 'GS4_NO'))
         AbundDataLong <-
-          AbundDataLong[order(AbundDataLong$VBA_CODE),]
+          AbundDataLong[order(AbundDataLong$TAXON_ID),]
         print("making Spp abund LU List")
         LU_List <- make_Spp_LU_list(myHDMSpp_NO = HDMSpp_NO,
                                     myAbundDataLong = AbundDataLong)

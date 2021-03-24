@@ -16,8 +16,8 @@ Scenarios <- function(data, Scen = GSOScen, efg = UsedEFG) {
   Scena <- data.frame(Scenario = unique(Scen$Scenario), GMA = NA)
   for (i in 1:nrow(Scena)) {
     Scena$GMA[i] <-
-      geomean.fun(left_join(data.frame(efgID = names(data)[-1]), Scen[which(Scen$Scenario ==
-                                                                              Scena$Scenario[i]), ], by = 'efgID')$PercLandscape,
+      geomean.fun(left_join(data.frame(EFG_GS = names(data)[-1]), Scen[which(Scen$Scenario ==
+                                                                              Scena$Scenario[i]), ], by = 'EFG_GS')$PercLandscape,
                   data[-1])
   }
   return(Scena)
@@ -204,17 +204,17 @@ DataGen = function(data,
   data <- data[which(data$FireType == FT), ]
   if (Rand) {
     dataR <- data[which(data$Source == 'Expert' & data$Response >= 0), ]
-    dataR$ID <- paste0('s', dataR$TAXON_ID, dataR$efgID)
+    dataR$ID <- paste0('s', dataR$TAXON_ID, dataR$EFG_GS)
     dataS <-
       data[which(
         data$Source == 'Survey' &
-          paste0('s', data$TAXON_ID, data$efgID) %in%
+          paste0('s', data$TAXON_ID, data$EFG_GS) %in%
           unique(dataR$ID)
       ), ]
     if (nrow(dataS) > 0) {
-      dataS$ID <- paste0('s', dataS$TAXON_ID, dataS$efgID)
-      for (ii in 1:length(unique(dataS$efgID))) {
-        dataT <- dataS[which(dataS$efgID == unique(dataS$efgID)[ii]), ]
+      dataS$ID <- paste0('s', dataS$TAXON_ID, dataS$EFG_GS)
+      for (ii in 1:length(unique(dataS$EFG_GS))) {
+        dataT <- dataS[which(dataS$EFG_GS == unique(dataS$EFG_GS)[ii]), ]
         Spp <- unique(dataT$TAXON_ID)
         Sites <- unique(dataT$SurvID)
         Selection <-
@@ -231,91 +231,91 @@ DataGen = function(data,
     dat <- data[which(data$TAXON_ID == SppList$Species[i]), ]
     if (rule == 'Rule0') {
       for (j in 2:ncol(SppList)) {
-        dat1 <- dat[which(dat$efgID == names(SppList)[j]), ]
+        dat1 <- dat[which(dat$EFG_GS == names(SppList)[j]), ]
         SppList[i, j] <- Rule0(dat1)
         SppSource[i, j] <- 0
       }
     }
     if (rule == 'Rule1') {
       for (j in 2:ncol(SppList)) {
-        dat1 <- dat[which(dat$efgID == names(SppList)[j]), ]
+        dat1 <- dat[which(dat$EFG_GS == names(SppList)[j]), ]
         SppList[i, j] <- Rule1(dat1)
         SppSource[i, j] <- NA
       }
     }
     if (rule == 'Rule1a') {
       for (j in 2:ncol(SppList)) {
-        dat1 <- dat[which(dat$efgID == names(SppList)[j]), ]
+        dat1 <- dat[which(dat$EFG_GS == names(SppList)[j]), ]
         SppList[i, j] <- Rule1a(dat1)
         SppSource[i, j] <- NA
       }
     }
     if (rule == 'Rule1b') {
       for (j in 2:ncol(SppList)) {
-        dat1 <- dat[which(dat$efgID == names(SppList)[j]), ]
+        dat1 <- dat[which(dat$EFG_GS == names(SppList)[j]), ]
         SppList[i, j] <- Rule1b(dat1)
         SppSource[i, j] <- NA
       }
     }
     if (rule == 'Rule1c') {
       for (j in 2:ncol(SppList)) {
-        dat1 <- dat[which(dat$efgID == names(SppList)[j]), ]
+        dat1 <- dat[which(dat$EFG_GS == names(SppList)[j]), ]
         SppList[i, j] <- Rule1c(dat1)
         SppSource[i, j] <- NA
       }
     }
     if (rule == 'Rule2') {
       for (j in 2:ncol(SppList)) {
-        dat1 <- dat[which(dat$efgID == names(SppList)[j]), ]
+        dat1 <- dat[which(dat$EFG_GS == names(SppList)[j]), ]
         SppList[i, j] <- Rule2(dat1, Wt)
         SppSource[i, j] <- NA
       }
     }
     if (rule == 'Rule2a') {
       for (j in 2:ncol(SppList)) {
-        dat1 <- dat[which(dat$efgID == names(SppList)[j]), ]
+        dat1 <- dat[which(dat$EFG_GS == names(SppList)[j]), ]
         SppList[i, j] <- Rule2a(dat1, Wt)
         SppSource[i, j] <- NA
       }
     }
     if (rule == 'Rule2b') {
       for (j in 2:ncol(SppList)) {
-        dat1 <- dat[which(dat$efgID == names(SppList)[j]), ]
+        dat1 <- dat[which(dat$EFG_GS == names(SppList)[j]), ]
         SppList[i, j] <- Rule2b(dat1, Wt)
         SppSource[i, j] <- NA
       }
     }
     if (rule == 'Rule2c') {
       for (j in 2:ncol(SppList)) {
-        dat1 <- dat[which(dat$efgID == names(SppList)[j]), ]
+        dat1 <- dat[which(dat$EFG_GS == names(SppList)[j]), ]
         SppList[i, j] <- Rule2c(dat1, Wt)
         SppSource[i, j] <- NA
       }
     }
     if (rule == 'Rule3') {
       for (j in 2:ncol(SppList)) {
-        dat1 <- dat[which(dat$efgID == names(SppList)[j]), ]
+        dat1 <- dat[which(dat$EFG_GS == names(SppList)[j]), ]
         SppList[i, j] <- Rule3(dat1)
         SppSource[i, j] <- NA
       }
     }
     if (rule == 'Rule3a') {
       for (j in 2:ncol(SppList)) {
-        dat1 <- dat[which(dat$efgID == names(SppList)[j]), ]
+        dat1 <- dat[which(dat$EFG_GS == names(SppList)[j]), ]
         SppList[i, j] <- Rule3a(dat1)
         SppSource[i, j] <- NA
       }
     }
     if (rule == 'Rule3b') {
       for (j in 2:ncol(SppList)) {
-        dat1 <- dat[which(dat$efgID == names(SppList)[j]), ]
+        dat1 <- dat[which(dat$EFG_GS == names(SppList)[j]), ]
         SppList[i, j] <- Rule3b(dat1)
         SppSource[i, j] <- NA
       }
     }
     if (rule == 'Rule3c') {
       for (j in 2:ncol(SppList)) {
-        dat1 <- dat[which(dat$efgID == names(SppList)[j]), ]
+        dat1 <- dat[which(dat$EFG_GS == names(SppList)[j]), ]
         SppList[i, j] <- Rule3c(dat1)
         SppSource[i, j] <- NA
       }
@@ -434,13 +434,13 @@ SppRes <- function(OptDat,
                    Scen = GSOScen,
                    TArea = GSOArea) {
   res <-
-    data.frame(efgID = names(OptRes[-length(OptRes)]), Optimal = as.vector(unclass(t(OptRes[1, -length(OptRes)]))))
+    data.frame(EFG_GS = names(OptRes[-length(OptRes)]), Optimal = as.vector(unclass(t(OptRes[1, -length(OptRes)]))))
   res2 <-
     left_join(res, Scen) %>% left_join(TArea[, -2]) %>% mutate(Land = PercLandscape *
                                                                  Area) %>%
-    dplyr::select(efgID, Area, Scenario, Land) %>% spread(Scenario, Land)
+    dplyr::select(EFG_GS, Area, Scenario, Land) %>% spread(Scenario, Land)
   res <-
-    left_join(res, res2, by = 'efgID') %>% mutate(Optimisation = Optimal *
+    left_join(res, res2, by = 'EFG_GS') %>% mutate(Optimisation = Optimal *
                                                     Area)
   return(data.frame(TAXON_ID = OptDat$Species, as.matrix(OptDat[, -1]) %*% as.matrix(res[, -1:-3])))
 }
@@ -561,8 +561,8 @@ OptRunCI <-
     names(res) <- c('Prop', 'LB', 'UB')
     names(Scens) <- c('Prop', 'LB', 'UB')
     resultn2 <-
-      data.frame(Scenario = rule, efgID = colnames(resultn), res)[-length(resultn), ]
-    resultn2$EFG <- as.numeric(str_sub(resultn2$efgID, 4, 5))
+      data.frame(Scenario = rule, EFG_GS = colnames(resultn), res)[-length(resultn), ]
+    resultn2$EFG <- as.numeric(str_sub(resultn2$EFG_GS, 4, 5))
     resultn2$GS <- StageNames
     resultsSp <- data.frame(apply(SpList, c(1, 2), mean))
     colnames(resultsSp) <- names(SpecRes)

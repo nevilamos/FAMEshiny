@@ -469,7 +469,7 @@ ui <- dashboardPage(
                   6,
                   
                   wellPanel(
-                    h3("Select and upoad GSO .csv files"),
+                    h3("Select and upload GSO .csv files"),
                     fileInput(
                       inputId = "addGSOCSV",
                       label = "gsofiles to upload",
