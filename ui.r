@@ -531,6 +531,7 @@ ui <- dashboardPage(
                       "GSOFaunaClasses",
                       label = "Which fauna classes to use",
                       choices = c("All", "Birds", "Mammals", "Reptiles", "Frogs"),
+                      selected="All",
                       #"Insects", "Fishes", "Crustaceans", "Annelids",Molluscs", "Nemerteans", "Flatworms", "Cnidarians","Echinoderms", "Zooplankton"
                       multiple = T
                     ),
