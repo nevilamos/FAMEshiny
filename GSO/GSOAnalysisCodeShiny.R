@@ -9,7 +9,7 @@ library(stringr)
 library(nloptr)
 library(ggplot2)
 
-source("./GSO/GSO_Functions.R")
+source("GSO_Functions.R")
 #### Pre-written text ####
 ## Pre-written text to be selected, depending on users choices in markdown document.
 
@@ -65,7 +65,7 @@ RuleText <-
 
 #### Data loading ####
 ## Common names and codes for fauna
-FaunaCodes = read.csv("./ReferenceTables/VBA_FAUNA.csv")
+FaunaCodes = read.csv("../ReferenceTables/VBA_FAUNA.csv")
 
 ## Species to EFG to LMU data
 #SpEFGLMU <- read.csv(input$spEFGLMU,na='NA')
@@ -86,7 +86,7 @@ GSOScen$EFG_GS <-
 
 ## EFG full names
 GSONames <-
-  read.csv("./ReferenceTables/TBL_VegetationGrowthStages.csv",
+  read.csv("../ReferenceTables/TBL_VegetationGrowthStages.csv",
              na = 'NA')
 GSONames <-  GSONames %>% 
   group_by(EFG_NAME) %>% 
@@ -95,11 +95,13 @@ GSONames <-  GSONames %>%
 
 #### Construct data into the required format ####-----------------------
 ## Add the GS_Name to the survey data
-SurveyData$GS_NAME <- NA
-for (i in 1:nrow(SurveyData)) {
-  SurveyData$GS_NAME[i] <-
-    GSfn(SurveyData$EFG_NO[i], SurveyData$TSF[i])
-}
+SurveyData$TSF <- floor(SurveyData$TSF)
+GS_NAMES=c("Juvenile","Adolescent","Mature","Old")
+
+SurveyData<-left_join(SurveyData,EFG_TSF_4GS%>%
+                        rename(TSF=YSF,GS_NAME=GS4_NO))
+SurveyData$GS_NAME<-GS_NAMES[SurveyData$GS_NAME]
+
 SurveyData$EFG_GS <-
   paste0(
     'EFG',
@@ -115,7 +117,7 @@ EFGData <-SurveyData %>%
 
 ## Reformatting of OrdinalExpertLong Reference table so it can be used in Aspatial GSO ( rather than previous versions separate tables)
 OrdinalExpertLong <-
-  read.csv("./ReferenceTables/OrdinalExpertLong.csv")[,c("COMMON_NAME",
+  read.csv("../ReferenceTables/OrdinalExpertLong.csv")[,c("COMMON_NAME",
                                                           "TAXON_ID",
                                                           "FireType",
                                                           "EFG_GS",
@@ -124,7 +126,7 @@ OrdinalExpertLong <-
   filter(TAXON_ID %in% unique(SpEFGLMU$TAXON_ID))
 
 # Read revised Expert score values to be used in conversion by ConvertExpert()
-ExpertScore <-read.csv('./ReferenceTables/ExpertEstimate.csv', na = '') 
+ExpertScore <-read.csv('../ReferenceTables/ExpertEstimate.csv', na = '') 
 
 #conversion via none little some most all scale after pivot long
 #ideally the ConvertExpert() could be vectorised to avoid this loop
@@ -159,7 +161,7 @@ NoData <-  SpEFGLMU %>%
   group_by(COMMON_NAME, TAXON_ID) %>% 
   summarise(n = n()) %>% 
   left_join(FaunaCodes[, 3:5], by = 'TAXON_ID')
-head(NoData)
+
 write.csv(NoData[, c(4, 1:2, 5)], file.path(GSOResultsDir, ('List of species without suitable data.csv')))
 
 
@@ -169,8 +171,8 @@ write.csv(NoData[, c(4, 1:2, 5)], file.path(GSOResultsDir, ('List of species wit
 ## but the 95% credible interval as well
 OptCI <-
   OptRunCI(
-    WorkData,
-    Usedefgs,
+    data=WorkData,
+    efgs=Usedefgs,
     area = GSOArea,
     rule = Rule,
     FiTy = FireType,

@@ -3,13 +3,13 @@
 
 # Paul's function
 
-## Function to assign growth stage category given the EFG and TSF
-EFGCodes = read_excel("Reference data.xlsx", sheet = 'GS lookup')
-GSfn <- function(efg, tsf, data = EFGCodes) {
-  dat <-
-    c(unique(arrange(data[which(data$EFG_NO == efg), ], BGS_START)$BGS_START), 1000)[-1]
-  c('Juvenility', 'Adolescence', 'Mature', 'Old')[which(dat > tsf)][1]
-}
+# ## Function to assign growth stage category given the EFG and TSF
+# EFGCodes = read.csv("../ReferenceTables/GS_lookupGSO.csv")
+# GSfn <- function(efg, tsf, data = EFGCodes) {
+#   dat <-
+#     c(unique(arrange(data[which(data$EFG_NO == efg), ], BGS_START)$BGS_START), 1000)[-1]
+#   c('Juvenility', 'Adolescence', 'Mature', 'Old')[which(dat > tsf)][1]
+# }
 
 ## Run models on scenarios as well
 Scenarios <- function(data, Scen = GSOScen, efg = UsedEFG) {

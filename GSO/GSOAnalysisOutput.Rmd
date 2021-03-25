@@ -7,19 +7,19 @@ output: word_document
 ---
 
 ```{r setup, include=FALSE,}
-knitr::opts_chunk$set(echo = TRUE,fig.height = 6,fig.width = 8,root.dir="../")
+knitr::opts_chunk$set(echo = TRUE,fig.height = 6,fig.width = 8)
 print(getwd())
-                                                           
-# Packages
-library(readxl);library(dplyr);library(tidyr);library(stringr);library(nloptr);library(ggplot2);
 ```
 
 
+
 ```{r Options,include=FALSE, cache=FALSE}
-source("./GSO/GSOSettings.r")
+# Packages
+library(readxl);library(dplyr);library(tidyr);library(stringr);library(nloptr);library(ggplot2);
+source("GSOSettings.r")
 
 print("Running GSO Analysis")
-source("./GSO/GSOAnalysisCodeShiny.R")
+source("GSOAnalysisCodeShiny.R")
 ```
 
 ## Overview
