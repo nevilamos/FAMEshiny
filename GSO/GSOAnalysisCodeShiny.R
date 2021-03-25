@@ -84,13 +84,13 @@ GSOScen$EFG_GS <-
 #GSOArea<-read.csv(input$lmuArea)
 #GSOArea <- read_excel('../GSO/ScenariosForGSO.xlsx',sheet='LMU Area', na='NA')
 
-## EFG full names
-GSONames <-
-  read.csv("../ReferenceTables/TBL_VegetationGrowthStages.csv",
-             na = 'NA')
-GSONames <-  GSONames %>% 
-  group_by(EFG_NAME) %>% 
-  summarise(EFG_GS = paste0('EFG', str_sub(100 + first(EFG_NO), -2, -1)))
+# ## EFG full names
+# GSONames <-
+#   read.csv("../ReferenceTables/TBL_VegetationGrowthStages.csv",
+#              na = 'NA')
+# GSONames <-  GSONames %>% 
+#   group_by(EFG_NAME) %>% 
+#   summarise(EFG_GS = paste0('EFG', str_sub(100 + first(EFG_NO), -2, -1)))
 
 
 #### Construct data into the required format ####-----------------------
@@ -149,8 +149,19 @@ if (!Classes == "All") {
     left_join(FaunaCodes[, 4:5], by = 'TAXON_ID') %>% 
     filter(DIVNAME %in% Classes)
 }
-Usedefgs <-
-  GSONames$EFG_GS[which(as.numeric(str_sub(GSONames$EFG_GS, -2, -1)) %in% GSOArea$EFG_NO)]
+
+## get UsedEFGs - there must be a better way to do this next bit to get usedEFGnames at the moment relying on TBL_VegetationGrowthStages.csv which is only used for this purpose - should be able to get wome other way from EFG in one of the other tables
+# GSONames <-
+#   read.csv("../ReferenceTables/TBL_VegetationGrowthStages.csv",
+#              na = 'NA')
+# GSONames <-  GSONames %>%
+#   group_by(EFG_NAME) %>%
+#   summarise(EFG_GS = paste0('EFG', str_sub(100 + first(EFG_NO), -2, -1)))
+# 
+# Usedefgs <-
+#   GSONames$EFG_GS[which(as.numeric(str_sub(GSONames$EFG_GS, -2, -1)) %in% GSOArea$EFG_NO)]
+Usedefgs <-str_pad(GSOArea$EFG_NO, 2, pad = "0")
+
 
 NoData <-  SpEFGLMU %>% 
   filter(EFG_NO %in% GSOArea$EFG_NO &
