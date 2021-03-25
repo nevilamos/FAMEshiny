@@ -87,46 +87,11 @@ GSOScen$EFG_GS <-
 
 ## EFG full names
 GSONames <-
-  read_excel('TBL_VegetationGrowthStages.xlsx',
-             sheet = 1,
+  read.csv('TBL_VegetationGrowthStages.csv',
              na = 'NA')
 GSONames <-  GSONames %>% 
   group_by(EFG_NAME) %>% 
   summarise(EFG_GS = paste0('EFG', str_sub(100 + first(EFG_NO), -2, -1)))
-
-## Survey data, long format. Each species and data point has a row.
-
-#SurveyData <- read_csv('../GSO/ObsData.xlsx',sheet='ObsData' ,na='NA')
-#summary(SurveyData)
-
-## Expert opinion data, each efg period has a column, each data point has a row species
-ExpertData = read_excel('Reference data.xlsx',
-                        sheet = 'Ordinal expert data', na ='')
-
-StageNames <- str_sub(unique(GSOScen$GS_NAME), 1, 1)
-for (i in 3:ncol(ExpertData)) {
-  names(ExpertData)[i] <-
-    paste(str_sub(names(ExpertData)[i], 1, 5), StageNames[((i + 1) %% length(StageNames) + 1)], sep =
-            '_')
-}
-names(ExpertData)[1] <- 'COMMON_NAME'
-# summary(ExpertData)
-
-## Expert opinion data as an amount of birds
-ExpertScore <-
-  read.csv('./ExpertEstimate.csv', na = '') %>%
-  arrange(Code) %>%
-  left_join(FaunaCodes, by =  'COMMON_NAME') %>%
-  dplyr::select(Code, COMMON_NAME, `X0`, `X1`, `X2`, `X3`, TAXON_ID)
-
-ExpertScore$Code <- toupper(ExpertScore$Code)
-names(ExpertScore) <-  c('SPECIES_CODE',
-                         'COMMON_NAME',
-                         'None',
-                         'Few',
-                         'Some',
-                         'Lots',
-                         'TAXON_ID')
 
 
 #### Construct data into the required format ####-----------------------
@@ -159,15 +124,15 @@ OrdinalExpertLong <-
   rename(Response=Abund)%>%
   filter(TAXON_ID %in% unique(SpEFGLMU$TAXON_ID))
 
-
+# Read revised Expert score values to be used in conversion by ConvertExpert()
+ExpertScore <-read.csv('./ExpertEstimate.csv', na = '') 
 
 #conversion via none little some most all scale after pivot long
 #ideally the ConvertExpert() could be vectorised to avoid this loop
 for (i in 1:nrow(OrdinalExpertLong)) {
-  print(i)
-  OrdinalExpertLong$Response[i]<-ConvertExpert(as.character(OrdinalExpertLong$TAXON_ID[i]), OrdinalExpertLong$Response[i])
+    OrdinalExpertLong$Response[i]<-ConvertExpert(as.character(OrdinalExpertLong$TAXON_ID[i]), OrdinalExpertLong$Response[i])
   }
-
+StageNames <- c("J", "A", "M", "O")
 ## Combine the survey and expert data frames together to be used in conversion and GSO
 WorkData <-  rbind(
     data.frame(Source = 'Expert', SurvID = 'Expert', OrdinalExpertLong[, c(1:2, 4, 3, 5)]),
