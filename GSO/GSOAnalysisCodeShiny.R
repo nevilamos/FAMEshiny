@@ -9,8 +9,7 @@ library(stringr)
 library(nloptr)
 library(ggplot2)
 
-source("./GSO_Functions.R")
-#source(file.path("GSO","GSOSettings.r"))
+source("./GSO/GSO_Functions.R")
 #### Pre-written text ####
 ## Pre-written text to be selected, depending on users choices in markdown document.
 
@@ -66,7 +65,7 @@ RuleText <-
 
 #### Data loading ####
 ## Common names and codes for fauna
-FaunaCodes = read.csv("VBA_FAUNA.csv")
+FaunaCodes = read.csv("./ReferenceTables/VBA_FAUNA.csv")
 
 ## Species to EFG to LMU data
 #SpEFGLMU <- read.csv(input$spEFGLMU,na='NA')
@@ -87,7 +86,7 @@ GSOScen$EFG_GS <-
 
 ## EFG full names
 GSONames <-
-  read.csv('TBL_VegetationGrowthStages.csv',
+  read.csv("./ReferenceTables/TBL_VegetationGrowthStages.csv",
              na = 'NA')
 GSONames <-  GSONames %>% 
   group_by(EFG_NAME) %>% 
@@ -116,7 +115,7 @@ EFGData <-SurveyData %>%
 
 ## Reformatting of OrdinalExpertLong Reference table so it can be used in Aspatial GSO ( rather than previous versions separate tables)
 OrdinalExpertLong <-
-  read.csv("../ReferenceTables/OrdinalExpertLong.csv")[,c("COMMON_NAME",
+  read.csv("./ReferenceTables/OrdinalExpertLong.csv")[,c("COMMON_NAME",
                                                           "TAXON_ID",
                                                           "FireType",
                                                           "EFG_GS",
@@ -125,7 +124,7 @@ OrdinalExpertLong <-
   filter(TAXON_ID %in% unique(SpEFGLMU$TAXON_ID))
 
 # Read revised Expert score values to be used in conversion by ConvertExpert()
-ExpertScore <-read.csv('./ExpertEstimate.csv', na = '') 
+ExpertScore <-read.csv('./ReferenceTables/ExpertEstimate.csv', na = '') 
 
 #conversion via none little some most all scale after pivot long
 #ideally the ConvertExpert() could be vectorised to avoid this loop
