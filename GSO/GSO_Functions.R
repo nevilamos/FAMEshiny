@@ -335,6 +335,7 @@ DataGen = function(data,
 }
 
 ## Script to convert from old to new expert opinions
+## ExpertScore is from ./ExpertEstimate.csv
 ConvertExpert <- function(Code, x, Update = ExpertScore) {
   New <- Update[which(Update$TAXON_ID == Code), ]
   if (is.na(x) == TRUE) {
@@ -506,7 +507,7 @@ gso <- function(spp) {
 }
 
 
-## Function to run repeated samlpes and calculate 95% CIs
+## Function to run repeated samples and calculate 95% CIs
 OptRunCI <-
   function(data,
            efgs,
