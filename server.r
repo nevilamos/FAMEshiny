@@ -851,7 +851,7 @@ server <- function(session, input, output) {
   
   observeEvent(input$runGSO, {
     withBusyIndicatorServer("runGSO", {
-      fileConn <- file("./GSO/tempsettings.r")
+      fileConn <- file("./GSO/GSOSettings.r")
       
       
       

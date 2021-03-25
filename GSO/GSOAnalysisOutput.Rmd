@@ -7,7 +7,7 @@ output: word_document
 ---
 
 ```{r setup, include=FALSE,}
-knitr::opts_chunk$set(echo = TRUE,fig.height = 6,fig.width = 8,root.dir="./")
+knitr::opts_chunk$set(echo = TRUE,fig.height = 6,fig.width = 8,root.dir="../")
 print(getwd())
                                                            
 # Packages
@@ -16,10 +16,10 @@ library(readxl);library(dplyr);library(tidyr);library(stringr);library(nloptr);l
 
 
 ```{r Options,include=FALSE, cache=FALSE}
-source("tempsettings.r")
+source("./GSO/GSOSettings.r")
 
 print("Running GSO Analysis")
-source("GSOAnalysisCodeShiny.R")
+source("./GSO/GSOAnalysisCodeShiny.R")
 ```
 
 ## Overview
