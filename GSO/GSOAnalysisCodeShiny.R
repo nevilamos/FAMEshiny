@@ -160,7 +160,7 @@ if (!Classes == "All") {
 # 
 # Usedefgs <-
 #   GSONames$EFG_GS[which(as.numeric(str_sub(GSONames$EFG_GS, -2, -1)) %in% GSOArea$EFG_NO)]
-Usedefgs <-str_pad(GSOArea$EFG_NO, 2, pad = "0")
+Usedefgs <-paste0("EFG",str_pad(GSOArea$EFG_NO, 2, pad = "0"))
 
 
 NoData <-  SpEFGLMU %>% 
