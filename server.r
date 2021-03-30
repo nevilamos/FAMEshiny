@@ -76,7 +76,7 @@ server <- function(session, input, output) {
   )
   
   
-  downloadManualFileName <- "FAME_Manual.pdf"
+  downloadManualFileName <- "./Manual/FAMEv2_User_Manual.pdf"
   output$downloadManual <- downloadHandler(
     filename = function() {
       downloadManualFileName

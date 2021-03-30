@@ -9,7 +9,7 @@ source("installationCheck.R")
 
 
 #get version of FAMEFMR in use and set app version 
-versionDate = "Version 1.9.2 March 26 2021"
+versionDate = "Version 2.0 March 30 2021"
 versionFAMEFMR = paste ("R", getRversion(),"FAMEFMR",packageVersion("FAMEFMR"))
 
 
