@@ -62,7 +62,8 @@ server <- function(session, input, output) {
     
   })
   #download handlers for utilities page --------------------------------------------------
-  downloadToolFileName <- "./FAMEPreProcessing/FAMEPreProcessing.zip"
+  downloadToolFileName <-
+    "./FAMEPreProcessing/FAMEPreProcessing.zip"
   output$downloadTool <- downloadHandler(
     filename = function() {
       basename(downloadToolFileName)
@@ -73,7 +74,7 @@ server <- function(session, input, output) {
                 overwrite = T)
     }
   )
-
+  
   
   downloadManualFileName <- "FAME_Manual.pdf"
   output$downloadManual <- downloadHandler(
@@ -188,13 +189,13 @@ server <- function(session, input, output) {
     file.copy(myInput$datapath,
               file.path(savePath, myInput$name))
     updateSelectInput(session,
-                      'customSpList',
-                      'Select csutom csv file',
-                      choice = c("", list.files('./CustomCSV', pattern = ".csv$")))
+                      inputId = 'customSpList',
+                      label = 'Select custom csv file',
+                      choices = c("", list.files('./CustomCSV', pattern = ".csv$")))
     updateSelectInput(session,
-                      'customResponseFile',
-                      'Select csutom csv file',
-                      choice = c("", list.files('./CustomCSV', pattern = ".csv$")))
+                      inputId = 'customResponseFile',
+                      label = 'Select custom csv file',
+                      choices = c("", list.files('./CustomCSV', pattern = ".csv$")))
   })
   #Observer for loading a previous FH analysis---------------------------------
   observeEvent(input$FHOutputLoad, {
@@ -281,7 +282,7 @@ server <- function(session, input, output) {
       rv$allCombs <- allCombs
       print("made allcombs")
       
-
+      
       #save analysis to enable reloading
       save(FHAnalysis,
            cropRasters,
@@ -306,7 +307,9 @@ server <- function(session, input, output) {
   # Observer to run relative abundance analysis  -------------------------------------------------------
   observeEvent({
     input$runRA | input$runRA_TFI
+
   }, ignoreInit = T, {
+    
     withBusyIndicatorServer("runRA", {
       withBusyIndicatorServer("runRA_TFI", {
         validate(need(rv$FHAnalysis,
@@ -315,10 +318,16 @@ server <- function(session, input, output) {
           rv$TaxonList <-
             read.csv("./ReferenceTables/DraftTaxonListStatewidev2.csv")
         } else{
+          validate(need(
+            input$customSpList,
+            'You need to select a species list to use'
+          ))
+          print(input$customSpList)
           rv$TaxonList <-
             read.csv(file.path("./CustomCSV", input$customSpList))
+          
         }
-        
+
         
         
         HDMSpp_NO <-
@@ -329,12 +338,10 @@ server <- function(session, input, output) {
         
         
         print("getting HDMvals")
-          HDMVals <-qread(paste0(
-            "./HDMS/HDMVals",
-            rv$FHAnalysis$RasterRes,
-            "list.qs"
-          ))
-
+        HDMVals <- qread(paste0("./HDMS/HDMVals",
+                                rv$FHAnalysis$RasterRes,
+                                "list.qs"))
+        
         print("Loaded HDMVals")
         
         if (input$spResponseChoice == FALSE) {
@@ -357,7 +364,7 @@ server <- function(session, input, output) {
         
         AbundDataLong = merge(AbundDataByGS, EFG_TSF_4GS, by = c('EFG_NO', 'GS4_NO'))
         AbundDataLong <-
-          AbundDataLong[order(AbundDataLong$TAXON_ID),]
+          AbundDataLong[order(AbundDataLong$TAXON_ID), ]
         print("making Spp abund LU List")
         LU_List <- make_Spp_LU_list(myHDMSpp_NO = HDMSpp_NO,
                                     myAbundDataLong = AbundDataLong)
@@ -381,7 +388,7 @@ server <- function(session, input, output) {
           myIDX = rv$cropRasters$IDX
         )
         
-        rv$SpYearSumm <- SpYearSumm <<- SpYearSumm
+        rv$SpYearSumm <- SpYearSumm #<<- SpYearSumm
         utils::write.csv(SpYearSumm$SpYearSummLong,
                          file.path(ResultsDir, "SpYearSummLong.csv"))
         utils::write.csv(SpYearSumm$SpYearSummWide,
@@ -489,12 +496,20 @@ server <- function(session, input, output) {
           )
         
         
-        rv$TFI <- TFI 
+        rv$TFI <- TFI
         #save TFI to the FHAnalysis.rdata
-        rv$FHAnalysis$TFI<-TFI
-
+        rv$FHAnalysis$TFI <- TFI
+        #write results out to csv files
         write.csv(TFI,
-                  file = file.path(ResultsDir,"TFI_LONG.csv"))
+                  file = file.path(ResultsDir, "TFI_LONG.csv"))
+        write.csv(TFI%>%
+          group_by(EFG_NAME,SEASON,TFI_STATUS)%>%
+          summarise(AreaHa = sum(Hectares))%>%
+          pivot_wider(names_from = SEASON,
+                      values_from = AreaHa,
+                      values_fill = 0),
+          file = file.path(ResultsDir, "TFI_EFG_SUMMARY.csv"))
+          
         
         print("Finished TFI calcualtions")
         print ("calculating BBTFI")
@@ -507,22 +522,22 @@ server <- function(session, input, output) {
         )
         print("finished BBTFI calcs")
         
-        rv$BBTFI <- BBTFI 
-        rv$FHAnalysis$BBTFI<-BBTFI
+        rv$BBTFI <- BBTFI
+        rv$FHAnalysis$BBTFI <- BBTFI
         
         write.csv(BBTFI$BBTFI_LONG,
-             file = file.path(
-               ResultsDir,
-               "BBTFI_LONG.csv"
-               )
-             )
+                  file = file.path(ResultsDir,
+                                   "BBTFI_LONG.csv"))
+        write.csv(BBTFI$BBTFI_LONG%>%
+          group_by(EFG_NAME,TBTFI)%>%
+          summarise(AreaHa = sum(Hectares))%>%
+          pivot_wider(names_from = TBTFI,values_from = AreaHa),
+          file = file.path(ResultsDir,
+                           "TimesBBTFI_SUMMARY.csv"))
         
         write.csv(BBTFI$BBTFI_WIDE,
-             file = file.path(
-               ResultsDir,
-               "BBTFI_WIDE.csv"
-             )
-        )
+                  file = file.path(ResultsDir,
+                                   "BBTFI_WIDE.csv"))
         
         save(rv$FHAnalysis,  file = file.path(
           "./FH_Outputs",
@@ -547,22 +562,16 @@ server <- function(session, input, output) {
                                       myAllCombs = rv$allCombs)
                      print("finished GS calcs")
                      
-                     rv$GS_Summary <- GS_Summary 
-                     FHAnalysis$GS_Summary<- GS_Summary
+                     rv$GS_Summary <- GS_Summary
+                     FHAnalysis$GS_Summary <- GS_Summary
                      
                      write.csv(GS_Summary$GS_Summary_Long,
-                          file = file.path(
-                            ResultsDir,
-                            "GS_LONG.csv"
-                            )
-                          )
+                               file = file.path(ResultsDir,
+                                                "GS_LONG.csv"))
                      
                      write.csv(GS_Summary$GS_Summary_wide,
-                          file = file.path(
-                            ResultsDir,
-                            "GS_WIDE.csv"
-                          )
-                     )
+                               file = file.path(ResultsDir,
+                                                "GS_WIDE.csv"))
                      
                      save(rv$FHAnalysis,  file = file.path(
                        "./FH_Outputs",
@@ -601,7 +610,7 @@ server <- function(session, input, output) {
       max = maxSEASON,
       value = c(1980, maxSEASON)
     )
-# Make plot of area by TFI status   
+    # Make plot of area by TFI status
     output$TFItrendPlot <- renderPlotly({
       rv$TFI %>%
         filter(EFG_NAME == input$EFGChoices) %>%
@@ -623,24 +632,40 @@ server <- function(session, input, output) {
         layout(
           title = paste0(input$EFGChoices, "\n", "TFI Status"),
           yaxis = list(rangemode = "tozero", title = "Area (ha)"),
-          xaxis = list(range = (input$tfiSeasonChoices +c(-0.5,0.5))),
+          xaxis = list(range = (
+            input$tfiSeasonChoices + c(-0.5, 0.5)
+          )),
           barmode = 'stack',
-          showlegend=T
+          showlegend = T
         )
     })
     
+    #if(nrow(bbtfivals)>0){
+    
     output$BBTFIPlot <- renderPlotly({
-      # validate(
-      #   need(input$EFGChoices%in%unique(rv$BBTFI$BBTFI_LONG$EFG_NAME==FALSE),
-      #        "There is no Area BBTFI in this EFG")
-      # )
       
-      rv$BBTFI$BBTFI_LONG %>%
+      bbtfivals <<- rv$BBTFI$BBTFI_LONG %>%
         filter(EFG_NAME == input$EFGChoices) %>%
         mutate(TBTFI = as.factor(TBTFI)) %>%
         group_by(TBTFI, SEAS) %>%
-        summarise(Area = sum(Hectares)) %>%
-        plot_ly(
+        summarise(Area = sum(Hectares))%>%
+        drop_na()
+      #work around to maintain column width where there are gaps between values
+      if(nrow(bbtfivals)>0){
+      myYears<-input$tfiSeasonChoices[1]:input$tfiSeasonChoices[2]
+      SEAS<-myYears[!myYears%in%unique(bbtfivals$SEAS)]
+      SEASL<-length(SEAS)
+      if (SEASL>0){
+        TBTFI = (rep(NA,SEASL))
+        Area = rep(0,SEASL)
+        Padding<-data.frame(TBTFI,SEAS,Area)
+        bbtfivals<<-rbind(bbtfivals,Padding)
+      
+      }
+      }
+      
+      bbtfivals %>%  
+      plot_ly(
           x =  ~ SEAS,
           y =  ~ Area,
           type = "bar",
@@ -649,11 +674,14 @@ server <- function(session, input, output) {
         layout(
           title = paste0(input$EFGChoices, "\n", "Times burned below TFI"),
           yaxis = list(rangemode = "tozero", title = "Area (ha)"),
-          xaxis = list(range = input$tfiSeasonChoices +c(-0.5,0.5)),
+          xaxis = list(range = input$tfiSeasonChoices + c(-0.5, 0.5)),
           barmode = 'stack',
-          showlegend=T
+          showlegend = T
         )
     })
+    #output$BBTFIPlot <- renderUI(plotlyOutput("myBBTFIPlot"))
+    #}
+    
   })
   
   
@@ -677,31 +705,35 @@ server <- function(session, input, output) {
     )
     output$GSPlot <- renderPlotly({
       rv$GS_Summary$GS_Summary_Long %>%
-        filter(EFG_NAME == input$GSEFGChoices)%>%
+        filter(EFG_NAME == input$GSEFGChoices) %>%
         group_by(GROWTH_STAGE, SEASON) %>%
         summarise(Area = sum(Hectares)) %>%
         #reordering the factor for GROWTH STAGE so they plot stacked appropriately not working
-        mutate(GROWTH_STAGE = factor(GROWTH_STAGE,
-                                     levels=c("Juvenile",
-                                              "Adolescent",
-                                              "Mature",
-                                              "Old")))%>%
+        mutate(GROWTH_STAGE = factor(
+          GROWTH_STAGE,
+          levels = c("Juvenile",
+                     "Adolescent",
+                     "Mature",
+                     "Old")
+        )) %>%
         plot_ly(
           x =  ~ SEASON,
           y =  ~ Area,
           type = "bar",
           color =  ~ GROWTH_STAGE,
-          colors = c("Old" = "#80b1d3",
-                     "Mature" = "#8dd3c7",
-                     "Adolescent" = "#fb8072",
-                     "Juvenile" = "#ffffb3")
-          ) %>%
+          colors = c(
+            "Old" = "#80b1d3",
+            "Mature" = "#8dd3c7",
+            "Adolescent" = "#fb8072",
+            "Juvenile" = "#ffffb3"
+          )
+        ) %>%
         layout(
           title = paste0(input$EFGChoices, "\n", "Growth Stages"),
           yaxis = list(rangemode = "tozero", title = "Area (ha)"),
-          xaxis = list(range = input$GSSeasonChoices +c(-0.5,0.5)),
+          xaxis = list(range = input$GSSeasonChoices + c(-0.5, 0.5)),
           barmode = 'stack',
-          showlegend=T
+          showlegend = T
         )
     })
   })
@@ -728,7 +760,7 @@ server <- function(session, input, output) {
       if (length(input$raSpChoices) == 0) {
         return()
       } else{
-        SpYearSumm$SpYearSummLong %>%
+        rv$SpYearSumm$SpYearSummLong %>%
           filter(COMMON_NAME %in% input$raSpChoices) %>%
           plot_ly(
             x =  ~ SEASON,
@@ -740,8 +772,8 @@ server <- function(session, input, output) {
           layout(
             yaxis = list(rangemode = "tozero",
                          title = "Sum of relative abundance x 100"),
-            xaxis = list(range = input$raSeasonChoices +c(-0.5,0.5)),
-            showlegend=T
+            xaxis = list(range = input$raSeasonChoices + c(-0.5, 0.5)),
+            showlegend = T
           )
         
         
@@ -763,8 +795,8 @@ server <- function(session, input, output) {
           layout(
             yaxis = list(rangemode = "tozero",
                          title = "Change in relative abundance\ncompared to baseline"),
-            xaxis = list(range = input$raSeasonChoices +c(-0.5,0.5)),
-            showlegend=T
+            xaxis = list(range = input$raSeasonChoices + c(-0.5, 0.5)),
+            showlegend = T
           )
       }
     })
@@ -818,8 +850,14 @@ server <- function(session, input, output) {
         TFI_LUT = TFI_LUT
       )
       #print(myEFG_LMU)
-      write.csv(myEFG_LMU$LMU_EFG_AREA,file.path(ResultsDir, "LMU_EFG_AREA.csv"),row.names = F)
-      write.csv(myEFG_LMU$Spp_EFG_LMU,file.path(ResultsDir, "Spp_EFG_LMU.csv"),row.names = F)
+      write.csv(
+        myEFG_LMU$LMU_EFG_AREA,
+        file.path(ResultsDir, "LMU_EFG_AREA.csv"),
+        row.names = F
+      )
+      write.csv(myEFG_LMU$Spp_EFG_LMU,
+                file.path(ResultsDir, "Spp_EFG_LMU.csv"),
+                row.names = F)
     })
   })
   
@@ -839,13 +877,9 @@ server <- function(session, input, output) {
   
   observeEvent(input$lmuScenarios,
                ignoreInit = T, {
-                 myScenarios = unique(
-                   read.csv(file.path(WD,
-                                      "GSOInputs",
-                                      input$lmuScenarios
-                                      )
-                            )$Scenario
-                                      )
+                 myScenarios = unique(read.csv(file.path(WD,
+                                                         "GSOInputs",
+                                                         input$lmuScenarios))$Scenario)
                  updateSelectInput(session,
                                    "GSOBaseLine",
                                    choices = c("Optimisation", myScenarios))

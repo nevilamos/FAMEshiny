@@ -245,7 +245,6 @@ ui <- dashboardPage(
                             column(
                               6,
                               h3("Fauna Abundance Calculations "),
-                              # use standard or choose Custom Species List
                               numericInput("startBaseline",
                                            "enter start season for abundance baseline",
                                            ""),
@@ -265,9 +264,9 @@ ui <- dashboardPage(
                               conditionalPanel(
                                 condition = 'input.spListChoice',
                                 selectInput(
-                                  "customSpList",
-                                  "Select user defined species list",
-                                  choice = c(list.files(
+                                  inputId = "customSpList",
+                                  label = "Select user defined species list",
+                                  choices = c("",list.files(
                                     './CustomCSV', pattern = ".csv$", full.names = T
                                   ))
                                 )
@@ -390,7 +389,8 @@ ui <- dashboardPage(
                           )
                           , ),
                 fluidRow(plotlyOutput("TFItrendPlot"),
-                         plotlyOutput("BBTFIPlot"),)
+                         plotlyOutput("BBTFIPlot")
+                         )
                 
               )),
       #Tab  GS charts --------------------------------------------------------------------
