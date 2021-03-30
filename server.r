@@ -872,6 +872,29 @@ server <- function(session, input, output) {
     savePath = "./GSOInputs"
     file.copy(myInput$datapath,
               file.path(savePath, myInput$name))
+    updateSelectInput(session,
+                      inputId = 'spEFGLMU',
+                      label = 'Select Spp_EFG_LMU.csv file',
+                      choice = c(
+                        list.files('./GSOInputs/', pattern = "Spp_EFG_LMU.csv$")))
+    updateSelectInput(session,
+                      'lmuArea',
+                      'LMU_Area.csv file',
+                      choice = c(
+                        list.files('./GSOInputs/', pattern = "LMU_Area.csv$")))
+    updateSelectInput(session,
+                      'lmuScenarios',
+                      'LMU_Scenarios.csv file',
+                      choice = c(
+                        list.files('./GSOInputs/', pattern = "LMU_Scenarios.csv$")
+                      ))
+    updateSelectInput(session,
+                      'ObsData',
+                      'ObsData.csv file',
+                      choice = c(
+                        list.files('./GSOInputs/', pattern = "ObsData.csv$")
+                      ))
+    
   })
   
   

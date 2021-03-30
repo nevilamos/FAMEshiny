@@ -479,7 +479,7 @@ ui <- dashboardPage(
                     selectInput(
                       'spEFGLMU',
                       'Select Spp_EFG_LMU.csv file',
-                      choice = c(
+                      choices = c(
                         "Spp_EFG_LMU.csv",
                         list.files('./GSOInputs/', pattern = "Spp_EFG_LMU.csv$")
                       )
@@ -564,15 +564,7 @@ ui <- dashboardPage(
                   )
                 )
               ))
-  #     ,
-  #       #Tab  GSO report charts --------------------------------------------------------------------
-  # tabItem(tabName = "GSOReport",
-  #         fluidPage(
-  #           
-  #           fluidRow(h2("markdown")
-  #           )
-  #           
-  #         ))
+
   ),  
 
   ),
