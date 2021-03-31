@@ -729,7 +729,7 @@ server <- function(session, input, output) {
           )
         ) %>%
         layout(
-          title = paste0(input$EFGChoices, "\n", "Growth Stages"),
+          title = paste0(input$GSEFGChoices, "\n", "Growth Stages"),
           yaxis = list(rangemode = "tozero", title = "Area (ha)"),
           xaxis = list(range = input$GSSeasonChoices + c(-0.5, 0.5)),
           barmode = 'stack',
