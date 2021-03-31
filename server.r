@@ -316,7 +316,7 @@ server <- function(session, input, output) {
                       'You need to select a FH analysis to use'))
         if (input$spListChoice == FALSE) {
           rv$TaxonList <-
-            read.csv("./ReferenceTables/DraftTaxonListStatewidev2.csv")
+            read.csv("./ReferenceTables/FAME_TAXON_LIST.csv")
         } else{
           validate(need(
             input$customSpList,
@@ -844,7 +844,7 @@ server <- function(session, input, output) {
         myPoly = myPoly,
         #shapefile ofLF_REGIONs( default)or  adhoc region,
         generalRasterDir = "./InputGeneralRasters",
-        splist = "./ReferenceTables/DraftTaxonListStatewidev2.csv",
+        splist = "./ReferenceTables/FAME_TAXON_LIST.csv",
         myHDMVals = "./HDMS/HDMVals225.qs",
         #EFGRas="./InputGeneralRasters/EFG_NUM_225.tif",
         TFI_LUT = TFI_LUT

@@ -567,7 +567,7 @@ OptRunCI <-
     resultn2$GS <- StageNames
     resultsSp <- data.frame(apply(SpList, c(1, 2), mean))
     colnames(resultsSp) <- names(SpecRes)
-    resultsSp <- left_join(resultsSp, FaunaCodes[, -1])
+    resultsSp <- left_join(resultsSp, FaunaCodes[,c("COMMON_NAME","SCIENTIFIC_NAME","DIVNAME","TAXON_ID")])
     return(list(resultn2, res[nrow(res), ], Scens, Scens0, resultsSp))
     # return(resultn)
   }

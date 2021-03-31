@@ -65,7 +65,7 @@ RuleText <-
 
 #### Data loading ####
 ## Common names and codes for fauna
-FaunaCodes = read.csv("../ReferenceTables/VBA_FAUNA.csv")
+FaunaCodes = read.csv("../ReferenceTables/FAME_TAXON_LIST.csv")
 
 ## Species to EFG to LMU data
 #SpEFGLMU <- read.csv(input$spEFGLMU,na='NA')
@@ -146,7 +146,7 @@ WorkData <-  WorkData %>%
 
 if (!Classes == "All") {
   WorkData <- WorkData %>% 
-    left_join(FaunaCodes[, 4:5], by = 'TAXON_ID') %>% 
+    left_join(FaunaCodes[, c("DIVNAME","TAXON_ID")], by = 'TAXON_ID') %>% 
     filter(DIVNAME %in% Classes)
 }
 
@@ -171,9 +171,9 @@ NoData <-  SpEFGLMU %>%
                         ))) %>%
   group_by(COMMON_NAME, TAXON_ID) %>% 
   summarise(n = n()) %>% 
-  left_join(FaunaCodes[, 3:5], by = 'TAXON_ID')
+  left_join(FaunaCodes[, c("SCIENTIFIC_NAME","TAXON_ID","DIVNAME")], by = 'TAXON_ID')
 
-write.csv(NoData[, c(4, 1:2, 5)], file.path(GSOResultsDir, ('List of species without suitable data.csv')))
+write.csv(NoData[, c(4, 1:2,5)], file.path(GSOResultsDir, ('List of species without suitable data.csv')))
 
 
 
