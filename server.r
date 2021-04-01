@@ -350,7 +350,7 @@ server <- function(session, input, output) {
           mySpGSResponses <-
             file.path("./CustomCSV", input$customResponseFile)
         }
-        
+        print("making AbundDataLong")
         AbundDataByGS  <-  read.csv(mySpGSResponses)[, c("EFG_NO",
                                                          "GS4_NO",
                                                          "FireType",
@@ -369,7 +369,7 @@ server <- function(session, input, output) {
         LU_List <- make_Spp_LU_list(myHDMSpp_NO = HDMSpp_NO,
                                     myAbundDataLong = AbundDataLong)
         
-        
+        print("Made AbundDataLong")
         if (exists("rv$TaxonList"))
           print("Making spYearSumm")
         
@@ -395,25 +395,28 @@ server <- function(session, input, output) {
                          file.path(ResultsDir, "SpYearSummWide.csv"))
         #write.csv(SpYearSumm,file.path(ResultsDir,"SpYearSumm.csv"),row.names=F)
         print("finished sp year summ")
-        Baseline <-
-          ifelse(
-            input$endBaseline > input$startBaseline,
-            input$startBaseline:input$endBaseline,
-            input$startBaseline
-          )
+        myEnd<-as.integer(input$endBaseline)
+        myStart<-as.integer(input$startBaseline)
+        if(myEnd > myStart){Baseline = myStart:myEnd}else{Baseline = myStart}
+        print(Baseline)
         print("calcuated myBaseline")
         raDeltaAbund <-
           calcDeltaAbund(
             SpYearSumm = SpYearSumm$SpYearSummWide,
             myFHAnalysis = rv$FHAnalysis,
-            myBaseline = Baseline,
-            myResultsDir = ResultsDir
+            myBaseline = Baseline
           )
         
         rv$raDeltaAbundWide <- raDeltaAbund
         
+        #writes the table to file
+        utils::write.csv(raDeltaAbund,
+                         file.path( ResultsDir,"SppSummChangeRelativetoBaseline.csv"),
+                         row.names = FALSE)
+        
+        
         #make long form for plotting charts
-        rv$raDeltaAbundLong <- raDeltaAbund %>%
+        rv$raDeltaAbundLong<- raDeltaAbund %>%
           dplyr::select(
             -tidyr::one_of(
               "TAXON_ID",
@@ -422,11 +425,12 @@ server <- function(session, input, output) {
               "VIC_ADVISORY_STATUS",
               "CombThreshold",
               "NoLessthanThreshhold",
-              "LastLessThanThreshold"
+              "LastLessThanThreshold",
+              "Baseline"
             )
           ) %>%
           tidyr::pivot_longer(
-            -tidyr::one_of("COMMON_NAME", "NAME"),
+            -tidyr::one_of("COMMON_NAME", "SCIENTIFIC_NAME"),
             names_to = "SEASON",
             values_to = "DeltaRA"
           ) %>%
@@ -499,6 +503,8 @@ server <- function(session, input, output) {
         rv$TFI <- TFI
         #save TFI to the FHAnalysis.rdata
         rv$FHAnalysis$TFI <- TFI
+        print(1)
+        print(names(rv$FHAnalysis))
         #write results out to csv files
         write.csv(TFI,
                   file = file.path(ResultsDir, "TFI_LONG.csv"))
@@ -512,6 +518,8 @@ server <- function(session, input, output) {
           
         
         print("Finished TFI calcualtions")
+        print(2)
+        print(names(rv$FHAnalysis))
         print ("calculating BBTFI")
         
         BBTFI <- calcBBTFI_2(
@@ -521,7 +529,8 @@ server <- function(session, input, output) {
           myResultsDir = ResultsDir
         )
         print("finished BBTFI calcs")
-        
+        print(3)
+        print(names(rv$FHAnalysis))
         rv$BBTFI <- BBTFI
         rv$FHAnalysis$BBTFI <- BBTFI
         
@@ -538,14 +547,19 @@ server <- function(session, input, output) {
         write.csv(BBTFI$BBTFI_WIDE,
                   file = file.path(ResultsDir,
                                    "BBTFI_WIDE.csv"))
-        
-        save(rv$FHAnalysis,  file = file.path(
+        print(4)
+        print(names(rv$FHAnalysis))
+        FHAnalysis<-rv$FHAnalysis
+        save(FHAout,  file = file.path(
           "./FH_Outputs",
-          paste0(FHAnalysis$name, input$RasterRes, ".rdata")
+          paste0(rv$FHAnalysis$name, input$RasterRes, ".rdata")
+          
         ))
-        
+        rm(FHAnalysis)
+
       })
     })
+    
   })
   
   # Observer to run GS calculations-----------------------
@@ -563,7 +577,7 @@ server <- function(session, input, output) {
                      print("finished GS calcs")
                      
                      rv$GS_Summary <- GS_Summary
-                     FHAnalysis$GS_Summary <- GS_Summary
+                     rv$FHAnalysis$GS_Summary <- GS_Summary
                      
                      write.csv(GS_Summary$GS_Summary_Long,
                                file = file.path(ResultsDir,
@@ -756,6 +770,7 @@ server <- function(session, input, output) {
   })
   
   observeEvent(input$raSpChoices, ignoreInit = T, {
+    raSpChoices<<-input$raSpChoices
     output$RAtrendPlot <- renderPlotly({
       if (length(input$raSpChoices) == 0) {
         return()
