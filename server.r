@@ -400,18 +400,22 @@ server <- function(session, input, output) {
         if(myEnd > myStart){Baseline = myStart:myEnd}else{Baseline = myStart}
         print(Baseline)
         print("calcuated myBaseline")
-        raDeltaAbund <-
+        raDeltaAbund <<-
           calcDeltaAbund(
             SpYearSumm = SpYearSumm$SpYearSummWide,
             myFHAnalysis = rv$FHAnalysis,
             myBaseline = Baseline
           )
         
-        rv$raDeltaAbundWide <- raDeltaAbund
         
-        #writes the table to file
+        #calculate geometric means per season
+        rv$gMeans <- calc_G(raDeltaAbund)
+        #writes the tables to file
         utils::write.csv(raDeltaAbund,
                          file.path( ResultsDir,"SppSummChangeRelativetoBaseline.csv"),
+                         row.names = FALSE)
+        utils::write.csv(rv$gMeans,
+                         file.path( ResultsDir,"GeometricMeansRelativetoBaseline.csv"),
                          row.names = FALSE)
         
         
@@ -435,6 +439,9 @@ server <- function(session, input, output) {
             values_to = "DeltaRA"
           ) %>%
           dplyr::mutate(SEASON = as.integer(SEASON))
+        
+        
+      
         print("finished deltaabund")
         
         
@@ -770,7 +777,7 @@ server <- function(session, input, output) {
   })
   
   observeEvent(input$raSpChoices, ignoreInit = T, {
-    raSpChoices<<-input$raSpChoices
+    raSpChoices<-input$raSpChoices
     output$RAtrendPlot <- renderPlotly({
       if (length(input$raSpChoices) == 0) {
         return()
@@ -817,6 +824,28 @@ server <- function(session, input, output) {
     })
   })
   
+  #plot background of all points for RA compared to baseline with curve
+
+  output$GMRAPlot <- renderPlotly({
+    rv$raDeltaAbundLong%>%
+      plot_ly(
+        x =  ~ SEASON,
+        y =  ~ DeltaRA,
+        type = "scatter",
+        mode = "markers",
+        marker =list(opacity=.2),
+        name = "RA - per species"
+      ) %>%
+      layout(title= "Geometric mean of abundance relative to baseline",
+             yaxis = list(rangemode = "tozero",
+                          title = "Abundance relative to baseline"),
+             showlegend = T
+      )%>%
+      add_lines(data = rv$gMeans,
+                x=~SEASON,
+                y~G,
+                name ="Geometric Mean RA")
+  })
   # Calculate custom species list-----------------------------------------------------------
   observeEvent(input$runDSpList, {
     withBusyIndicatorServer("runDSpList", {

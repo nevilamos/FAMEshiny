@@ -459,7 +459,8 @@ ui <- dashboardPage(
                    ),
                 
                 fluidRow(plotlyOutput("RAtrendPlot"),
-                         plotlyOutput("RADeltaPlot"))
+                         plotlyOutput("RADeltaPlot"),
+                         plotlyOutput("GMRAPlot"))
               )),
       # tab GSO processing -------------------------------------------------------------------------------------
       tabItem(tabName = "GSO",
