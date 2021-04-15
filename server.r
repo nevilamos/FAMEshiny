@@ -388,7 +388,7 @@ server <- function(session, input, output) {
           myIDX = rv$cropRasters$IDX
         )
         
-        rv$SpYearSumm <- SpYearSumm #<<- SpYearSumm
+        rv$SpYearSumm <- SpYearSumm <<- SpYearSumm
         utils::write.csv(SpYearSumm$SpYearSummLong,
                          file.path(ResultsDir, "SpYearSummLong.csv"))
         utils::write.csv(SpYearSumm$SpYearSummWide,
@@ -406,8 +406,7 @@ server <- function(session, input, output) {
           calcDeltaAbund(
             SpYearSumm = SpYearSumm$SpYearSummWide,
             myFHAnalysis = rv$FHAnalysis,
-            myBaseline = Baseline,
-            myResultsDir = ResultsDir
+            myBaseline = Baseline
           )
         
         rv$raDeltaAbundWide <- raDeltaAbund
@@ -426,7 +425,7 @@ server <- function(session, input, output) {
             )
           ) %>%
           tidyr::pivot_longer(
-            -tidyr::one_of("COMMON_NAME", "NAME"),
+            -tidyr::one_of("COMMON_NAME", "SCIENTIFIC_NAME","Baseline"),
             names_to = "SEASON",
             values_to = "DeltaRA"
           ) %>%
