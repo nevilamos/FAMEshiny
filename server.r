@@ -206,8 +206,6 @@ server <- function(session, input, output) {
       rv$FHAnalysis <- FHAnalysis
       rv$cropRasters <- cropRasters
       rv$allCombs <- allCombs
-      #print(names(rv$FHAnalysis))
-      
     }
     
   })
@@ -497,7 +495,8 @@ server <- function(session, input, output) {
         
         rv$TFI <- TFI
         #save TFI to the FHAnalysis.rdata
-        rv$FHAnalysis$TFI <- TFI
+        #rv$FHAnalysis$TFI <- TFI
+        
         #write results out to csv files
         write.csv(TFI,
                   file = file.path(ResultsDir, "TFI_LONG.csv"))
@@ -522,7 +521,7 @@ server <- function(session, input, output) {
         print("finished BBTFI calcs")
         
         rv$BBTFI <- BBTFI
-        rv$FHAnalysis$BBTFI <- BBTFI
+        #rv$FHAnalysis$BBTFI <- BBTFI
         
         write.csv(BBTFI$BBTFI_LONG,
                   file = file.path(ResultsDir,
@@ -538,10 +537,11 @@ server <- function(session, input, output) {
                   file = file.path(ResultsDir,
                                    "BBTFI_WIDE.csv"))
         
-        save(rv$FHAnalysis,  file = file.path(
-          "./FH_Outputs",
-          paste0(FHAnalysis$name, input$RasterRes, ".rdata")
-        ))
+        # save(rv$FHAnalysis,  file = file.path(
+        #   "./FH_Outputs",
+        #   paste0(FHAnalysis$name, input$RasterRes, ".rdata")
+        reactive
+        # ))
         
       })
     })
@@ -562,7 +562,7 @@ server <- function(session, input, output) {
                      print("finished GS calcs")
                      
                      rv$GS_Summary <- GS_Summary
-                     FHAnalysis$GS_Summary <- GS_Summary
+                     #rv$FHAnalysis$GS_Summary <- GS_Summary
                      
                      write.csv(GS_Summary$GS_Summary_Long,
                                file = file.path(ResultsDir,
@@ -572,10 +572,10 @@ server <- function(session, input, output) {
                                file = file.path(ResultsDir,
                                                 "GS_WIDE.csv"))
                      
-                     save(rv$FHAnalysis,  file = file.path(
-                       "./FH_Outputs",
-                       paste0(FHAnalysis$name, input$RasterRes, ".rdata")
-                     ))
+                     # save(rv$FHAnalysis,  file = file.path(
+                     #   "./FH_Outputs",
+                     #   paste0(FHAnalysis$name, input$RasterRes, ".rdata")
+                     # ))
                      
                    })
                  })
