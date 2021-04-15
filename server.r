@@ -312,6 +312,10 @@ server <- function(session, input, output) {
       withBusyIndicatorServer("runRA_TFI", {
         validate(need(rv$FHAnalysis,
                       'You need to select a FH analysis to use'))
+        startBaseline<-as.integer(input$startBaseline)
+        endBaseline <- as.integer(input$endBaseline)
+        validate(need(endBaseline>=startBaseline,"baseline start season must be less than or equal to end season"))
+        Baseline <-startBaseline:endBaseline
         if (input$spListChoice == FALSE) {
           rv$TaxonList <-
             read.csv("./ReferenceTables/FAME_TAXON_LIST.csv")
@@ -393,20 +397,17 @@ server <- function(session, input, output) {
                          file.path(ResultsDir, "SpYearSummWide.csv"))
         #write.csv(SpYearSumm,file.path(ResultsDir,"SpYearSumm.csv"),row.names=F)
         print("finished sp year summ")
-        Baseline <-
-          ifelse(
-            input$endBaseline > input$startBaseline,
-            input$startBaseline:input$endBaseline,
-            input$startBaseline
-          )
+
+ 
         print("calcuated myBaseline")
+        print(Baseline)
         raDeltaAbund <-
           calcDeltaAbund(
             SpYearSumm = SpYearSumm$SpYearSummWide,
             myFHAnalysis = rv$FHAnalysis,
             myBaseline = Baseline
           )
-        
+        utils::write.csv(raDeltaAbund,file.path(ResultsDir,"SppSummChangeRelativetoBaseline.csv"),row.names = F)
         rv$raDeltaAbundWide <- raDeltaAbund
         
         #make long form for plotting charts
