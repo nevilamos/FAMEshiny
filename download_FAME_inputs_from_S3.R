@@ -44,7 +44,6 @@ if(!file.exists("FAME_inputfiles.zip")){
 }
 
 
-try(file.rename("dummyname","www"))
-try(dir.create("dummyname"))
-#rm(AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY)
+
+
 
