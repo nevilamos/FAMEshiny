@@ -817,7 +817,7 @@ server <- function(session, input, output) {
         RasterRes = 225,
         myPoly = myPoly,
         PUBLIC_LAND_ONLY = input$sppublic,
-        myHDMVals = "./HDMS/HDMVals225.qs"
+        myHDMVals = "./HDMS/HDMVals225.qs",splist = "./ReferenceTables/FAME_TAXON_LIST.csv"
       )
       print (head(myDraftSpList))
       write.csv(myDraftSpList,
