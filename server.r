@@ -836,7 +836,7 @@ server <- function(session, input, output) {
       }
       
       
-      myEFG_LMU <- calc_Spp_EFG_LMU(
+      myEFG_LMU <- make_Draft_GSO_inputs(
         REG_NO = input$spREGION_NO,
         #REG_NO of defined region from input (1:6) or 0 for statewide or 7 for Ad Hoc Poly),
         RasterRes = 225,
@@ -852,11 +852,14 @@ server <- function(session, input, output) {
       #print(myEFG_LMU)
       write.csv(
         myEFG_LMU$LMU_EFG_AREA,
-        file.path(ResultsDir, "LMU_EFG_AREA.csv"),
+        file.path(ResultsDir, "LMU_Area.csv"),
         row.names = F
       )
       write.csv(myEFG_LMU$Spp_EFG_LMU,
                 file.path(ResultsDir, "Spp_EFG_LMU.csv"),
+                row.names = F)
+      write.csv(myEFG_LMU$LMU_Scenario,
+                file.path(ResultsDir, "Draft_LMU_Scenarios.csv"),
                 row.names = F)
     })
   })
