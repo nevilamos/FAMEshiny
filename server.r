@@ -959,7 +959,7 @@ server <- function(session, input, output) {
   # observer to shut down server
   observeEvent(input$close, {
     js$closeWindow()
-    system("sudo shutdown")
+    system("shutdown")
   })
   
   roots = c(root = "./results")
