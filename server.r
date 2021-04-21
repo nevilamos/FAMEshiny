@@ -305,7 +305,7 @@ server <- function(session, input, output) {
   # Observer to run relative abundance analysis  -------------------------------------------------------
   observeEvent({
     input$runRA | input$runRA_TFI
-
+    
   }, ignoreInit = T, {
     
     withBusyIndicatorServer("runRA", {
@@ -329,7 +329,7 @@ server <- function(session, input, output) {
             read.csv(file.path("./CustomCSV", input$customSpList))
           
         }
-
+        
         
         
         HDMSpp_NO <-
@@ -352,21 +352,26 @@ server <- function(session, input, output) {
           mySpGSResponses <-
             file.path("./CustomCSV", input$customResponseFile)
         }
-        
-        AbundDataByGS  <-  read.csv(mySpGSResponses)[, c("EFG_NO",
-                                                         "GS4_NO",
-                                                         "FireType",
-                                                         "Abund",
-                                                         "TAXON_ID")]  #Select the file giving the fauna relative abundance inputs you wish to use
-        AbundDataByGS$FireTypeNo[AbundDataByGS$FireType == "High"] <-
-          2
-        AbundDataByGS$FireTypeNo[AbundDataByGS$FireType == "Low"] <-
-          1
-        
-        
-        AbundDataLong = merge(AbundDataByGS, EFG_TSF_4GS, by = c('EFG_NO', 'GS4_NO'))
-        AbundDataLong <-
+        if(input$abundByGS == TRUE){
+          AbundDataByGS  <-  read.csv(mySpGSResponses)[, c("EFG_NO",
+                                                           "GS4_NO",
+                                                           "FireType",
+                                                           "Abund",
+                                                           "TAXON_ID")]  #Select the file giving the fauna relative abundance inputs you wish to use
+          AbundDataByGS$FireTypeNo[AbundDataByGS$FireType == "High"] <-
+            2
+          AbundDataByGS$FireTypeNo[AbundDataByGS$FireType == "Low"] <-
+            1
+          
+          
+          AbundDataLong = merge(AbundDataByGS, EFG_TSF_4GS, by = c('EFG_NO', 'GS4_NO'))
+          AbundDataLong <<-
+            AbundDataLong[order(AbundDataLong$TAXON_ID), ]
+        } else {
+          AbundDataLong <- read.csv(mySpGSResponses)
           AbundDataLong[order(AbundDataLong$TAXON_ID), ]
+          
+        }
         print("making Spp abund LU List")
         LU_List <- make_Spp_LU_list(myHDMSpp_NO = HDMSpp_NO,
                                     myAbundDataLong = AbundDataLong)
@@ -397,8 +402,8 @@ server <- function(session, input, output) {
                          file.path(ResultsDir, "SpYearSummWide.csv"))
         #write.csv(SpYearSumm,file.path(ResultsDir,"SpYearSumm.csv"),row.names=F)
         print("finished sp year summ")
-
- 
+        
+        
         print("calcuated myBaseline")
         print(Baseline)
         raDeltaAbund <-
@@ -502,13 +507,13 @@ server <- function(session, input, output) {
         write.csv(TFI,
                   file = file.path(ResultsDir, "TFI_LONG.csv"))
         write.csv(TFI%>%
-          group_by(EFG_NAME,SEASON,TFI_STATUS)%>%
-          summarise(AreaHa = sum(Hectares))%>%
-          pivot_wider(names_from = SEASON,
-                      values_from = AreaHa,
-                      values_fill = 0),
-          file = file.path(ResultsDir, "TFI_EFG_SUMMARY.csv"))
-          
+                    group_by(EFG_NAME,SEASON,TFI_STATUS)%>%
+                    summarise(AreaHa = sum(Hectares))%>%
+                    pivot_wider(names_from = SEASON,
+                                values_from = AreaHa,
+                                values_fill = 0),
+                  file = file.path(ResultsDir, "TFI_EFG_SUMMARY.csv"))
+        
         
         print("Finished TFI calcualtions")
         print ("calculating BBTFI")
@@ -528,11 +533,11 @@ server <- function(session, input, output) {
                   file = file.path(ResultsDir,
                                    "BBTFI_LONG.csv"))
         write.csv(BBTFI$BBTFI_LONG%>%
-          group_by(EFG_NAME,TBTFI)%>%
-          summarise(AreaHa = sum(Hectares))%>%
-          pivot_wider(names_from = TBTFI,values_from = AreaHa),
-          file = file.path(ResultsDir,
-                           "TimesBBTFI_SUMMARY.csv"))
+                    group_by(EFG_NAME,TBTFI)%>%
+                    summarise(AreaHa = sum(Hectares))%>%
+                    pivot_wider(names_from = TBTFI,values_from = AreaHa),
+                  file = file.path(ResultsDir,
+                                   "TimesBBTFI_SUMMARY.csv"))
         
         write.csv(BBTFI$BBTFI_WIDE,
                   file = file.path(ResultsDir,
@@ -652,20 +657,20 @@ server <- function(session, input, output) {
         drop_na()
       #work around to maintain column width where there are gaps between values
       if(nrow(bbtfivals)>0){
-      myYears<-input$tfiSeasonChoices[1]:input$tfiSeasonChoices[2]
-      SEAS<-myYears[!myYears%in%unique(bbtfivals$SEAS)]
-      SEASL<-length(SEAS)
-      if (SEASL>0){
-        TBTFI = (rep(NA,SEASL))
-        Area = rep(0,SEASL)
-        Padding<-data.frame(TBTFI,SEAS,Area)
-        bbtfivals<<-rbind(bbtfivals,Padding)
-      
-      }
+        myYears<-input$tfiSeasonChoices[1]:input$tfiSeasonChoices[2]
+        SEAS<-myYears[!myYears%in%unique(bbtfivals$SEAS)]
+        SEASL<-length(SEAS)
+        if (SEASL>0){
+          TBTFI = (rep(NA,SEASL))
+          Area = rep(0,SEASL)
+          Padding<-data.frame(TBTFI,SEAS,Area)
+          bbtfivals<<-rbind(bbtfivals,Padding)
+          
+        }
       }
       
       bbtfivals %>%  
-      plot_ly(
+        plot_ly(
           x =  ~ SEAS,
           y =  ~ Area,
           type = "bar",

@@ -280,6 +280,15 @@ ui <- dashboardPage(
                               ),
                               conditionalPanel(
                                 condition = 'input.spResponseChoice',
+                                checkboxInput(
+                                  inputId = 'abundByGS',
+                                  label = "Relative abundance table by growth stage",
+                                  value = TRUE,
+                                  width =NULL
+                                  )
+                              ),
+                              conditionalPanel(
+                                condition = 'input.spResponseChoice',
                                 selectInput(
                                   "customResponseFile",
                                   "Select user defined Response File",
