@@ -533,7 +533,8 @@ OptRunCI <-
     resultS <- Scenarios(OptData, Scen = Scen, efg = efgs)
     resultS2 <- as.data.frame(t(c(resultS$GMA, resultn$geom)))
     names(resultS2) <-
-      c(levels(resultS$Scenario)[resultS$Scenario], 'Optimisation')
+      #c(levels(resultS$Scenario)[resultS$Scenario], 'Optimisation')
+      c(resultS$Scenario, 'Optimisation')
     SpecRes <- SppRes(OptData, resultn, Scen = Scen, TArea = area)
     SpList <- array(NA, dim = c(nrow(SpecRes), ncol(SpecRes), N))
     SpList[, , 1] <- as.matrix(SpecRes)
