@@ -105,6 +105,11 @@ ui <- dashboardPage(
                       label = "Select 4 elements of ad hoc area shapefile\n.shp, .shx, .prj, .dbf",
                       multiple = TRUE
                     ),
+                    fileInput(
+                      inputId = "puPoly",
+                      label = "Select 4 elements of PU/BU shapefile\n.shp, .shx, .prj, .dbf",
+                      multiple = TRUE
+                    ),
                     htmlOutput("message_text1"),
                     fileInput(
                       inputId = "addCustomCSV",
@@ -190,13 +195,32 @@ ui <- dashboardPage(
                            selectInput(
                              'AdHocShape',
                              'Select AdHoc Area shapefile',
-                             choice = c("", list.files('./AdHocPolygons/', pattern =
-                                                         ".shp$"))
+                             choice = c("", list.files('./AdHocPolygons/', 
+                                                       pattern =".shp$"
+                             )
+                             )
                            )
                            
                          )
                          
-                       )),
+                       ),
+                       wellPanel(
+                         checkboxInput(inputId = "usePUpolys",
+                                       label = "Break down outputs to Planning/Burn Units",
+                                       value = FALSE
+                         ),
+                         conditionalPanel("input.usePUpolys",
+                                          selectInput(
+                                            "puShape",
+                                            "Select PU/BU shapefile",
+                                            choice = c("",list.files("./PUPolygons/",
+                                                                pattern =".shp$",
+                                                                full.names = TRUE
+                                            ))
+                                            
+                                          ))
+                       )
+                ),
                 column(
                   6,
                   wellPanel(
@@ -285,7 +309,7 @@ ui <- dashboardPage(
                                   label = "Relative abundance table by growth stage",
                                   value = TRUE,
                                   width =NULL
-                                  )
+                                )
                               ),
                               conditionalPanel(
                                 condition = 'input.spResponseChoice',
@@ -399,7 +423,7 @@ ui <- dashboardPage(
                           , ),
                 fluidRow(plotlyOutput("TFItrendPlot"),
                          plotlyOutput("BBTFIPlot")
-                         )
+                )
                 
               )),
       #Tab  GS charts --------------------------------------------------------------------
@@ -429,9 +453,9 @@ ui <- dashboardPage(
                               )
                             )
                           ),
-                          ),
+                ),
                 fluidRow(plotlyOutput("GSPlot"),
-                         )
+                )
                 
               )),
       #Tab Relative abundance plots------------------
@@ -465,7 +489,7 @@ ui <- dashboardPage(
                       sep = ""
                     )
                   )),
-                   ),
+                ),
                 
                 fluidRow(plotlyOutput("RAtrendPlot"),
                          plotlyOutput("RADeltaPlot"))
@@ -573,11 +597,11 @@ ui <- dashboardPage(
                   )
                 )
               ))
-
-  ),  
-
+      
+    ),  
+    
   ),
-
+  
   tags$head(tags$style(HTML("
     .skin- .main-sidebar {
         background-color:  green;
