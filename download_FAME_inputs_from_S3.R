@@ -6,11 +6,12 @@ newDirPaths<-c("AdHocPolygons",
                "HDMS",
                "InputGeneralRasters",
                "Manual",
+               "PUPolygons",
                "rawFH",
                "ReferenceShapefiles",
                "ReferenceTables",
                "results",
-               "www"# this name is a workaround for the shinyapp a directory and files ./www is required but s3sync will not open the directory so this name is used instead and renamed at the end of the process
+               "www"# 
 )
 # 
 # 
