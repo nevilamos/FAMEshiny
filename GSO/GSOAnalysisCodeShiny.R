@@ -65,10 +65,10 @@ RuleText <-
 
 #### Data loading ####
 ## Common names and codes for fauna
-FaunaCodes = read.csv("../ReferenceTables/FAME_TAXON_LIST.csv")
+FaunaCodes = read_csv("../ReferenceTables/FAME_TAXON_LIST.csv")
 
 ## Species to EFG to LMU data
-#SpEFGLMU <- read.csv(input$spEFGLMU,na='NA')
+#SpEFGLMU <- read_csv(input$spEFGLMU,na='NA')
 #SpEFGLMU <- read_excel(file.path("GSO",'Spp_EFG_LMU.xlsx'),sheet=1 ,na='NA')
 names(SpEFGLMU)[1] <- 'COMMON_NAME'
 SpEFGLMU <- SpEFGLMU %>%
@@ -76,17 +76,17 @@ SpEFGLMU <- SpEFGLMU %>%
          EFG_GSsp = paste(EFG_GS, TAXON_ID, sep = '_'))
 
 ## EFGs areas and scenarios
-#GSOScen<-read.csv(input$lmuScenarios,na='NA')
+#GSOScen<-read_csv(input$lmuScenarios,na='NA')
 #GSOScen <- read_excel('../GSO/ScenariosForGSO.xlsx',sheet='LMU Scenarios', na='NA')
 GSOScen$EFG <- paste0('EFG', str_sub(100 + GSOScen$EFG_NO, -2, -1))
 GSOScen$EFG_GS <-
   paste(GSOScen$EFG, str_sub(GSOScen$GS_NAME, 1, 1), sep = '_')
-#GSOArea<-read.csv(input$lmuArea)
+#GSOArea<-read_csv(input$lmuArea)
 #GSOArea <- read_excel('../GSO/ScenariosForGSO.xlsx',sheet='LMU Area', na='NA')
 
 # ## EFG full names
 # GSONames <-
-#   read.csv("../ReferenceTables/TBL_VegetationGrowthStages.csv",
+#   read_csv("../ReferenceTables/TBL_VegetationGrowthStages.csv",
 #              na = 'NA')
 # GSONames <-  GSONames %>% 
 #   group_by(EFG_NAME) %>% 
@@ -117,7 +117,7 @@ EFGData <-SurveyData %>%
 
 ## Reformatting of OrdinalExpertLong Reference table so it can be used in Aspatial GSO ( rather than previous versions separate tables)
 OrdinalExpertLong <-
-  read.csv("../ReferenceTables/OrdinalExpertLong.csv")[,c("COMMON_NAME",
+  read_csv("../ReferenceTables/OrdinalExpertLong.csv")[,c("COMMON_NAME",
                                                           "TAXON_ID",
                                                           "FireType",
                                                           "EFG_GS",
@@ -126,7 +126,7 @@ OrdinalExpertLong <-
   filter(TAXON_ID %in% unique(SpEFGLMU$TAXON_ID))
 
 # Read revised Expert score values to be used in conversion by ConvertExpert()
-ExpertScore <-read.csv('../ReferenceTables/ExpertEstimate.csv', na = '') 
+ExpertScore <-read_csv('../ReferenceTables/ExpertEstimate.csv', na = '') 
 
 #conversion via none little some most all scale after pivot long
 #ideally the ConvertExpert() could be vectorised to avoid this loop
@@ -152,7 +152,7 @@ if (!Classes == "All") {
 
 ## get UsedEFGs - there must be a better way to do this next bit to get usedEFGnames at the moment relying on TBL_VegetationGrowthStages.csv which is only used for this purpose - should be able to get wome other way from EFG in one of the other tables
 # GSONames <-
-#   read.csv("../ReferenceTables/TBL_VegetationGrowthStages.csv",
+#   read_csv("../ReferenceTables/TBL_VegetationGrowthStages.csv",
 #              na = 'NA')
 # GSONames <-  GSONames %>%
 #   group_by(EFG_NAME) %>%
@@ -173,7 +173,7 @@ NoData <-  SpEFGLMU %>%
   summarise(n = n()) %>% 
   left_join(FaunaCodes[, c("SCIENTIFIC_NAME","TAXON_ID","DIVNAME")], by = 'TAXON_ID')
 
-write.csv(NoData[, c(4, 1:2,5)], file.path(GSOResultsDir, ('List of species without suitable data.csv')))
+write_csv(NoData[, c(4, 1:2,5)], file.path(GSOResultsDir, ('List of species without suitable data.csv')))
 
 
 
@@ -211,7 +211,7 @@ OptSpp[, -1:-4] <-
   round(100 * (OptSpp[, -1:-4] / OptSpp[, which(names(OptSpp) == Comparison)] -
                  1), 1)
 OptSpp <- OptSpp[, -which(names(OptSpp) == Comparison)]
-write.csv(OptSpp, file.path(GSOResultsDir, ('GSO Species Changes.csv')), row.names = FALSE)
+write_csv(OptSpp, file.path(GSOResultsDir, ('GSO Species Changes.csv')))
 
 SppDec <-
   data.frame(

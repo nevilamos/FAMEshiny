@@ -64,9 +64,9 @@ writeSpRasters = FALSE #TRUE if rasters are to be output ( large number of files
 
 #Lookup table from EFG to TFI attributes ( csv version of CGDL lookup table)
 TFI_LUT <-
-  read.csv("./ReferenceTables/EFG_EVD_TFI.csv")[, c("EFG_NUM", "MIN_LO_TFI", "MIN_HI_TFI", "MAX_TFI", "EFG_NAME")]
+  read_csv("./ReferenceTables/EFG_EVD_TFI.csv")[, c("EFG_NUM", "MIN_LO_TFI", "MIN_HI_TFI", "MAX_TFI", "EFG_NAME")]
 names(TFI_LUT)[1] <- "EFG"
 
 
 EFG_TSF_4GS <-
-  read.csv("./ReferenceTables/EFG_TSF_4GScorrectedAllEFGto400yrsV2.csv")[, c('EFG_NO', 'GS4_NO', "YSF")]
+  read_csv("./ReferenceTables/EFG_TSF_4GScorrectedAllEFGto400yrsV2.csv")[, c('EFG_NO', 'GS4_NO', "YSF")]

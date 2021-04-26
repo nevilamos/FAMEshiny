@@ -391,7 +391,7 @@ server <- function(session, input, output) {
         Baseline <-startBaseline:endBaseline
         if (input$spListChoice == FALSE) {
           rv$TaxonList <-
-            read.csv("./ReferenceTables/FAME_TAXON_LIST.csv")
+            read_csv("./ReferenceTables/FAME_TAXON_LIST.csv")
         } else{
           validate(need(
             input$customSpList,
@@ -399,7 +399,7 @@ server <- function(session, input, output) {
           ))
           print(input$customSpList)
           rv$TaxonList <-
-            read.csv(file.path("./CustomCSV", input$customSpList))
+            read_csv(file.path("./CustomCSV", input$customSpList))
           
         }
         
@@ -426,7 +426,7 @@ server <- function(session, input, output) {
             file.path("./CustomCSV", input$customResponseFile)
         }
         if(input$abundByGS == TRUE){
-          AbundDataByGS  <-  read.csv(mySpGSResponses)[, c("EFG_NO",
+          AbundDataByGS  <-  read_csv(mySpGSResponses)[, c("EFG_NO",
                                                            "GS4_NO",
                                                            "FireType",
                                                            "Abund",
@@ -441,7 +441,7 @@ server <- function(session, input, output) {
           AbundDataLong <<-
             AbundDataLong[order(AbundDataLong$TAXON_ID), ]
         } else {
-          AbundDataLong <- read.csv(mySpGSResponses)
+          AbundDataLong <- read_csv(mySpGSResponses)
           AbundDataLong[order(AbundDataLong$TAXON_ID), ]
           
         }
@@ -468,12 +468,14 @@ server <- function(session, input, output) {
           myIDX = rv$cropRasters$IDX
         )
         
-        rv$SpYearSumm <- SpYearSumm <<- SpYearSumm
-        utils::write.csv(SpYearSumm$SpYearSummLong,
+        rv$SpYearSumm <- SpYearSumm <- SpYearSumm
+        readr::write_csv(SpYearSumm$SpYearSummLong,
                          file.path(ResultsDir, "SpYearSummLong.csv"))
-        utils::write.csv(SpYearSumm$SpYearSummWide,
+        readr::write_csv(SpYearSumm$SpYearSummWide,
                          file.path(ResultsDir, "SpYearSummWide.csv"))
-        #write.csv(SpYearSumm,file.path(ResultsDir,"SpYearSumm.csv"),row.names=F)
+        readr::write_csv(SpYearSumm$grpSpYearSumm,
+                         file.path(ResultsDir, "grpSpYearSummWide.csv"))
+        #readr::write_csv(SpYearSumm,file.path(ResultsDir,"SpYearSumm.csv"))
         print("finished sp year summ")
         
         
@@ -485,7 +487,7 @@ server <- function(session, input, output) {
             myFHAnalysis = rv$FHAnalysis,
             myBaseline = Baseline
           )
-        utils::write.csv(raDeltaAbund,file.path(ResultsDir,"SppSummChangeRelativetoBaseline.csv"),row.names = F)
+        readr::write_csv(raDeltaAbund,file.path(ResultsDir,"SppSummChangeRelativetoBaseline.csv"))
         rv$raDeltaAbundWide <- raDeltaAbund
         
         #make long form for plotting charts
@@ -577,9 +579,9 @@ server <- function(session, input, output) {
         #rv$FHAnalysis$TFI <- TFI
         
         #write results out to csv files
-        write.csv(TFI,
+        readr::write_csv(TFI,
                   file = file.path(ResultsDir, "TFI_LONG.csv"))
-        write.csv(TFI%>%
+        readr::write_csv(TFI%>%
                     group_by(EFG_NAME,SEASON,TFI_STATUS)%>%
                     summarise(AreaHa = sum(Hectares))%>%
                     pivot_wider(names_from = SEASON,
@@ -602,17 +604,17 @@ server <- function(session, input, output) {
         rv$BBTFI <- BBTFI
         #rv$FHAnalysis$BBTFI <- BBTFI
         
-        write.csv(BBTFI$BBTFI_LONG,
+        readr::write_csv(BBTFI$BBTFI_LONG,
                   file = file.path(ResultsDir,
                                    "BBTFI_LONG.csv"))
-        write.csv(BBTFI$BBTFI_LONG%>%
+        readr::write_csv(BBTFI$BBTFI_LONG%>%
                     group_by(EFG_NAME,TBTFI)%>%
                     summarise(AreaHa = sum(Hectares))%>%
                     pivot_wider(names_from = TBTFI,values_from = AreaHa),
                   file = file.path(ResultsDir,
                                    "TimesBBTFI_SUMMARY.csv"))
         
-        write.csv(BBTFI$BBTFI_WIDE,
+        readr::write_csv(BBTFI$BBTFI_WIDE,
                   file = file.path(ResultsDir,
                                    "BBTFI_WIDE.csv"))
         
@@ -643,11 +645,11 @@ server <- function(session, input, output) {
                      rv$GS_Summary <- GS_Summary
                      #rv$FHAnalysis$GS_Summary <- GS_Summary
                      
-                     write.csv(GS_Summary$GS_Summary_Long,
+                     readr::write_csv(GS_Summary$GS_Summary_Long,
                                file = file.path(ResultsDir,
                                                 "GS_LONG.csv"))
                      
-                     write.csv(GS_Summary$GS_Summary_wide,
+                     readr::write_csv(GS_Summary$GS_Summary_wide,
                                file = file.path(ResultsDir,
                                                 "GS_WIDE.csv"))
                      
@@ -899,7 +901,7 @@ server <- function(session, input, output) {
         splist = "./ReferenceTables/FAME_TAXON_LIST.csv"
       )
       print (head(myDraftSpList))
-      write.csv(myDraftSpList,
+      readr::write_csv(myDraftSpList,
                 file.path(ResultsDir, "myDraftspList.csv"))
       print("made draft species List")
     })
@@ -929,17 +931,14 @@ server <- function(session, input, output) {
         TFI_LUT = TFI_LUT
       )
       #print(myEFG_LMU)
-      write.csv(
+      write_csv(
         myEFG_LMU$LMU_EFG_AREA,
-        file.path(ResultsDir, "LMU_Area.csv"),
-        row.names = F
+        file.path(ResultsDir, "LMU_Area.csv")
       )
-      write.csv(myEFG_LMU$Spp_EFG_LMU,
-                file.path(ResultsDir, "Spp_EFG_LMU.csv"),
-                row.names = F)
-      write.csv(myEFG_LMU$LMU_Scenario,
-                file.path(ResultsDir, "Draft_LMU_Scenarios.csv"),
-                row.names = F)
+      write_csv(myEFG_LMU$Spp_EFG_LMU,
+                file.path(ResultsDir, "Spp_EFG_LMU.csv"))
+      write_csv(myEFG_LMU$LMU_Scenario,
+                file.path(ResultsDir, "Draft_LMU_Scenarios.csv"))
     })
   })
   
@@ -982,7 +981,7 @@ server <- function(session, input, output) {
   
   observeEvent(input$lmuScenarios,
                ignoreInit = T, {
-                 myScenarios = unique(read.csv(file.path(WD,
+                 myScenarios = unique(read_csv(file.path(WD,
                                                          "GSOInputs",
                                                          input$lmuScenarios))$Scenario)
                  updateSelectInput(session,
@@ -1007,22 +1006,22 @@ server <- function(session, input, output) {
           paste0("nrep = ", input$GSOnrep),
           paste0("nsim = ", input$GSOnsim),
           paste0(
-            "SpEFGLMU = read.csv('",
+            "SpEFGLMU = read_csv('",
             file.path(WD, "GSOInputs", input$spEFGLMU),
             "',na='NA')"
           ),
           paste0(
-            "GSOScen<-read.csv('",
+            "GSOScen<-read_csv('",
             file.path(WD, "GSOInputs", input$lmuScenarios),
             "',na='NA')"
           ),
           paste0(
-            "GSOArea<-read.csv('",
+            "GSOArea<-read_csv('",
             file.path(WD, "GSOInputs", input$lmuArea),
             "',na='NA')"
           ),
           paste0(
-            "SurveyData<-read.csv('",
+            "SurveyData<-read_csv('",
             file.path(WD, "GSOInputs", input$ObsData),
             "',na='NA')"
           )
