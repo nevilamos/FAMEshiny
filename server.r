@@ -476,6 +476,19 @@ server <- function(session, input, output) {
         readr::write_csv(SpYearSumm$grpSpYearSumm,
                          file.path(ResultsDir, "grpSpYearSummWide.csv"))
         #readr::write_csv(SpYearSumm,file.path(ResultsDir,"SpYearSumm.csv"))
+        
+        grpSpYearSummLong<-SpYearSumm$grpSpYearSumm%>%
+          filter(rowSums(across(-tidyr::one_of("TAXON_ID","myAllCombs$Index_AllCombs")))>0)%>%
+          tidyr::pivot_longer(
+            -tidyr::one_of("TAXON_ID","myAllCombs$Index_AllCombs"),
+            names_to = "SEASON",
+            values_to = "sumRA"
+          ) %>%
+          dplyr::mutate(SEASON = as.integer(SEASON))
+        
+        readr::write_csv(grpSpYearSummLong,
+                         file.path(ResultsDir, "grpSpYearSummLong.csv"))
+        
         print("finished sp year summ")
         
         
