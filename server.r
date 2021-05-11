@@ -431,10 +431,8 @@ server <- function(session, input, output) {
                                                            "FireType",
                                                            "Abund",
                                                            "TAXON_ID")]  #Select the file giving the fauna relative abundance inputs you wish to use
-          AbundDataByGS$FireTypeNo[AbundDataByGS$FireType == "High"] <-
-            2
-          AbundDataByGS$FireTypeNo[AbundDataByGS$FireType == "Low"] <-
-            1
+          AbundDataByGS%>%mutate(FireTypeNo = if_else(FireType == "High",2,if_else(FireType == "Low",1,0)))
+          
           
           
           AbundDataLong = merge(AbundDataByGS, EFG_TSF_4GS, by = c('EFG_NO', 'GS4_NO'))
