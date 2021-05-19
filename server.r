@@ -435,7 +435,7 @@ server <- function(session, input, output) {
           
           
           
-          AbundDataLong = merge(AbundDataByGS, EFG_TSF_4GS, by = c('EFG_NO', 'GS4_NO'))
+          AbundDataLong = left_join(AbundDataByGS, EFG_TSF_4GS, by = c('EFG_NO', 'GS4_NO'))
           AbundDataLong <<-
             AbundDataLong[order(AbundDataLong$TAXON_ID), ]
         } else {
@@ -447,9 +447,9 @@ server <- function(session, input, output) {
         LU_List <- make_Spp_LU_list(myHDMSpp_NO = HDMSpp_NO,
                                     myAbundDataLong = AbundDataLong)
         
+        print("finished  Spp abund LU List")
         
-        if (exists("rv$TaxonList"))
-          print("Making spYearSumm")
+        print("Making spYearSumm")
         
         SpYearSumm <- calc_SpeciesRA(
           myFHAnalysis = rv$FHAnalysis,
