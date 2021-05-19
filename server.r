@@ -431,25 +431,24 @@ server <- function(session, input, output) {
                                                            "FireType",
                                                            "Abund",
                                                            "TAXON_ID")]  #Select the file giving the fauna relative abundance inputs you wish to use
-          AbundDataByGS%>%mutate(FireTypeNo = if_else(FireType == "High",2,if_else(FireType == "Low",1,0)))
           
-          
-          
-          AbundDataLong = merge(AbundDataByGS, EFG_TSF_4GS, by = c('EFG_NO', 'GS4_NO'))
-          AbundDataLong <<-
-            AbundDataLong[order(AbundDataLong$TAXON_ID), ]
+          AbundDataLong = AbundDataByGS%>%
+            dplyr::mutate(FireTypeNo = if_else(FireType == "High",2,if_else(FireType == "Low",1,0)))%>%
+            dplyr::left_join( EFG_TSF_4GS, by = c('EFG_NO', 'GS4_NO'))%>%
+            dplyr::arrange(TAXON_ID)
+
         } else {
-          AbundDataLong <- read_csv(mySpGSResponses)
-          AbundDataLong[order(AbundDataLong$TAXON_ID), ]
+          AbundDataLong <- read_csv(mySpGSResponses)%>%
+            dplyr::arrange(TAXON_ID)
           
         }
         print("making Spp abund LU List")
         LU_List <- make_Spp_LU_list(myHDMSpp_NO = HDMSpp_NO,
                                     myAbundDataLong = AbundDataLong)
         
+        print("finished  Spp abund LU List")
         
-        if (exists("rv$TaxonList"))
-          print("Making spYearSumm")
+        print("Making spYearSumm")
         
         SpYearSumm <- calc_SpeciesRA(
           myFHAnalysis = rv$FHAnalysis,
@@ -466,7 +465,7 @@ server <- function(session, input, output) {
           myIDX = rv$cropRasters$IDX
         )
         
-        rv$SpYearSumm <- SpYearSumm <- SpYearSumm
+        rv$SpYearSumm <- SpYearSumm <<- SpYearSumm
         readr::write_csv(SpYearSumm$SpYearSummLong,
                          file.path(ResultsDir, "SpYearSummLong.csv"))
         readr::write_csv(SpYearSumm$SpYearSummWide,
