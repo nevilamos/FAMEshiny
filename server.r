@@ -432,10 +432,12 @@ server <- function(session, input, output) {
                                                            "Abund",
                                                            "TAXON_ID")]  #Select the file giving the fauna relative abundance inputs you wish to use
           
+
           AbundDataLong = AbundDataByGS%>%
             dplyr::mutate(FireTypeNo = if_else(FireType == "High",2,if_else(FireType == "Low",1,0)))%>%
             dplyr::left_join( EFG_TSF_4GS, by = c('EFG_NO', 'GS4_NO'))%>%
             dplyr::arrange(TAXON_ID)
+
 
         } else {
           AbundDataLong <- read_csv(mySpGSResponses)%>%
