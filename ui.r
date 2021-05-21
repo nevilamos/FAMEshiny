@@ -218,7 +218,12 @@ ui <- dashboardPage(
                                                                 full.names = TRUE
                                             ))
                                             
-                                          ))
+                                          ),
+                                          numericInput(
+                                            "JFMPSeason0",
+                                            "JFMP SEASON 0",
+                                            as.integer(format(Sys.Date(), "%Y")))
+                                          )
                        )
                 ),
                 column(
