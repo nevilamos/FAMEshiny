@@ -333,15 +333,25 @@ server <- function(session, input, output) {
         )
       print("made FHAnalysis$FH_IDr")
       
-      rv$FHAnalysis <- FHAnalysis
       
+      FHAnalysis<-FHAnalysis
       #check if pupoly is to be used
       if(input$usePUpolys){
         validate(need(input$puShape, 'You  have selected to require \n a PU/BU polygon file but have not \n selected one '))
         myPuPoly = input$puShape
+        JFMPSeason0 <- input$JFMPSeason0
+        #update the FHAnalysis$OUTdf with noburn columns
+        FHAnalysis$OutDF<-FHAnalysis$OutDF%>%bind_cols(make_JFMPNoBurnTab(FHAnalysis = FHAnalysis,JFMPSeason0 = JFMPSeason0))
+        FHAnalysis$YSFNames<-c(FHAnalysis$YSFNames,"YSFNoBurn")
+        FHAnalysis$LBYNames<-c(FHAnalysis$LBYNames,"LBYNoBurn")
+        FHAnalysis$LFTNames<-c(FHAnalysis$LFTNames,"LFTNoBurn")
+        
+        print("appended JFMPNoBurnCols")
       }else{
         myPuPoly = NULL
       }
+      
+      rv$FHAnalysis <- FHAnalysis
       
       
         allCombs <- calcU_All_Combs(
@@ -467,7 +477,7 @@ server <- function(session, input, output) {
           myIDX = rv$cropRasters$IDX
         )
         
-        rv$SpYearSumm <- SpYearSumm <<- SpYearSumm
+        rv$SpYearSumm <- SpYearSumm <- SpYearSumm
         readr::write_csv(SpYearSumm$SpYearSummLong,
                          file.path(ResultsDir, "SpYearSummLong.csv"))
         readr::write_csv(SpYearSumm$SpYearSummWide,
@@ -736,7 +746,7 @@ server <- function(session, input, output) {
     
     output$BBTFIPlot <- renderPlotly({
       
-      bbtfivals <<- rv$BBTFI$BBTFI_LONG %>%
+      bbtfivals <- rv$BBTFI$BBTFI_LONG %>%
         filter(EFG_NAME == input$EFGChoices) %>%
         mutate(TBTFI = as.factor(TBTFI)) %>%
         group_by(TBTFI, SEAS) %>%
@@ -751,7 +761,7 @@ server <- function(session, input, output) {
           TBTFI = (rep(NA,SEASL))
           Area = rep(0,SEASL)
           Padding<-data.frame(TBTFI,SEAS,Area)
-          bbtfivals<<-rbind(bbtfivals,Padding)
+          bbtfivals<-rbind(bbtfivals,Padding)
           
         }
       }
