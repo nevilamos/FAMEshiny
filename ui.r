@@ -391,6 +391,10 @@ ui <- dashboardPage(
           column(4,
                  withBusyIndicatorUI(
                    actionButton("runRA_TFI", label = "Run all calculations")
+                 )),
+          column(4,
+                 withBusyIndicatorUI(
+                   actionButton("runJFMP1", label = "Run JFMP calcultions stage 1")
                  ))
           
         )

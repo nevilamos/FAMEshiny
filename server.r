@@ -274,6 +274,7 @@ server <- function(session, input, output) {
     }
     
   })
+ 
   
   # Observer to runFH analysis ---------------------------------
   observeEvent(input$runFH, {
@@ -303,10 +304,19 @@ server <- function(session, input, output) {
       
       cropRasters$HDM_RASTER_PATH = HDM_RASTER_PATH
       rv$cropRasters = cropRasters
+      
+      if (input$usePUpolys  == TRUE){
+        rv$endSEASON <- input$JFMPSeason0 + 4
+      } else {
+        rv$endSEASON <- NULL
+      }
+      
+      
+
       FHAnalysis <- fhProcess(
         rawFH =  file.path("./rawFH/", input$unionedFH),
         start.SEASON = input$startTimespan,
-        end.SEASON = NULL,
+        end.SEASON = rv$endSEASON,
         OtherAndUnknown = input$otherUnknown,
         validFIRETYPE = c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER")
       )
@@ -387,7 +397,7 @@ server <- function(session, input, output) {
   })
   # Observer to run relative abundance analysis  -------------------------------------------------------
   observeEvent({
-    input$runRA | input$runRA_TFI
+    input$runRA | input$runRA_TFI | input$runJFMP1
     
   }, ignoreInit = T, {
     
@@ -477,26 +487,12 @@ server <- function(session, input, output) {
           myIDX = rv$cropRasters$IDX
         )
         
-        rv$SpYearSumm <- SpYearSumm <- SpYearSumm
+        rv$SpYearSumm <- SpYearSumm
         readr::write_csv(SpYearSumm$SpYearSummLong,
                          file.path(ResultsDir, "SpYearSummLong.csv"))
         readr::write_csv(SpYearSumm$SpYearSummWide,
                          file.path(ResultsDir, "SpYearSummWide.csv"))
-        readr::write_csv(SpYearSumm$grpSpYearSumm,
-                         file.path(ResultsDir, "grpSpYearSummWide.csv"))
-        #readr::write_csv(SpYearSumm,file.path(ResultsDir,"SpYearSumm.csv"))
-        
-        grpSpYearSummLong<-SpYearSumm$grpSpYearSumm%>%
-          filter(rowSums(across(-tidyr::one_of("TAXON_ID","myAllCombs$Index_AllCombs")))>0)%>%
-          tidyr::pivot_longer(
-            -tidyr::one_of("TAXON_ID","myAllCombs$Index_AllCombs"),
-            names_to = "SEASON",
-            values_to = "sumRA"
-          ) %>%
-          dplyr::mutate(SEASON = as.integer(SEASON))
-        
-        readr::write_csv(grpSpYearSummLong,
-                         file.path(ResultsDir, "grpSpYearSummLong.csv"))
+
         
         print("finished sp year summ")
         
@@ -560,7 +556,7 @@ server <- function(session, input, output) {
     
   })
   
-  # Observer to run TFI  and BBTFI related calculations---------------------
+  # Observer to run TFI  related calculations---------------------
   observeEvent({
     input$runTFI | input$runRA_TFI
   },
@@ -602,17 +598,32 @@ server <- function(session, input, output) {
         
         #write results out to csv files
         readr::write_csv(TFI,
-                  file = file.path(ResultsDir, "TFI_LONG.csv"))
+                         file = file.path(ResultsDir, "TFI_LONG.csv"))
         readr::write_csv(TFI%>%
-                    group_by(EFG_NAME,SEASON,TFI_STATUS)%>%
-                    summarise(AreaHa = sum(Hectares))%>%
-                    pivot_wider(names_from = SEASON,
-                                values_from = AreaHa,
-                                values_fill = 0),
-                  file = file.path(ResultsDir, "TFI_EFG_SUMMARY.csv"))
+                           group_by(EFG_NAME,SEASON,TFI_STATUS)%>%
+                           summarise(AreaHa = sum(Hectares))%>%
+                           pivot_wider(names_from = SEASON,
+                                       values_from = AreaHa,
+                                       values_fill = 0),
+                         file = file.path(ResultsDir, "TFI_EFG_SUMMARY.csv"))
         
         
         print("Finished TFI calcualtions")
+        
+        
+      })
+    })
+  })
+  # Observer to run BBTFI  related calculations---------------------
+  observeEvent({
+    input$runTFI | input$runRA_TFI | input$runJFMP1
+  },
+  ignoreInit = T, {
+    withBusyIndicatorServer("runTFI", {
+      withBusyIndicatorServer("runRA_TFI", {
+        validate(need(rv$FHAnalysis,
+                      'You need to select a FH analysis to use'))
+        
         print ("calculating BBTFI")
         
         BBTFI <- calcBBTFI_2(
@@ -627,29 +638,23 @@ server <- function(session, input, output) {
         #rv$FHAnalysis$BBTFI <- BBTFI
         
         readr::write_csv(BBTFI$BBTFI_LONG,
-                  file = file.path(ResultsDir,
-                                   "BBTFI_LONG.csv"))
+                         file = file.path(ResultsDir,
+                                          "BBTFI_LONG.csv"))
         readr::write_csv(BBTFI$BBTFI_LONG%>%
-                    group_by(EFG_NAME,TBTFI)%>%
-                    summarise(AreaHa = sum(Hectares))%>%
-                    pivot_wider(names_from = TBTFI,values_from = AreaHa),
-                  file = file.path(ResultsDir,
-                                   "TimesBBTFI_SUMMARY.csv"))
+                           group_by(EFG_NAME,TBTFI)%>%
+                           summarise(AreaHa = sum(Hectares))%>%
+                           pivot_wider(names_from = TBTFI,values_from = AreaHa),
+                         file = file.path(ResultsDir,
+                                          "TimesBBTFI_SUMMARY.csv"))
         
         readr::write_csv(BBTFI$BBTFI_WIDE,
-                  file = file.path(ResultsDir,
-                                   "BBTFI_WIDE.csv"))
+                         file = file.path(ResultsDir,
+                                          "BBTFI_WIDE.csv"))
         
-        # save(rv$FHAnalysis,  file = file.path(
-        #   "./FH_Outputs",
-        #   paste0(FHAnalysis$name, input$RasterRes, ".rdata")
-        reactive
-        # ))
         
       })
     })
   })
-  
   # Observer to run GS calculations-----------------------
   observeEvent(input$runGS | input$runRA_TFI,
                ignoreInit = T, {
@@ -683,6 +688,36 @@ server <- function(session, input, output) {
                    })
                  })
                })
+  # Observer to run JFMP1  related calculations---------------------
+  observeEvent({
+    input$runJFMP1
+  },
+  ignoreInit = T, {
+    withBusyIndicatorServer("runJFMP1", {
+      print("doing JFMP1")
+      readr::write_csv(rv$SpYearSumm$grpSpYearSumm,
+                       file.path(ResultsDir, "grpSpYearSummWide.csv"))
+      #readr::write_csv(SpYearSumm,file.path(ResultsDir,"SpYearSumm.csv"))
+      
+      grpSpYearSummLong<-rv$SpYearSumm$grpSpYearSumm%>%
+        filter(rowSums(across(-tidyr::one_of("TAXON_ID","myAllCombs$Index_AllCombs")))>0)%>%
+        tidyr::pivot_longer(
+          -tidyr::one_of("TAXON_ID","myAllCombs$Index_AllCombs"),
+          names_to = "SEASON",
+          values_to = "sumRA"
+        ) %>%
+        dplyr::mutate(SEASON = as.integer(SEASON))
+      
+      readr::write_csv(grpSpYearSummLong,
+                       file.path(ResultsDir, "grpSpYearSummLong.csv"))
+      print("made grpsptabs")
+      
+      
+      print(rv$BBTFI)
+      
+    })
+  })
+  
   # Observer prints the details of currently selected analysis-----------------------------------------
   observeEvent(rv$FHAnalysis$name, ignoreInit = T,
                {
