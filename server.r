@@ -341,7 +341,7 @@ server <- function(session, input, output) {
         myPuPoly = input$puShape
         JFMPSeason0 <- input$JFMPSeason0
         #update the FHAnalysis$OUTdf with noburn columns
-        FHAnalysis$OutDF<-FHAnalysis$OutDF%>%bind_cols(make_JFMPNoBurnTab(FHAnalysis = FHAnalysis,JFMPSeason0 = JFMPSeason0))
+        FHAnalysis$OutDF<-FHAnalysis$OutDF%>%bind_cols(make_JFMPNoBurnTab(myFHAnalysis = FHAnalysis,JFMPSeason0 = JFMPSeason0))
         FHAnalysis$YSFNames<-c(FHAnalysis$YSFNames,"YSFNoBurn")
         FHAnalysis$LBYNames<-c(FHAnalysis$LBYNames,"LBYNoBurn")
         FHAnalysis$LFTNames<-c(FHAnalysis$LFTNames,"LFTNoBurn")
@@ -846,8 +846,11 @@ server <- function(session, input, output) {
     myChoices <- unique(rv$SpYearSumm$SpYearSummLong$COMMON_NAME)
     updateSelectizeInput(session, "raSpChoices", choices = myChoices)
     updateTabItems(session, "tabs", "RAplots")
-    minSEASON <- min(rv$SpYearSumm$SpYearSummLong$SEASON)
-    maxSEASON <- max(rv$SpYearSumm$SpYearSummLong$SEASON)
+    #gets the seasons that have been calcuated and removes the dummy no abund ( SEASON =999) so that this does not inflate the axes
+    allSEASONS <- rv$SpYearSumm$SpYearSummLong$SEASON
+    displaySEASONS <- allSEASONS[allSEASONS!=9999]
+    minSEASON <- min(displaySEASONS)
+    maxSEASON <- max(displaySEASONS)
     updateSliderInput(
       session,
       "raSeasonChoices",
