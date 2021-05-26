@@ -294,6 +294,16 @@ server <- function(session, input, output) {
         clipShape = "./ReferenceShapefiles/LF_DISTRICT.shp"
       }
       
+      
+      if (input$usePUpolys  == TRUE){
+        rv$JFMPSeason0 <- input$JFMPSeason0
+        rv$endSEASON <- input$JFMPSeason0 + 4
+      } else {
+        rv$endSEASON <- NULL
+      }
+      
+      
+      
       cropRasters <- cropNAborder(
         REG_NO = myREG_NO,
         myRasterRes = RasterRes,
@@ -305,11 +315,7 @@ server <- function(session, input, output) {
       cropRasters$HDM_RASTER_PATH = HDM_RASTER_PATH
       rv$cropRasters = cropRasters
       
-      if (input$usePUpolys  == TRUE){
-        rv$endSEASON <- input$JFMPSeason0 + 4
-      } else {
-        rv$endSEASON <- NULL
-      }
+
       
       
 
@@ -349,9 +355,8 @@ server <- function(session, input, output) {
       if(input$usePUpolys){
         validate(need(input$puShape, 'You  have selected to require \n a PU/BU polygon file but have not \n selected one '))
         myPuPoly = input$puShape
-        JFMPSeason0 <- input$JFMPSeason0
         #update the FHAnalysis$OUTdf with noburn columns
-        FHAnalysis$OutDF<-FHAnalysis$OutDF%>%bind_cols(make_JFMPNoBurnTab(myFHAnalysis = FHAnalysis,JFMPSeason0 = JFMPSeason0))
+        FHAnalysis$OutDF<-FHAnalysis$OutDF%>%bind_cols(make_JFMPNoBurnTab(myFHAnalysis = FHAnalysis,JFMPSeason0 = rv$JFMPSeason0))
         FHAnalysis$YSFNames<-c(FHAnalysis$YSFNames,"YSFNoBurn")
         FHAnalysis$LBYNames<-c(FHAnalysis$LBYNames,"LBYNoBurn")
         FHAnalysis$LFTNames<-c(FHAnalysis$LFTNames,"LFTNoBurn")
@@ -359,6 +364,7 @@ server <- function(session, input, output) {
         print("appended JFMPNoBurnCols")
       }else{
         myPuPoly = NULL
+        
       }
       
       rv$FHAnalysis <- FHAnalysis
@@ -635,21 +641,22 @@ server <- function(session, input, output) {
         print("finished BBTFI calcs")
         
         rv$BBTFI <- BBTFI
-        #rv$FHAnalysis$BBTFI <- BBTFI
         
-        readr::write_csv(BBTFI$BBTFI_LONG,
-                         file = file.path(ResultsDir,
-                                          "BBTFI_LONG.csv"))
-        readr::write_csv(BBTFI$BBTFI_LONG%>%
-                           group_by(EFG_NAME,TBTFI)%>%
-                           summarise(AreaHa = sum(Hectares))%>%
-                           pivot_wider(names_from = TBTFI,values_from = AreaHa),
-                         file = file.path(ResultsDir,
-                                          "TimesBBTFI_SUMMARY.csv"))
+        write.csv(BBTFI$BBTFI_LONG,
+                  file = file.path(ResultsDir,
+                                   "BBTFI_LONG.csv"))
+        write.csv(BBTFI$BBTFI_LONG%>%
+                    group_by(EFG_NAME,TBTFI)%>%
+                    summarise(AreaHa = sum(Hectares))%>%
+                    pivot_wider(names_from = TBTFI,values_from = AreaHa),
+                  file = file.path(ResultsDir,
+                                   "TimesBBTFI_SUMMARY.csv"))
         
-        readr::write_csv(BBTFI$BBTFI_WIDE,
-                         file = file.path(ResultsDir,
-                                          "BBTFI_WIDE.csv"))
+        write.csv(BBTFI$BBTFI_WIDE,
+                  file = file.path(ResultsDir,
+                                   "BBTFI_WIDE.csv"))
+        
+        
         
         
       })
@@ -696,25 +703,47 @@ server <- function(session, input, output) {
     withBusyIndicatorServer("runJFMP1", {
       print("doing JFMP1")
       
+      #wrangles the SpYearSummRA grouped on indexof all combs, plus the TaxonList that includes count of cells in area of interest to get the weighted sum of change all species in area of interest for each PU
+      print(rv$endSEASON)
       
-      PUSpYearSummLong<-rv$SpYearSumm$grpSpYearSumm%>%
-        rename(Index_AllCombs =myAllCombs$Index_AllCombs)%>%
-        filter(rowSums(across(-tidyr::one_of("TAXON_ID","Index_AllCombs")))>0)%>%
+      
+      PU_WeightedSumRA<<-rv$SpYearSumm$grpSpYearSumm %>%
+        dplyr::rename(Index_AllCombs = `myAllCombs$Index_AllCombs`) %>%
         tidyr::pivot_longer(
           -tidyr::one_of("TAXON_ID","Index_AllCombs"),
           names_to = "SEASON",
           values_to = "sumRA"
-        ) %>%mutate(PU = allCombs$U_AllCombs_TFI[,Index_AllCombs])
-        dplyr::mutate(SEASON = as.integer(SEASON))
+        ) %>%
+        dplyr::filter(SEASON %in% c(as.character(rv$endSEASON),"NoBurn")) %>% 
+        dplyr::mutate(SEASON = ifelse(SEASON == "NoBurn","NoBurn","Burn")) %>%
+        dplyr::mutate(PU = rv$allCombs$U_AllCombs_TFI$PU[Index_AllCombs]) %>%
+        dplyr::group_by(TAXON_ID,PU,SEASON) %>%
+        dplyr::summarise(sumRA = sum(sumRA)) %>%
+        dplyr::mutate(TAXON_ID = as.integer(TAXON_ID)) #%>%
+        dplyr::left_join(rv$TaxonList %>% dplyr::select(TAXON_ID,cellsInArea))# %>%
+        #dplyr::mutate(weightedRA = sumRA/cellsInArea) %>%
+        #dplyr::group_by(PU,SEASON) %>%
+        #dplyr::summarise(WeightedSumRA = sum(weightedRA))
+
+    print("calculated PU weighted RA")  
       
       
       
       
-      ####start working in the taxonlist info here to do the weighting on 
-      print("made grpsptabs")
       
       #####work out how to extract the BBTFI area
-      print(rv$BBTFI)
+      ##I think that it needs just sum of TBTFI==1 for all years and all except JFMP years
+      print("doing JFMPBBTFI")
+
+      
+      PU_BBTFI_Summ<<-rv$BBTFI$BBTFI_LONG%>%
+        dplyr::filter(TBTFI==1)%>%
+        dplyr::mutate(JFMP_BURN = ifelse(SEAS> rv$JFMPSeason0,"JFMP_BBTFI","PastBBTFI"))%>%
+        dplyr::group_by(PU,JFMP_BURN)%>%
+        dplyr::summarise(Hectares = sum (Hectares))%>%
+        tidyr::pivot_wider(names_from = JFMP_BURN,values_from = Hectares)
+      
+     print( "Finsished JFMP1")
       
     })
   })
