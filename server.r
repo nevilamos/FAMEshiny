@@ -472,7 +472,7 @@ server <- function(session, input, output) {
         
         print("Making spYearSumm")
         
-        SpYearSumm <- calc_SpeciesRA(
+        SpYearSumm <<- calc_SpeciesRA(
           myFHAnalysis = rv$FHAnalysis,
           myAllCombs <- rv$allCombs,
           myHDMSpp_NO = HDMSpp_NO,
@@ -695,24 +695,25 @@ server <- function(session, input, output) {
   ignoreInit = T, {
     withBusyIndicatorServer("runJFMP1", {
       print("doing JFMP1")
-      readr::write_csv(rv$SpYearSumm$grpSpYearSumm,
-                       file.path(ResultsDir, "grpSpYearSummWide.csv"))
-      #readr::write_csv(SpYearSumm,file.path(ResultsDir,"SpYearSumm.csv"))
       
-      grpSpYearSummLong<-rv$SpYearSumm$grpSpYearSumm%>%
-        filter(rowSums(across(-tidyr::one_of("TAXON_ID","myAllCombs$Index_AllCombs")))>0)%>%
+      
+      PUSpYearSummLong<-rv$SpYearSumm$grpSpYearSumm%>%
+        rename(Index_AllCombs =myAllCombs$Index_AllCombs)%>%
+        filter(rowSums(across(-tidyr::one_of("TAXON_ID","Index_AllCombs")))>0)%>%
         tidyr::pivot_longer(
-          -tidyr::one_of("TAXON_ID","myAllCombs$Index_AllCombs"),
+          -tidyr::one_of("TAXON_ID","Index_AllCombs"),
           names_to = "SEASON",
           values_to = "sumRA"
-        ) %>%
+        ) %>%mutate(PU = allCombs$U_AllCombs_TFI[,Index_AllCombs])
         dplyr::mutate(SEASON = as.integer(SEASON))
       
-      readr::write_csv(grpSpYearSummLong,
-                       file.path(ResultsDir, "grpSpYearSummLong.csv"))
+      
+      
+      
+      ####start working in the taxonlist info here to do the weighting on 
       print("made grpsptabs")
       
-      
+      #####work out how to extract the BBTFI area
       print(rv$BBTFI)
       
     })
