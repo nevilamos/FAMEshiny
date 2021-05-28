@@ -702,11 +702,9 @@ server <- function(session, input, output) {
   ignoreInit = T, {
     withBusyIndicatorServer("runJFMP1", {
       print("doing JFMP1")
-      
-      #wrangles the SpYearSummRA grouped on indexof all combs, plus the TaxonList that includes count of cells in area of interest to get the weighted sum of change all species in area of interest for each PU
-      print(rv$endSEASON)
-      
-      
+
+#wrangles the SpYearSummRA grouped on indexof all combs, plus the TaxonList that includes count of cells in area of interest to get the weighted sum of change all species in area of interest for each PU ------
+
       PU_WeightedSumRA<<-rv$SpYearSumm$grpSpYearSumm %>%
         dplyr::rename(Index_AllCombs = `myAllCombs$Index_AllCombs`) %>%
         tidyr::pivot_longer(
@@ -719,26 +717,30 @@ server <- function(session, input, output) {
         dplyr::mutate(PU = rv$allCombs$U_AllCombs_TFI$PU[Index_AllCombs]) %>%
         dplyr::group_by(TAXON_ID,PU,SEASON) %>%
         dplyr::summarise(sumRA = sum(sumRA)) %>%
-        dplyr::mutate(TAXON_ID = as.integer(TAXON_ID)) #%>%
-        dplyr::left_join(rv$TaxonList %>% dplyr::select(TAXON_ID,cellsInArea))# %>%
-        #dplyr::mutate(weightedRA = sumRA/cellsInArea) %>%
-        #dplyr::group_by(PU,SEASON) %>%
-        #dplyr::summarise(WeightedSumRA = sum(weightedRA))
+        dplyr::mutate(TAXON_ID = as.integer(TAXON_ID)) 
+          print("here")
+          
+          
+        PU_WeightedSumRA<<-PU_WeightedSumRA%>%
+        dplyr::left_join(
+          rv$TaxonList %>% dplyr::select(TAXON_ID,cellsInArea)
+          )%>%
+        dplyr::mutate(weightedRA = sumRA/cellsInArea) %>%
+        dplyr::group_by(PU,SEASON)%>%
+        dplyr::summarise(WeightedSumRA = sum(weightedRA))
 
     print("calculated PU weighted RA")  
-      
-      
-      
-      
-      
-      #####work out how to extract the BBTFI area
-      ##I think that it needs just sum of TBTFI==1 for all years and all except JFMP years
+  
+#Data wrangling of BBTFI outputs to extract area BBTFI for each PU, this requires inclusion ONLY of the first time areas are buned below TFI, these are then categorised as "PastBBTFI" for all years up to JFMPSeason0, and then as BBTFI (for the first time) by the JFMP)----
       print("doing JFMPBBTFI")
 
       
       PU_BBTFI_Summ<<-rv$BBTFI$BBTFI_LONG%>%
         dplyr::filter(TBTFI==1)%>%
-        dplyr::mutate(JFMP_BURN = ifelse(SEAS> rv$JFMPSeason0,"JFMP_BBTFI","PastBBTFI"))%>%
+        dplyr::mutate(JFMP_BURN = ifelse(
+          SEAS> rv$JFMPSeason0,"JFMP_BBTFI","PastBBTFI"
+          )
+          )%>%
         dplyr::group_by(PU,JFMP_BURN)%>%
         dplyr::summarise(Hectares = sum (Hectares))%>%
         tidyr::pivot_wider(names_from = JFMP_BURN,values_from = Hectares)
@@ -748,7 +750,7 @@ server <- function(session, input, output) {
     })
   })
   
-  # Observer prints the details of currently selected analysis-----------------------------------------
+# Observer prints the details of currently selected analysis ------
   observeEvent(rv$FHAnalysis$name, ignoreInit = T,
                {
                  output$selected_FH_name <- renderText({
@@ -759,7 +761,7 @@ server <- function(session, input, output) {
   
   
   
-  # Observer to display TFI and BBTFI plots when available--------------------------------------------
+# Observer to display TFI and BBTFI plots when available ------
   
   observeEvent({
     rv$TFI
