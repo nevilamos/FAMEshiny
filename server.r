@@ -263,17 +263,17 @@ server <- function(session, input, output) {
   
 
   # Observer for loading a previous FH analysis---------------------------------
-  observeEvent(input$FHOutputLoad, {
-    if (input$FHOutputLoad == "use current loaded FH analysis") {
-      return()
-    } else{
-      load(input$FHOutputLoad)
-      rv$FHAnalysis <- FHAnalysis
-      rv$cropRasters <- cropRasters
-      rv$allCombs <- allCombs
-    }
-    
-  })
+  # observeEvent(input$FHOutputLoad, {
+  #   if (input$FHOutputLoad == "use current loaded FH analysis") {
+  #     return()
+  #   } else{
+  #     load(input$FHOutputLoad)
+  #     rv$FHAnalysis <- FHAnalysis
+  #     rv$cropRasters <- cropRasters
+  #     rv$allCombs <- allCombs
+  #   }
+  #   
+  # })
  
   
   # Observer to runFH analysis ---------------------------------
@@ -498,6 +498,23 @@ server <- function(session, input, output) {
                          file.path(ResultsDir, "SpYearSummLong.csv"))
         readr::write_csv(SpYearSumm$SpYearSummWide,
                          file.path(ResultsDir, "SpYearSummWide.csv"))
+        
+        
+        grpSpYearSummLong<-rv$SpYearSumm$grpSpYearSumm %>%
+          dplyr::rename(Index_AllCombs = `myAllCombs$Index_AllCombs`) %>%
+          tidyr::pivot_longer(
+            -tidyr::one_of("TAXON_ID","Index_AllCombs"),
+            names_to = "SEASON",
+            values_to = "sumRA"
+          ) %>%
+          dplyr::mutate(PU = rv$allCombs$U_AllCombs_TFI$PU[Index_AllCombs],
+                        EFG_NAME = rv$allCombs$U_AllCombs_TFI$EFG_NAME[Index_AllCombs]) %>%
+          dplyr::group_by(TAXON_ID,PU,EFG_NAME,SEASON) %>%
+          dplyr::summarise(sumRA = sum(sumRA)) %>%
+          dplyr::mutate(TAXON_ID = as.integer(TAXON_ID))
+        
+        
+        readr::write_csv(grpSpYearSummLong,file.path(ResultsDir,"grpSpYearSummLong.csv"))
 
         
         print("finished sp year summ")
@@ -1127,6 +1144,27 @@ server <- function(session, input, output) {
                         clean = T)
     })
   })
+  
+  # observer to save current analysis reactive values to file as list----
+  observeEvent(input$saveAnalysis,{
+    rvList<-reactiveValuesToList(rv)
+    qsave(rvList,"rvList.qs")
+    
+  }
+  )
+  
+  # observer to save current analysis reactive values to file as list-----
+  observeEvent(input$loadAnalysis,{
+    rvList<-qread("rvList.qs")
+    rvNames<-(names(rvList))
+    
+    for(i in rvNames){
+      rv[[i]]<- rvList[[i]]
+      print(i)
+    }
+
+  }
+  )
   
   
   # observer to shut down server

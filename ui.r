@@ -119,14 +119,14 @@ ui <- dashboardPage(
                     
                   ),
                   wellPanel(
-                    h2("Download FAME ArcGIS preproccessing tool"),
+                    h3("Download FAME ArcGIS preproccessing tool"),
                     downloadButton("downloadTool", "Download tool"),
-                    h2("Download manual"),
+                    h3("Download manual"),
                     downloadButton("downloadManual", "Download manual"),
                     useShinyjs(),
                     extendShinyjs(text = jscode, functions = c("closeWindow")),
-                    h2("WARNING BUTTON BELOW WILL SHUT DOWN SERVER"),
-                    h2("Make sure you have downloaded all your data first"),
+                    h3("WARNING BUTTON BELOW WILL SHUT DOWN SERVER"),
+                    h4("Make sure you have downloaded all your data first"),
                     actionButton("close", "Shut Down Server")
                   )
                   
@@ -170,6 +170,24 @@ ui <- dashboardPage(
                     ) ,
                     tableOutput('filepaths') ,
                     downloadButton("downloadFiles", "Download Files")
+                  ),
+                  
+                  wellPanel(
+                    h2("Save or reload analysis "),
+                    withBusyIndicatorUI(
+                      actionButton(
+                        inputId = "saveAnalysis",
+                        label = "Save analysis for later use",
+                        )
+                      ),
+                    withBusyIndicatorUI(
+                      actionButton(
+                        inputId = "loadAnalysis",
+                        label = "Reload saved analysis",
+                      )
+                    ),
+                    
+                    
                   )
                   
                   
@@ -255,16 +273,17 @@ ui <- dashboardPage(
         tabName = "fAbund_TFI",
         h2("Spatial TFI and Fauna Abundance Calculations "),
         fluidRow(wellPanel(
-          h3("Load a pre-existing FH analysis datafile?"),
-          selectInput(
-            'FHOutputLoad',
-            'FH analysis to use',
-            choice = c(
-              "use current loaded FH analysis",
-              list.files('./FH_Outputs/', pattern =
-                           ".rdata$", full.names = T)
-            )
-          ),
+          
+          # h3("Load a pre-existing FH analysis datafile?"),
+          # selectInput(
+          #   'FHOutputLoad',
+          #   'FH analysis to use',
+          #   choice = c(
+          #     "use current loaded FH analysis",
+          #     list.files('./FH_Outputs/', pattern =
+          #                  ".rdata$", full.names = T)
+          #   )
+          #),
           textOutput("selected_FH_name")
           
         )),
