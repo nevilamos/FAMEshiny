@@ -13,11 +13,9 @@ versionDate = "Version 2.0.3.1 April 21  2021"
 versionFAMEFMR = paste ("R", getRversion(),"FAMEFMR",packageVersion("FAMEFMR"))
 
 
-# file that disables buttons while processes ar running to prevent multi-clicks
+# file that disables buttons while processes are running to prevent multi-clicks
 # and lengthy operations running multiple times
 source("ButtonDisableHelpers.r")
-
-
 
 
 Ncores = 4
