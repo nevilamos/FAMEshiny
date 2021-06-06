@@ -262,20 +262,6 @@ server <- function(session, input, output) {
   )
   
 
-  # Observer for loading a previous FH analysis---------------------------------
-  # observeEvent(input$FHOutputLoad, {
-  #   if (input$FHOutputLoad == "use current loaded FH analysis") {
-  #     return()
-  #   } else{
-  #     load(input$FHOutputLoad)
-  #     rv$FHAnalysis <- FHAnalysis
-  #     rv$cropRasters <- cropRasters
-  #     rv$allCombs <- allCombs
-  #   }
-  #   
-  # })
- 
-  
   # Observer to runFH analysis ---------------------------------
   observeEvent(input$runFH, {
     validate(need(input$unionedFH, 'You need to select a raw FH to run analysis'))
@@ -704,11 +690,7 @@ server <- function(session, input, output) {
                                file = file.path(ResultsDir,
                                                 "GS_WIDE.csv"))
                      
-                     # save(rv$FHAnalysis,  file = file.path(
-                     #   "./FH_Outputs",
-                     #   paste0(FHAnalysis$name, input$RasterRes, ".rdata")
-                     # ))
-                     
+
                    })
                  })
                })
@@ -762,7 +744,7 @@ server <- function(session, input, output) {
         dplyr::summarise(Hectares = sum (Hectares))%>%
         tidyr::pivot_wider(names_from = JFMP_BURN,values_from = Hectares)
       
-     print( "Finsished JFMP1")
+     print( "Finished JFMP1")
       
     })
   })
@@ -1146,25 +1128,46 @@ server <- function(session, input, output) {
   })
   
   # observer to save current analysis reactive values to file as list----
-  observeEvent(input$saveAnalysis,{
-    rvList<-reactiveValuesToList(rv)
-    qsave(rvList,"rvList.qs")
+  observe({
+    roots <- c("UserFolder"="./FH_Outputs")
+    myRvList<-reactiveValuesToList(rv)
+    shinyFileSave(input, "saveAnalysis", roots=roots)
+    fileinfo <- parseSavePath(roots, input$saveAnalysis)
     
-  }
-  )
-  
-  # observer to save current analysis reactive values to file as list-----
-  observeEvent(input$loadAnalysis,{
-    rvList<-qread("rvList.qs")
-    rvNames<-(names(rvList))
-    
-    for(i in rvNames){
-      rv[[i]]<- rvList[[i]]
-      print(i)
+    if (nrow(fileinfo) > 0) {
+      qsave(myRvList, as.character(fileinfo$datapath))
     }
+  })  
 
-  }
-  )
+  
+    
+  
+  
+  
+  # observer to load analysis from list as qs file-----
+  observe({
+    roots <- c("UserFolder"="./FH_Outputs")  
+    shinyFileChoose(
+      input,
+      id = "loadAnalysis",
+      roots = roots,
+      filetypes = "qs"
+    )
+    
+    fileinfo <- parseFilePaths(roots, input$loadAnalysis)
+    if (nrow(fileinfo) > 0) {
+      for ( i in names(rv)){
+        rv[[i]]<-NULL
+      }
+      myRvList<-qread(as.character(fileinfo$datapath))
+      x<-(names(myRvList))
+      for(i in x){
+        rv[[i]]<- myRvList[[i]]
+        print(i)
+      }
+    }
+    
+  })
   
   
   # observer to shut down server

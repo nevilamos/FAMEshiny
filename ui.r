@@ -175,15 +175,25 @@ ui <- dashboardPage(
                   wellPanel(
                     h2("Save or reload analysis "),
                     withBusyIndicatorUI(
-                      actionButton(
-                        inputId = "saveAnalysis",
-                        label = "Save analysis for later use",
-                        )
+                      shinyFilesButton(
+                        id = "loadAnalysis",
+                        label = "load existing analysis file",
+                        title = "select analysis to load",
+                        multiple = FALSE,
+                        buttonType = "default",
+                        class = NULL,
+                        icon = NULL,
+                        style = NULL,
+                        viewtype = "detail",
+                        
+                      )
                       ),
                     withBusyIndicatorUI(
-                      actionButton(
-                        inputId = "loadAnalysis",
-                        label = "Reload saved analysis",
+                      shinySaveButton(id = "saveAnalysis",
+                                      label = "save analysis",
+                                      title = "save analysis file as...",
+                                      filename = "savedValue",
+                                      filetype=list(qs="qs")
                       )
                     ),
                     
