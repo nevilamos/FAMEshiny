@@ -185,12 +185,11 @@ ui <- dashboardPage(
                         icon = NULL,
                         style = NULL,
                         viewtype = "detail",
-                        
-                      )
-                      ),
+                      )  
+                    ),
                     withBusyIndicatorUI(
                       shinySaveButton(id = "saveAnalysis",
-                                      label = "save analysis",
+                                      label = "save analysis to file",
                                       title = "save analysis file as...",
                                       filename = "savedValue",
                                       filetype=list(qs="qs")
@@ -210,43 +209,75 @@ ui <- dashboardPage(
                 h2("New Fire Scenario Analysis"),
                 column(6,
                        wellPanel(
-                         selectInput(
-                           'unionedFH',
-                           'Select fire scenario shapefile',
-                           choice = c("", list.files('./rawFH/', pattern =
-                                                       ".shp$"))
+
+                         shinyFilesButton(
+                           id = "selectRawFH",
+                           label = "select raw FH",
+                           title = "select raw Fire history shapefile to run",
+                           multiple = FALSE,
+                           buttonType = "default",
+                           class = NULL,
+                           icon = NULL,
+                           style = NULL,
+                           viewtype = "detail",
+                           
                          ),
+                         textOutput("rawFHName"),
+
+
+#select region or user defined area to run analysis on ----
                          selectInput("REGION_NO", "Choose a Region",
                                      choices = as.list(c(REG_NO))),
                          conditionalPanel(
                            condition = "input.REGION_NO == '7'",
-                           selectInput(
-                             'AdHocShape',
-                             'Select AdHoc Area shapefile',
-                             choice = c("", list.files('./AdHocPolygons/', 
-                                                       pattern =".shp$"
-                             )
-                             )
-                           )
+                           # selectInput(
+                           #   'AdHocShape',
+                           #   'Select AdHoc Area shapefile',
+                           #   choice = c("", list.files('./AdHocPolygons/', 
+                           #                             pattern =".shp$"
+                           #   )
+                           #   )
+                           # )
+                           shinyFilesButton(
+                             id = "selectAdHoc",
+                             label = "select user defined shapefile",
+                             title = "select user defined shapefile for analysis area", 
+                             multiple = FALSE,
+                             buttonType = "default",
+                             class = NULL,
+                             icon = NULL,
+                             style = NULL,
+                             viewtype = "detail",
+                             
+                           ),
+                           textOutput("AdHocName"),
                            
                          )
                          
                        ),
+# choose whether to use planning units ( for JFMP calculations) and 
+
                        wellPanel(
                          checkboxInput(inputId = "usePUpolys",
                                        label = "Break down outputs to Planning/Burn Units",
                                        value = FALSE
                          ),
+#select planning unit shapefile----
                          conditionalPanel("input.usePUpolys",
-                                          selectInput(
-                                            "puShape",
-                                            "Select PU/BU shapefile",
-                                            choice = c("",list.files("./PUPolygons/",
-                                                                pattern =".shp$",
-                                                                full.names = TRUE
-                                            ))
+                                          shinyFilesButton(
+                                            id = "selectPU",
+                                            label = "select planning unit shapefile",
+                                            title = "select planning unit shapefile for analysis area", 
+                                            multiple = FALSE,
+                                            buttonType = "default",
+                                            class = NULL,
+                                            icon = NULL,
+                                            style = NULL,
+                                            viewtype = "detail",
                                             
                                           ),
+                                          textOutput("puName"),
+                                          
                                           numericInput(
                                             "JFMPSeason0",
                                             "JFMP SEASON 0",

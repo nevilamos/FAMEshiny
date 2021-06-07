@@ -25,13 +25,13 @@ server <- function(session, input, output) {
         
         file.copy(myInput$datapath,
                   file.path(rawFHPath))
-        updateSelectInput(
-          session,
-          'unionedFH',
-          'Select fire scenario shapefile',
-          choice = c("", list.files('./rawFH/', pattern =
-                                      ".shp$"))
-        )
+        # updateSelectInput(
+        #   session,
+        #   'unionedFH',
+        #   'Select fire scenario shapefile',
+        #   choice = c("", list.files('./rawFH/', pattern =
+        #                               ".shp$"))
+        # )
         myText = "shapefile uploaded"
         showtable = "YES"
         output$rawFHTable <- renderTable(myInput[, 1:2])
@@ -94,13 +94,13 @@ server <- function(session, input, output) {
         myText1 = "shapefile uploaded"
         showtable1 = "YES"
         output$rawFHTable <- renderTable(myInput[, 1:2])
-        updateSelectInput(
-          session,
-          'AdHocShape',
-          'Select AdHoc Area shapefile',
-          choice = c("", list.files('./AdHocPolygons/', pattern =
-                                      ".shp$"))
-        )
+        # updateSelectInput(
+        #   session,
+        #   'AdHocShape',
+        #   'Select AdHoc Area shapefile',
+        #   choice = c("", list.files('./AdHocPolygons/', pattern =
+        #                               ".shp$"))
+        # )
       } else{
         myText1 = paste(
           "<span style=\"color:red\">one or more of .shp,.shx,.dbf,.prj are missing\n Or additional files selected</span>"
@@ -261,21 +261,88 @@ server <- function(session, input, output) {
     contentType = "application/zip"
   )
   
+  #observer to get rawFH file to be run -----
+  observe({
+    roots <- c(wd='./rawFH')
+    shinyFileChoose(
+      input,
+      id = "selectRawFH",
+      roots = roots,
+      filetypes = "shp"
+    )
+    fileinfo <- parseFilePaths(roots, input$selectRawFH)
+    if (nrow(fileinfo) > 0) {
+    rv$rawFHPath<-as.character(fileinfo$datapath)
+    rv$rawFHName<-basename(rv$rawFHPath)
+    }
+  })
+  # observer to display selected rawFH Shapefile in UI
+  observeEvent(rv$rawFHName,{
+    output$rawFHName<-renderText(basename(rv$rawFHName))
+    
+  })  
+  
+  
+  #observer to get AdHoc shapefile file to be run -----
+  observeEvent(input$selectAdHoc,{
+    roots <- c(wd='./AdHocPolygons')
+    shinyFileChoose(
+      input,
+      id = "selectAdHoc",
+      roots = roots,
+      filetypes = "shp"
+    )
+    fileinfo <- parseFilePaths(roots, input$selectAdHoc)
+    if (nrow(fileinfo) > 0) {
+      rv$AdHocPath<-as.character(fileinfo$datapath)
+      rv$AdHocName<-basename(rv$AdHocPath)
+      #output$AdHocName<-renderText(rv$AdHocName)
+      
+    }
+  })
+  # observer to display selected Ad Hoc Shapefile in UI
+  observeEvent(rv$AdHocName,{
+    output$AdHocName<-renderText(basename(rv$AdHocName))
+    
+  })
 
+  #observer to get PU shapefile file to be run -----
+  observeEvent(input$selectPU,{
+    roots <- c(wd='./PUPolygons')
+    shinyFileChoose(
+      input,
+      id = "selectPU",
+      roots = roots,
+      filetypes = "shp"
+    )
+    fileinfo <- parseFilePaths(roots, input$selectPU)
+    if (nrow(fileinfo) > 0) {
+      rv$puPath<-as.character(fileinfo$datapath)
+      rv$puName<-basename(rv$puPath)
+      
+      
+    }
+  })
+  # observer to display selected PU Shapefile in UI
+  observeEvent(rv$puName,{
+    output$puName<-renderText(basename(rv$puName))
+    
+  })
+  
+  
   # Observer to runFH analysis ---------------------------------
   observeEvent(input$runFH, {
-    validate(need(input$unionedFH, 'You need to select a raw FH to run analysis'))
+    validate(need(rv$rawFHPath, 'You need to select a raw FH to run analysis'))
     withBusyIndicatorServer("runFH", {
-      rv$outputFH <- file_path_sans_ext(basename(input$unionedFH))
-      #    showModal("FH analysis running")
+      rv$outputFH <- file_path_sans_ext(basename(rv$rawFHPath))
       myREG_NO <- as.integer(input$REGION_NO)
       RasterRes <- as.integer(input$RasterRes)
       print(paste("RasterRes =", RasterRes))
-      HDM_RASTER_PATH <-
+      HDM_RASTER_PATH <<-
         paste0("./HDMS/", input$RasterRes, "m/BinaryThresholded")
       
       if (myREG_NO == 7) {
-        clipShape = file.path("./AdHocPolygons", input$AdHocShape)
+        clipShape = rv$AdHocPath
       } else{
         clipShape = "./ReferenceShapefiles/LF_DISTRICT.shp"
       }
@@ -290,7 +357,7 @@ server <- function(session, input, output) {
       
       
       
-      cropRasters <- cropNAborder(
+      cropRasters <<- cropNAborder(
         REG_NO = myREG_NO,
         myRasterRes = RasterRes,
         PUBLIC_LAND_ONLY = input$public,
@@ -306,7 +373,7 @@ server <- function(session, input, output) {
       
 
       FHAnalysis <- fhProcess(
-        rawFH =  file.path("./rawFH/", input$unionedFH),
+        rawFH =  rv$rawFHPath,
         start.SEASON = input$startTimespan,
         end.SEASON = rv$endSEASON,
         OtherAndUnknown = input$otherUnknown,
@@ -1128,7 +1195,7 @@ server <- function(session, input, output) {
   })
   
   # observer to save current analysis reactive values to file as list----
-  observe({
+  observeEvent(input$saveAnalysis,{
     roots <- c("UserFolder"="./FH_Outputs")
     myRvList<-reactiveValuesToList(rv)
     shinyFileSave(input, "saveAnalysis", roots=roots)
@@ -1137,7 +1204,7 @@ server <- function(session, input, output) {
     if (nrow(fileinfo) > 0) {
       qsave(myRvList, as.character(fileinfo$datapath))
     }
-  })  
+  })
 
   
     
