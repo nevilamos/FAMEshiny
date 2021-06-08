@@ -377,9 +377,9 @@ server <- function(session, input, output) {
   })
   observeEvent(rv$usePUpolys,{  
     if(rv$usePUpolys == TRUE){
-      updateCheckboxInput(inputId = "usePUpolys",value = TRUE)
+      updateCheckboxInput(session = session,inputId = "usePUpolys",value = TRUE)
     }else{
-      updateCheckboxInput(inputId = "usePUpolys",value = FALSE)
+      updateCheckboxInput(session = session,inputId = "usePUpolys",value = FALSE)
     }
   })
   
@@ -389,9 +389,9 @@ server <- function(session, input, output) {
   })
   observeEvent(rv$spListChoice,{  
     if(rv$spListChoice == TRUE){
-      updateCheckboxInput(inputId = "spListChoice",value = TRUE)
+      updateCheckboxInput(session = session,inputId = "spListChoice",value = TRUE)
     }else{
-      updateCheckboxInput(inputId = "spListChoice",value = FALSE)
+      updateCheckboxInput(session = session,inputId = "spListChoice",value = FALSE)
     }
   })
   
@@ -401,9 +401,9 @@ server <- function(session, input, output) {
   })
   observeEvent(rv$spResponseChoice,{  
     if(rv$spResponseChoice == TRUE){
-      updateCheckboxInput(inputId = "spResponseChoice",value = TRUE)
+      updateCheckboxInput(session = session,inputId = "spResponseChoice",value = TRUE)
     }else{
-      updateCheckboxInput(inputId = "spResponseChoice",value = FALSE)
+      updateCheckboxInput(session = session,inputId = "spResponseChoice",value = FALSE)
     }
   })
   
@@ -413,9 +413,9 @@ server <- function(session, input, output) {
   })
   observeEvent(rv$abundByGS,{  
     if(rv$abundByGS == TRUE){
-      updateCheckboxInput(inputId = "abundByGS",value = TRUE)
+      updateCheckboxInput(session = session,inputId = "abundByGS",value = TRUE)
     }else{
-      updateCheckboxInput(inputId = "abundByGS",value = FALSE)
+      updateCheckboxInput(session = session,inputId = "abundByGS",value = FALSE)
     }
   })
   
@@ -425,9 +425,9 @@ server <- function(session, input, output) {
   })
   observeEvent(rv$makeRArasters,{  
     if(rv$makeRArasters == TRUE){
-      updateCheckboxInput(inputId = "makeRArasters",value = TRUE)
+      updateCheckboxInput(session = session,inputId = "makeRArasters",value = TRUE)
     }else{
-      updateCheckboxInput(inputId = "makeRArasters",value = FALSE)
+      updateCheckboxInput(session = session,inputId = "makeRArasters",value = FALSE)
     }
   })
   
@@ -438,7 +438,7 @@ server <- function(session, input, output) {
     rv$RasterRes = input$RasterRes
   })
   observeEvent(rv$RasterRes,{
-    updateRadioButtons(inputId = "RasterRes",selected = rv$RasterRes)
+    updateRadioButtons(session = session,inputId = "RasterRes",selected = rv$RasterRes)
   })
   
   #Observer for First season for analysis output (startTimespan)------------------
@@ -447,7 +447,7 @@ server <- function(session, input, output) {
   })
   
   observeEvent(rv$startTimespan,{
-    updateNumericInput(inputId = "startTimespan",value = rv$startTimespan)
+    updateNumericInput(session = session,inputId = "startTimespan",value = rv$startTimespan)
   })
   
   #Observer for start baseline------------------
@@ -456,7 +456,7 @@ server <- function(session, input, output) {
   })
   
   observeEvent(rv$startBaseline,{
-    updateNumericInput(inputId = "startBaseline",value = rv$startBaseline)
+    updateNumericInput(session = session,inputId = "startBaseline",value = rv$startBaseline)
   })
   #Observer for end baseline------------------
   observeEvent(input$endBaseline,{
@@ -464,7 +464,7 @@ server <- function(session, input, output) {
   })
   
   observeEvent(rv$startBaseline,{
-    updateNumericInput(inputId = "endBaseline",value = rv$endBaseline)
+    updateNumericInput(session = session,inputId = "endBaseline",value = rv$endBaseline)
   })
 # OBSERVERS FOR RADIOBUTTON CHOICES  ----
  
@@ -474,7 +474,7 @@ server <- function(session, input, output) {
   })
   
   observeEvent(rv$public,{
-    updateRadioButtons(inputId = "public",selected = rv$public)
+    updateRadioButtons(session = session,inputId = "public",selected = rv$public)
   })
   #Observer for public land------------------
   observeEvent(input$public,{
@@ -482,14 +482,14 @@ server <- function(session, input, output) {
   })
   
   observeEvent(rv$public,{
-    updateRadioButtons(inputId = "public",selected = rv$public)
+    updateRadioButtons(session = session,inputId = "public",selected = rv$public)
   })
   #Observer for other and unknown fires------------------
   observeEvent(input$otherUnknown,{
     rv$otherUnknown = input$otherUnknown
   })
     observeEvent(rv$otherUnknown,{
-    updateRadioButtons(inputId = "otherUnknown",selected = rv$otherUnknown)
+    updateRadioButtons(session = session,inputId = "otherUnknown",selected = rv$otherUnknown)
   })
   
   #Observer for allOrSomeYears for writing rasters------------------
@@ -497,7 +497,7 @@ server <- function(session, input, output) {
     rv$allOrSomeYears = input$allOrSomeYears
   })
     observeEvent(rv$allOrSomeYears,{
-    updateRadioButtons(inputId = "allOrSomeYears",selected = rv$allOrSomeYears)
+    updateRadioButtons(session = session,inputId = "allOrSomeYears",selected = rv$allOrSomeYears)
   })
     
 # OBSERVERS for NON-FILE SELECT INPUTS ----- 
