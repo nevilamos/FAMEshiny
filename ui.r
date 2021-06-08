@@ -41,13 +41,36 @@ ui <- dashboardPage(
         tabName = "GSO",
         icon = icon("calculator")
       ),
-      # menuItem(
-      #   "Aspatial GSO Report" ,
-      #   tabName = "GSOReport",
-      #   icon = icon("calculator")
-      # ),
+
       p(versionDate),
-      p(versionFAMEFMR)
+      p(versionFAMEFMR),
+      p(""),
+      # save and reload analysis  buttons -----
+      withBusyIndicatorUI(
+        shinyFilesButton(
+          id = "loadAnalysis",
+          label = "load existing analysis file",
+          title = "select analysis to load",
+          multiple = FALSE,
+          buttonType = "default",
+          class = NULL,
+          icon = icon("folder-open"),
+          style = NULL,
+          viewtype = "icon"
+        )  
+      ),
+      withBusyIndicatorUI(
+        shinySaveButton(id = "saveAnalysis",
+                        label = "save analysis to file",
+                        title = "save analysis file as...",
+                        filename = "savedValue",
+                        filetype=list(qs="qs"),
+                        icon = icon("file-export"),
+                        viewtype = "icon"
+        )
+      )
+      
+      
       
     ),
     absolutePanel(
@@ -171,35 +194,6 @@ ui <- dashboardPage(
                     tableOutput('filepaths') ,
                     downloadButton("downloadFiles", "Download Files")
                   ),
-                  
-                  wellPanel(
-                    h2("Save or reload analysis "),
-                    withBusyIndicatorUI(
-                      shinyFilesButton(
-                        id = "loadAnalysis",
-                        label = "load existing analysis file",
-                        title = "select analysis to load",
-                        multiple = FALSE,
-                        buttonType = "default",
-                        class = NULL,
-                        icon = NULL,
-                        style = NULL,
-                        viewtype = "detail",
-                      )  
-                    ),
-                    withBusyIndicatorUI(
-                      shinySaveButton(id = "saveAnalysis",
-                                      label = "save analysis to file",
-                                      title = "save analysis file as...",
-                                      filename = "savedValue",
-                                      filetype=list(qs="qs")
-                      )
-                    ),
-                    
-                    
-                  )
-                  
-                  
                 )
               )),
       
@@ -304,10 +298,14 @@ ui <- dashboardPage(
                     numericInput("startTimespan",
                                  "First season for analysis output",
                                  1980, 1980),
-                    # runscript button
+                    
+                    # runFH analysis action  button----
                     withBusyIndicatorUI(actionButton("runFH", label = "Run FH Analysis"))
                   )
+                  
+
                 )
+
               )),
       # fAbund_TFI tab content------------------------------------------------------------------------------------------
       tabItem(
@@ -352,13 +350,19 @@ ui <- dashboardPage(
                               ),
                               conditionalPanel(
                                 condition = 'input.spListChoice',
-                                selectInput(
-                                  inputId = "customSpList",
-                                  label = "Select user defined species list",
-                                  choices = c("",list.files(
-                                    './CustomCSV', pattern = ".csv$", full.names = T
-                                  ))
-                                )
+                                shinyFilesButton(
+                                  id = "customSpList",
+                                  label = "select custom species list",
+                                  title = "select custom species list csv file", 
+                                  multiple = FALSE,
+                                  buttonType = "default",
+                                  class = NULL,
+                                  icon = NULL,
+                                  style = NULL,
+                                  viewtype = "detail",
+                                  
+                                ),
+                                textOutput("customSpListName"),
                               ),
                               
                               checkboxInput(
@@ -378,13 +382,19 @@ ui <- dashboardPage(
                               ),
                               conditionalPanel(
                                 condition = 'input.spResponseChoice',
-                                selectInput(
-                                  "customResponseFile",
-                                  "Select user defined Response File",
-                                  choice = c("", list.files(
-                                    './CustomCSV', pattern = ".csv$", full.names = T
-                                  ))
-                                )
+                                shinyFilesButton(
+                                  id = "customResponseFile",
+                                  label = "Select user defined species response file",
+                                  title = "Select user defined species response file", 
+                                  multiple = FALSE,
+                                  buttonType = "default",
+                                  class = NULL,
+                                  icon = NULL,
+                                  style = NULL,
+                                  viewtype = "detail",
+                                  
+                                ),
+                                textOutput("customResponseName"),
                               ),
                               
                               checkboxInput(

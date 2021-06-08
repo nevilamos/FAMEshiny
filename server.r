@@ -260,7 +260,7 @@ server <- function(session, input, output) {
     },
     contentType = "application/zip"
   )
-  
+#INPUT FILE SELECTION OBSERVERS  ----
   #observer to get rawFH file to be run -----
   observe({
     roots <- c(wd='./rawFH')
@@ -330,7 +330,189 @@ server <- function(session, input, output) {
   })
   
   
-  # Observer to runFH analysis ---------------------------------
+  #observer to get customSpList be run -----
+  observe({
+    roots <- c(wd='./CustomCSV')
+    shinyFileChoose(
+      input,
+      id = "customSpList",
+      roots = roots,
+      filetypes = "csv"
+    )
+    fileinfo <- parseFilePaths(roots, input$customSpList)
+    if (nrow(fileinfo) > 0) {
+      rv$customSpList<-as.character(fileinfo$datapath)
+      rv$customSpListName<-basename(rv$customSpList)
+    }
+  })
+  
+  # observer to display selected customSpListName in UI
+  observeEvent(rv$customSpListName,{
+    output$customSpListName<-renderText(rv$customSpListName)
+      })  
+  #observer to get customResponseFile be run -----
+  observe({
+    roots <- c(wd='./CustomCSV')
+    shinyFileChoose(
+      input,
+      id = "customResponseFile",
+      roots = roots,
+      filetypes = "csv"
+    )
+    fileinfo <- parseFilePaths(roots, input$customResponseFile)
+    if (nrow(fileinfo) > 0) {
+      rv$customResponseFile<-as.character(fileinfo$datapath)
+      rv$customResponseName<-basename(rv$customResponseFile)
+    }
+  })
+  # observer to display selected customSpListName in UI
+  observeEvent(rv$customResponseName,{
+    output$customResponseName<-renderText(rv$customResponseName)
+  })  
+  
+# OBSERVERS of CHECKBOXES -----  
+  #observer of choice for PU polys-------------------
+  observeEvent(input$usePUpolys,{
+    rv$usePUpolys<-input$usePUpolys
+  })
+  observeEvent(rv$usePUpolys,{  
+    if(rv$usePUpolys == TRUE){
+      updateCheckboxInput(inputId = "usePUpolys",value = TRUE)
+    }else{
+      updateCheckboxInput(inputId = "usePUpolys",value = FALSE)
+    }
+  })
+  
+  #observer of custom species list choice  -------------------
+  observeEvent(input$spListChoice,{
+    rv$spListChoice<-input$spListChoice
+  })
+  observeEvent(rv$spListChoice,{  
+    if(rv$spListChoice == TRUE){
+      updateCheckboxInput(inputId = "spListChoice",value = TRUE)
+    }else{
+      updateCheckboxInput(inputId = "spListChoice",value = FALSE)
+    }
+  })
+  
+  #observer of custom relative abundance table choice-------------------
+  observeEvent(input$spResponseChoice,{
+    rv$spResponseChoice<-input$spResponseChoice
+  })
+  observeEvent(rv$spResponseChoice,{  
+    if(rv$spResponseChoice == TRUE){
+      updateCheckboxInput(inputId = "spResponseChoice",value = TRUE)
+    }else{
+      updateCheckboxInput(inputId = "spResponseChoice",value = FALSE)
+    }
+  })
+  
+  #observer of Relative abundance table by growth stage choice -------------------
+  observeEvent(input$abundByGS,{
+    rv$abundByGS<-input$abundByGS
+  })
+  observeEvent(rv$abundByGS,{  
+    if(rv$abundByGS == TRUE){
+      updateCheckboxInput(inputId = "abundByGS",value = TRUE)
+    }else{
+      updateCheckboxInput(inputId = "abundByGS",value = FALSE)
+    }
+  })
+  
+  #observer of make rasters choice -------------------
+  observeEvent(input$makeRArasters,{
+    rv$makeRArasters<-input$makeRArasters
+  })
+  observeEvent(rv$makeRArasters,{  
+    if(rv$makeRArasters == TRUE){
+      updateCheckboxInput(inputId = "makeRArasters",value = TRUE)
+    }else{
+      updateCheckboxInput(inputId = "makeRArasters",value = FALSE)
+    }
+  })
+  
+  
+# OBSERVERS of NUMERIC SETTINGS  ---------
+  #Observer for RasterRes---------
+  observeEvent(input$RasterRes,{
+    rv$RasterRes = input$RasterRes
+  })
+  observeEvent(rv$RasterRes,{
+    updateRadioButtons(inputId = "RasterRes",selected = rv$RasterRes)
+  })
+  
+  #Observer for First season for analysis output (startTimespan)------------------
+  observeEvent(input$startTimespan,{
+    rv$startTimespan = input$startTimespan
+  })
+  
+  observeEvent(rv$startTimespan,{
+    updateNumericInput(inputId = "startTimespan",value = rv$startTimespan)
+  })
+  
+  #Observer for start baseline------------------
+  observeEvent(input$startBaseline,{
+    rv$startBaseline = input$startBaseline
+  })
+  
+  observeEvent(rv$startBaseline,{
+    updateNumericInput(inputId = "startBaseline",value = rv$startBaseline)
+  })
+  #Observer for end baseline------------------
+  observeEvent(input$endBaseline,{
+    rv$endBaseline = input$endBaseline
+  })
+  
+  observeEvent(rv$startBaseline,{
+    updateNumericInput(inputId = "endBaseline",value = rv$endBaseline)
+  })
+# OBSERVERS FOR RADIOBUTTON CHOICES  ----
+ 
+  #Observer for public land------------------
+  observeEvent(input$public,{
+    rv$public = input$public
+  })
+  
+  observeEvent(rv$public,{
+    updateRadioButtons(inputId = "public",selected = rv$public)
+  })
+  #Observer for public land------------------
+  observeEvent(input$public,{
+    rv$public = input$public
+  })
+  
+  observeEvent(rv$public,{
+    updateRadioButtons(inputId = "public",selected = rv$public)
+  })
+  #Observer for other and unknown fires------------------
+  observeEvent(input$otherUnknown,{
+    rv$otherUnknown = input$otherUnknown
+  })
+    observeEvent(rv$otherUnknown,{
+    updateRadioButtons(inputId = "otherUnknown",selected = rv$otherUnknown)
+  })
+  
+  #Observer for allOrSomeYears for writing rasters------------------
+  observeEvent(input$allOrSomeYears,{
+    rv$allOrSomeYears = input$allOrSomeYears
+  })
+    observeEvent(rv$allOrSomeYears,{
+    updateRadioButtons(inputId = "allOrSomeYears",selected = rv$allOrSomeYears)
+  })
+    
+# OBSERVERS for NON-FILE SELECT INPUTS ----- 
+  
+#observer for select SEASONS for write rasters (yearsForRasters)  -----
+    #this is not working at the moment to reload the seasons selected in previous session
+  observeEvent(input$yearsForRasters,{
+    rv$yearsForRasters = input$yearsForRasters
+  })
+  observeEvent(rv$yearsForRasters,{
+    updateSelectInput(session = session,inputId = "yearsForRasters",selected = rv$yearsForRasters)
+  })
+#"################################"-------------  
+#OBSERVERS TO RUN MAIN FUNCTIONS-----  
+# Observer to runFH analysis ---------------------------------
   observeEvent(input$runFH, {
     validate(need(rv$rawFHPath, 'You need to select a raw FH to run analysis'))
     withBusyIndicatorServer("runFH", {
@@ -406,8 +588,8 @@ server <- function(session, input, output) {
       FHAnalysis<-FHAnalysis
       #check if pupoly is to be used
       if(input$usePUpolys){
-        validate(need(input$puShape, 'You  have selected to require \n a PU/BU polygon file but have not \n selected one '))
-        myPuPoly = input$puShape
+        validate(need(rv$puShape, 'You  have selected to require \n a PU/BU polygon file but have not \n selected one '))
+        myPuPoly = rv$puShape
         #update the FHAnalysis$OUTdf with noburn columns
         FHAnalysis$OutDF<-FHAnalysis$OutDF%>%bind_cols(make_JFMPNoBurnTab(myFHAnalysis = FHAnalysis,JFMPSeason0 = rv$JFMPSeason0))
         FHAnalysis$YSFNames<-c(FHAnalysis$YSFNames,"YSFNoBurn")
