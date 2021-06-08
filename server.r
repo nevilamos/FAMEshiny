@@ -1,267 +1,8 @@
 server <- function(session, input, output) {
   rv <- reactiveValues()
-  # Observer for loading fire scenario shapefiles ----
-  #This code is repeated with modifications for each shapefile load ideally would be made into function or module
-  observe({
-    myInput = input$rawFH
-    savePath = "./rawFH"
-    if (is.null(myInput))
-      return()
-    shapefile_components <- c("shp", "shx", "prj", "dbf")
-    y = NULL
-    x = NULL
-    x = length(unique(tools::file_path_sans_ext(
-      tools::file_path_sans_ext(myInput$name)
-    )) == 1)
-    y <-
-      (length(myInput$name) == 4 &
-         sum(shapefile_components %in% tools::file_ext(myInput$name)) == 4)
-    
-    
-    if (x == T) {
-      if (y == T) {
-        rawFHPath <- file.path(savePath, myInput$name)
-        rv$rawFHPath <- rawFHPath
-        
-        file.copy(myInput$datapath,
-                  file.path(rawFHPath))
-        # updateSelectInput(
-        #   session,
-        #   'unionedFH',
-        #   'Select fire scenario shapefile',
-        #   choice = c("", list.files('./rawFH/', pattern =
-        #                               ".shp$"))
-        # )
-        myText = "shapefile uploaded"
-        showtable = "YES"
-        output$rawFHTable <- renderTable(myInput[, 1:2])
-        
-      } else{
-        myText = paste(
-          "<span style=\"color:red\">one or more of .shp,.shx,.dbf,.prj are missing\n Or additional files selected</span>"
-        )
-        showtable = "NO"
-      }
-    } else{
-      if (y == T) {
-        myText = paste(
-          "<span style=\"color:red\"all elements of shapefile do not have same basename</span>"
-        )
-        output$showtable = "NO"
-      } else{
-        myText = paste("<span style=\"color:red\">wrong file elements selected</span>")
-        showtable = "NO"
-      }
-    }
-    
-    output$message_text <- renderText({
-      myText
-    })
-    output$panelStatus <- reactive({
-      showtable
-    })
-    outputOptions(output, "panelStatus", suspendWhenHidden = FALSE)
-    
-  })
-  
-  
-  
-  
-  # Observer for loading AdHoc shapefiles ---------------------------------
-  observe({
-    myInput = input$adHocPoly
-    savePath = "./AdHocPolygons"
-    if (is.null(myInput))
-      return()
-    shapefile_components <- c("shp", "shx", "prj", "dbf")
-    y = NULL
-    x = NULL
-    x = length(unique(tools::file_path_sans_ext(
-      tools::file_path_sans_ext(myInput$name)
-    )) == 1)
-    y <-
-      (length(myInput$name) == 4 &
-         sum(shapefile_components %in% tools::file_ext(myInput$name)) == 4)
-    
-    
-    if (x == T) {
-      if (y == T) {
-        file.copy(myInput$datapath,
-                  file.path(savePath,
-                            myInput$name))
-        #update
-        rv$AdHocPoly = myInput$name
-        myText1 = "shapefile uploaded"
-        showtable1 = "YES"
-        output$rawFHTable <- renderTable(myInput[, 1:2])
-        # updateSelectInput(
-        #   session,
-        #   'AdHocShape',
-        #   'Select AdHoc Area shapefile',
-        #   choice = c("", list.files('./AdHocPolygons/', pattern =
-        #                               ".shp$"))
-        # )
-      } else{
-        myText1 = paste(
-          "<span style=\"color:red\">one or more of .shp,.shx,.dbf,.prj are missing\n Or additional files selected</span>"
-        )
-        showtable1 = "NO"
-      }
-    } else{
-      if (y == T) {
-        myText1 = paste(
-          "<span style=\"color:red\"all elements of shapefile do not have same basename</span>"
-        )
-        output1$showtable = "NO"
-      } else{
-        myText1 = paste("<span style=\"color:red\">wrong file elements selected</span>")
-        showtable1 = "NO"
-      }
-    }
-    
-    output$message_text1 <- renderText({
-      myText1
-    })
-    output$panelStatus1 <- reactive({
-      showtable1
-    })
-    outputOptions(output, "panelStatus1", suspendWhenHidden = FALSE)
-    
-  })
-  
-  #Observer for loading PUPoly shapefiles ---------------------------------
-  observe({
-    myInput = input$puPoly
-    savePath = "./PUPolygons"
-    if (is.null(myInput))
-      return()
-    shapefile_components <- c("shp", "shx", "prj", "dbf")
-    y = NULL
-    x = NULL
-    x = length(unique(tools::file_path_sans_ext(
-      tools::file_path_sans_ext(myInput$name)
-    )) == 1)
-    y <-
-      (length(myInput$name) == 4 &
-         sum(shapefile_components %in% tools::file_ext(myInput$name)) == 4)
-    
-    
-    if (x == T) {
-      if (y == T) {
-        file.copy(myInput$datapath,
-                  file.path(savePath,
-                            myInput$name))
-        #update
-        rv$AdHocPoly = myInput$name
-        myText1 = "shapefile uploaded"
-        showtable1 = "YES"
-        output$rawFHTable <- renderTable(myInput[, 1:2])
-        updateSelectInput(
-          session,
-          'puShape',
-          'Select AdHoc Area shapefile',
-          choice = c("", list.files('./PUPolygons/', pattern =
-                                      ".shp$"))
-        )
-      } else{
-        myText1 = paste(
-          "<span style=\"color:red\">one or more of .shp,.shx,.dbf,.prj are missing\n Or additional files selected</span>"
-        )
-        showtable1 = "NO"
-      }
-    } else{
-      if (y == T) {
-        myText1 = paste(
-          "<span style=\"color:red\"all elements of shapefile do not have same basename</span>"
-        )
-        output1$showtable = "NO"
-      } else{
-        myText1 = paste("<span style=\"color:red\">wrong file elements selected</span>")
-        showtable1 = "NO"
-      }
-    }
-    
-    output$message_text2 <- renderText({
-      myText1
-    })
-    output$panelStatus1 <- reactive({
-      showtable1
-    })
-    outputOptions(output, "panelStatus1", suspendWhenHidden = FALSE)
-    
-  })
-  # Observer for custom .csv uploads  ------------------
-  observe({
-    myInput = input$addCustomCSV
-    savePath = "./CustomCSV"
-    file.copy(myInput$datapath,
-              file.path(savePath, myInput$name))
-    updateSelectInput(session,
-                      inputId = 'customSpList',
-                      label = 'Select custom csv file',
-                      choices = c("", list.files('./CustomCSV', pattern = ".csv$")))
-    updateSelectInput(session,
-                      inputId = 'customResponseFile',
-                      label = 'Select custom csv file',
-                      choices = c("", list.files('./CustomCSV', pattern = ".csv$")))
-  })
-  
-  # Download handlers for utilities page---------
-  downloadToolFileName <-
-    "./FAMEPreProcessing/FAMEPreProcessing.zip"
-  output$downloadTool <- downloadHandler(
-    filename = function() {
-      basename(downloadToolFileName)
-    },
-    content = function(file) {
-      file.copy(from = downloadToolFileName,
-                to = file,
-                overwrite = T)
-    }
-  )
-  
-  
-  downloadManualFileName <- "./Manual/FAMEv2_User_Manual.pdf"
-  output$downloadManual <- downloadHandler(
-    filename = function() {
-      downloadManualFileName
-    },
-    content = function(file) {
-      file.copy(from = downloadManualFileName,
-                to = file,
-                overwrite = T)
-    }
-  )
-  
-  
-  roots =  c(wd = './results')
-  
-  shinyFileChoose(input, 'files',
-                  roots =  roots)
-  
-  output$rawInputValue <- renderPrint({
-    str(input$files)
-  })
-  
-  output$filepaths <-
-    renderTable({
-      parseFilePaths(roots, input$files)
-    })
-  
-  
-  
-  output$downloadFiles <- downloadHandler(
-    filename = function() {
-      paste("output", "zip", sep = ".")
-    },
-    content = function(fname) {
-      fs = as.character(parseFilePaths(roots, input$files)$datapath)
-      zip(zipfile = fname, files = fs)
-    },
-    contentType = "application/zip"
-  )
+
   #INPUT FILE SELECTION OBSERVERS  ----
-  #observer to get rawFH file to be run -----
+  #Observer to get rawFH file to be run -----
   observe({
     roots <- c(wd='./rawFH')
     shinyFileChoose(
@@ -276,14 +17,14 @@ server <- function(session, input, output) {
       rv$rawFHName<-basename(rv$rawFHPath)
     }
   })
-  # observer to display selected rawFH Shapefile in UI
+  # Observer to display selected rawFH Shapefile in UI
   observeEvent(rv$rawFHName,{
     output$rawFHName<-renderText(basename(rv$rawFHName))
     
   })  
   
   
-  #observer to get AdHoc shapefile file to be run -----
+  #Observer to get AdHoc shapefile file to be run -----
   observeEvent(input$selectAdHoc,{
     roots <- c(wd='./AdHocPolygons')
     shinyFileChoose(
@@ -299,13 +40,13 @@ server <- function(session, input, output) {
       
     }
   })
-  # observer to display selected Ad Hoc Shapefile in UI
+  # Observer to display selected Ad Hoc Shapefile in UI
   observeEvent(rv$AdHocName,{
     output$AdHocName<-renderText(basename(rv$AdHocName))
     
   })
   
-  #observer to get PU shapefile file to be run -----
+  #Observer to get PU shapefile file to be run -----
   observeEvent(input$selectPU,{
     roots <- c(wd='./PUPolygons')
     shinyFileChoose(
@@ -322,14 +63,14 @@ server <- function(session, input, output) {
       
     }
   })
-  # observer to display selected PU Shapefile in UI
+  # Observer to display selected PU Shapefile in UI
   observeEvent(rv$puName,{
     output$puName<-renderText(basename(rv$puName))
     
   })
   
   
-  #observer to get customSpList be run -----
+  #Observer to get customSpList be run -----
   observe({
     roots <- c(wd='./CustomCSV')
     shinyFileChoose(
@@ -345,11 +86,11 @@ server <- function(session, input, output) {
     }
   })
   
-  # observer to display selected customSpListName in UI
+  # Observer to display selected customSpListName in UI
   observeEvent(rv$customSpListName,{
     output$customSpListName<-renderText(rv$customSpListName)
   })  
-  #observer to get customResponseFile be run -----
+  #Observer to get customResponseFile be run -----
   observe({
     roots <- c(wd='./CustomCSV')
     shinyFileChoose(
@@ -364,13 +105,13 @@ server <- function(session, input, output) {
       rv$customResponseName<-basename(rv$customResponseFile)
     }
   })
-  # observer to display selected customSpListName in UI
+  # Observer to display selected customSpListName in UI
   observeEvent(rv$customResponseName,{
     output$customResponseName<-renderText(rv$customResponseName)
   })  
   
   # OBSERVERS of CHECKBOXES -----  
-  #observer of choice for PU polys-------------------
+  #Observer of choice for PU polys-------------------
   observeEvent(input$usePUpolys,{
     rv$usePUpolys<-input$usePUpolys
   })
@@ -382,7 +123,7 @@ server <- function(session, input, output) {
     }
   })
   
-  #observer of custom species list choice  -------------------
+  #Observer of custom species list choice  -------------------
   observeEvent(input$spListChoice,{
     rv$spListChoice<-input$spListChoice
   })
@@ -394,7 +135,7 @@ server <- function(session, input, output) {
     }
   })
   
-  #observer of custom relative abundance table choice-------------------
+  #Observer of custom relative abundance table choice-------------------
   observeEvent(input$spResponseChoice,{
     rv$spResponseChoice<-input$spResponseChoice
   })
@@ -406,7 +147,7 @@ server <- function(session, input, output) {
     }
   })
   
-  #observer of Relative abundance table by growth stage choice -------------------
+  #Observer of Relative abundance table by growth stage choice -------------------
   observeEvent(input$abundByGS,{
     rv$abundByGS<-input$abundByGS
   })
@@ -418,7 +159,7 @@ server <- function(session, input, output) {
     }
   })
   
-  #observer of make rasters choice -------------------
+  #Observer of make rasters choice -------------------
   observeEvent(input$makeRArasters,{
     rv$makeRArasters<-input$makeRArasters
   })
@@ -494,7 +235,7 @@ server <- function(session, input, output) {
   
   # OBSERVERS for NON-FILE SELECT INPUTS ----- 
   
-  #observer for select SEASONS for write rasters (yearsForRasters)  -----
+  #Observer for select SEASONS for write rasters (yearsForRasters)  -----
   #this is not working at the moment to reload the seasons selected in previous session
   observeEvent(input$yearsForRasters,{
     rv$yearsForRasters = input$yearsForRasters
@@ -503,7 +244,7 @@ server <- function(session, input, output) {
     updateSelectInput(session = session,inputId = "yearsForRasters",selected = rv$yearsForRasters)
   })
   
-  #observer for choose a region  -----
+  #Observer for choose a region  -----
   
   observeEvent(input$REGION_NO,{
     rv$REGION_NO = input$REGION_NO
@@ -695,7 +436,7 @@ server <- function(session, input, output) {
                                                            "Abund",
                                                            "TAXON_ID")]  
           
-          # if abundance data is provide by growth stage rather than time since fire expand it to the full time since fire long format ----------  
+          # If abundance data is provide by growth stage rather than time since fire expand it to the full time since fire long format ----------  
           AbundDataLong = AbundDataByGS%>%
             dplyr::mutate(FireTypeNo = if_else(FireType == "High",2,if_else(FireType == "Low",1,0)))%>%
             dplyr::left_join( EFG_TSF_4GS, by = c('EFG_NO', 'GS4_NO'))%>%
@@ -703,13 +444,13 @@ server <- function(session, input, output) {
           
           
         } else {
-          # read abundance data already in full long format  ----
+          # Read abundance data already in full long format  ----
           AbundDataLong <- read_csv(mySpGSResponses)%>%
             dplyr::arrange(TAXON_ID)
           
         }
         
-        # make the lookup list of arrays for fast calculation of cell by cell species abundance ----
+        # Make the lookup list of arrays for fast calculation of cell by cell species abundance ----
         print("making Spp abund LU List")
         LU_List <- make_Spp_LU_list(myHDMSpp_NO = HDMSpp_NO,
                                     myAbundDataLong = AbundDataLong)
@@ -719,7 +460,7 @@ server <- function(session, input, output) {
         print("Making spYearSumm")
         
         
-        # run the main function to get species abundance by cells -----
+        # Run the main function to get species abundance by cells -----
         SpYearSumm <- calc_SpeciesRA(
           myFHAnalysis = rv$FHAnalysis,
           myAllCombs <- rv$allCombs,
@@ -735,7 +476,7 @@ server <- function(session, input, output) {
           myIDX = rv$cropRasters$IDX
         )
         
-        # save abundance summary outputs to csv files ----
+        # Save abundance summary outputs to csv files ----
         
         rv$SpYearSumm <- SpYearSumm
         readr::write_csv(SpYearSumm$SpYearSummLong,
@@ -743,7 +484,7 @@ server <- function(session, input, output) {
         readr::write_csv(SpYearSumm$SpYearSummWide,
                          file.path(ResultsDir, "SpYearSummWide.csv"))
         
-        #   wrangle grouped summary species abundance depending on whether or not it has Planning unit column ( for JFMP calcautions) ----
+        #Wrangle grouped summary species abundance depending on whether or not it has Planning unit column ( for JFMP calcautions) ----
         
         grpSpYearSummLong<-rv$SpYearSumm$grpSpYearSumm %>%
           dplyr::rename(Index_AllCombs = `myAllCombs$Index_AllCombs`) %>%
@@ -963,10 +704,10 @@ server <- function(session, input, output) {
   },
   ignoreInit = T, {
     withBusyIndicatorServer("runJFMP1", {
-      validate(need(rv$usePUpolys == TRUE,message = "The FHAnalysis does not contain planning/burn units for JFMP calcuations"))
+      validate(need(rv$usePUpolys == TRUE,message = "The FHAnalysis does not contain planning/burn units for JFMP calculations"))
       print("doing JFMP1")
       
-      #wrangles the SpYearSummRA grouped on indexof all combs, plus the TaxonList that includes count of cells in area of interest to get the weighted sum of change all species in area of interest for each PU ------
+      #Wrangle the SpYearSummRA grouped on indexof all combs, plus the TaxonList that includes count of cells in area of interest to get the weighted sum of change all species in area of interest for each PU ------
       
       PU_WeightedSumRA<<-rv$SpYearSumm$grpSpYearSumm %>%
         dplyr::rename(Index_AllCombs = `myAllCombs$Index_AllCombs`) %>%
@@ -1391,7 +1132,7 @@ server <- function(session, input, output) {
     })
   })
   
-  # observer to save current analysis reactive values to file as list----
+  # Observer to save current analysis reactive values to file as list----
   observeEvent(input$saveAnalysis,{
     roots <- c("UserFolder"="./FH_Outputs")
     myRvList<-reactiveValuesToList(rv)
@@ -1402,13 +1143,8 @@ server <- function(session, input, output) {
       qsave(myRvList, as.character(fileinfo$datapath))
     }
   })
-  
-  
-  
-  
-  
-  
-  # observer to load analysis from list as qs file-----
+# UTILITIES - LOADING PREVIOUS ANALYSIS AND SERVER SHUTDOWN 
+  # Observer to load analysis from list as qs file-----
   observe({
     roots <- c("UserFolder"="./FH_Outputs")  
     shinyFileChoose(
@@ -1433,16 +1169,274 @@ server <- function(session, input, output) {
     
   })
   
-  
-  # observer to shut down server
+  # Observer to shut down server ----
+  #THIS IS NOT WORKING WITH CURRENT UBUNTU VERSION DUE TO SECURITY CHANGES
+  # SHOULD BE REPLACED BY aws TIME OUT SETTINGS ON SERVER
   observeEvent(input$close, {
     js$closeWindow()
     system("shutdown")
   })
   
-  roots = c(root = "./results")
+  # UPLOADS AND DOWNLOADS OF FILES AND RESULTS -----
+  # Observer for loading fire scenario shapefiles ----
+  #This code is repeated with modifications for each shapefile load ideally would be made into function or module
+  observe({
+    myInput = input$rawFH
+    savePath = "./rawFH"
+    if (is.null(myInput))
+      return()
+    shapefile_components <- c("shp", "shx", "prj", "dbf")
+    y = NULL
+    x = NULL
+    x = length(unique(tools::file_path_sans_ext(
+      tools::file_path_sans_ext(myInput$name)
+    )) == 1)
+    y <-
+      (length(myInput$name) == 4 &
+         sum(shapefile_components %in% tools::file_ext(myInput$name)) == 4)
+    
+    
+    if (x == T) {
+      if (y == T) {
+        rawFHPath <- file.path(savePath, myInput$name)
+        rv$rawFHPath <- rawFHPath
+        
+        file.copy(myInput$datapath,
+                  file.path(rawFHPath))
+        # updateSelectInput(
+        #   session,
+        #   'unionedFH',
+        #   'Select fire scenario shapefile',
+        #   choice = c("", list.files('./rawFH/', pattern =
+        #                               ".shp$"))
+        # )
+        myText = "shapefile uploaded"
+        showtable = "YES"
+        output$rawFHTable <- renderTable(myInput[, 1:2])
+        
+      } else{
+        myText = paste(
+          "<span style=\"color:red\">one or more of .shp,.shx,.dbf,.prj are missing\n Or additional files selected</span>"
+        )
+        showtable = "NO"
+      }
+    } else{
+      if (y == T) {
+        myText = paste(
+          "<span style=\"color:red\"all elements of shapefile do not have same basename</span>"
+        )
+        output$showtable = "NO"
+      } else{
+        myText = paste("<span style=\"color:red\">wrong file elements selected</span>")
+        showtable = "NO"
+      }
+    }
+    
+    output$message_text <- renderText({
+      myText
+    })
+    output$panelStatus <- reactive({
+      showtable
+    })
+    outputOptions(output, "panelStatus", suspendWhenHidden = FALSE)
+    
+  })
+  
+  
+  
+  
+  # Observer for loading AdHoc shapefiles ---------------------------------
+  observe({
+    myInput = input$adHocPoly
+    savePath = "./AdHocPolygons"
+    if (is.null(myInput))
+      return()
+    shapefile_components <- c("shp", "shx", "prj", "dbf")
+    y = NULL
+    x = NULL
+    x = length(unique(tools::file_path_sans_ext(
+      tools::file_path_sans_ext(myInput$name)
+    )) == 1)
+    y <-
+      (length(myInput$name) == 4 &
+         sum(shapefile_components %in% tools::file_ext(myInput$name)) == 4)
+    
+    
+    if (x == T) {
+      if (y == T) {
+        file.copy(myInput$datapath,
+                  file.path(savePath,
+                            myInput$name))
+        #update
+        rv$AdHocPoly = myInput$name
+        myText1 = "shapefile uploaded"
+        showtable1 = "YES"
+        output$rawFHTable <- renderTable(myInput[, 1:2])
+        # updateSelectInput(
+        #   session,
+        #   'AdHocShape',
+        #   'Select AdHoc Area shapefile',
+        #   choice = c("", list.files('./AdHocPolygons/', pattern =
+        #                               ".shp$"))
+        # )
+      } else{
+        myText1 = paste(
+          "<span style=\"color:red\">one or more of .shp,.shx,.dbf,.prj are missing\n Or additional files selected</span>"
+        )
+        showtable1 = "NO"
+      }
+    } else{
+      if (y == T) {
+        myText1 = paste(
+          "<span style=\"color:red\"all elements of shapefile do not have same basename</span>"
+        )
+        output1$showtable = "NO"
+      } else{
+        myText1 = paste("<span style=\"color:red\">wrong file elements selected</span>")
+        showtable1 = "NO"
+      }
+    }
+    
+    output$message_text1 <- renderText({
+      myText1
+    })
+    output$panelStatus1 <- reactive({
+      showtable1
+    })
+    outputOptions(output, "panelStatus1", suspendWhenHidden = FALSE)
+    
+  })
+  
+  #Observer for loading PUPoly shapefiles ---------------------------------
+  observe({
+    myInput = input$puPoly
+    savePath = "./PUPolygons"
+    if (is.null(myInput))
+      return()
+    shapefile_components <- c("shp", "shx", "prj", "dbf")
+    y = NULL
+    x = NULL
+    x = length(unique(tools::file_path_sans_ext(
+      tools::file_path_sans_ext(myInput$name)
+    )) == 1)
+    y <-
+      (length(myInput$name) == 4 &
+         sum(shapefile_components %in% tools::file_ext(myInput$name)) == 4)
+    
+    
+    if (x == T) {
+      if (y == T) {
+        file.copy(myInput$datapath,
+                  file.path(savePath,
+                            myInput$name))
+        #update
+        rv$AdHocPoly = myInput$name
+        myText1 = "shapefile uploaded"
+        showtable1 = "YES"
+        output$rawFHTable <- renderTable(myInput[, 1:2])
+        updateSelectInput(
+          session,
+          'puShape',
+          'Select AdHoc Area shapefile',
+          choice = c("", list.files('./PUPolygons/', pattern =
+                                      ".shp$"))
+        )
+      } else{
+        myText1 = paste(
+          "<span style=\"color:red\">one or more of .shp,.shx,.dbf,.prj are missing\n Or additional files selected</span>"
+        )
+        showtable1 = "NO"
+      }
+    } else{
+      if (y == T) {
+        myText1 = paste(
+          "<span style=\"color:red\"all elements of shapefile do not have same basename</span>"
+        )
+        output1$showtable = "NO"
+      } else{
+        myText1 = paste("<span style=\"color:red\">wrong file elements selected</span>")
+        showtable1 = "NO"
+      }
+    }
+    
+    output$message_text2 <- renderText({
+      myText1
+    })
+    output$panelStatus1 <- reactive({
+      showtable1
+    })
+    outputOptions(output, "panelStatus1", suspendWhenHidden = FALSE)
+    
+  })
+  # Observer for custom .csv uploads  ------------------
+  observe({
+    myInput = input$addCustomCSV
+    savePath = "./CustomCSV"
+    file.copy(myInput$datapath,
+              file.path(savePath, myInput$name))
+    updateSelectInput(session,
+                      inputId = 'customSpList',
+                      label = 'Select custom csv file',
+                      choices = c("", list.files('./CustomCSV', pattern = ".csv$")))
+    updateSelectInput(session,
+                      inputId = 'customResponseFile',
+                      label = 'Select custom csv file',
+                      choices = c("", list.files('./CustomCSV', pattern = ".csv$")))
+  })
+  
+  # Download handlers for utilities page---------
+  downloadToolFileName <-
+    "./FAMEPreProcessing/FAMEPreProcessing.zip"
+  output$downloadTool <- downloadHandler(
+    filename = function() {
+      basename(downloadToolFileName)
+    },
+    content = function(file) {
+      file.copy(from = downloadToolFileName,
+                to = file,
+                overwrite = T)
+    }
+  )
+  
+  
+  downloadManualFileName <- "./Manual/FAMEv2_User_Manual.pdf"
+  output$downloadManual <- downloadHandler(
+    filename = function() {
+      downloadManualFileName
+    },
+    content = function(file) {
+      file.copy(from = downloadManualFileName,
+                to = file,
+                overwrite = T)
+    }
+  )
+  
+  # Choose results files to download -----
+  roots =  c(wd = './results')
   
   shinyFileChoose(input, 'files',
-                  root = roots)
+                  roots =  roots)
+  
+  output$rawInputValue <- renderPrint({
+    str(input$files)
+  })
+  
+  output$filepaths <-
+    renderTable({
+      parseFilePaths(roots, input$files)
+    })
+  
+  # Download handler to download files chosen for download ----  
+  
+  output$downloadFiles <- downloadHandler(
+    filename = function() {
+      paste("output", "zip", sep = ".")
+    },
+    content = function(fname) {
+      fs = as.character(parseFilePaths(roots, input$files)$datapath)
+      zip(zipfile = fname, files = fs)
+    },
+    contentType = "application/zip"
+  )
   
 }
