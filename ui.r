@@ -224,14 +224,7 @@ ui <- dashboardPage(
                                      choices = as.list(c(REG_NO))),
                          conditionalPanel(
                            condition = "input.REGION_NO == '7'",
-                           # selectInput(
-                           #   'AdHocShape',
-                           #   'Select AdHoc Area shapefile',
-                           #   choice = c("", list.files('./AdHocPolygons/', 
-                           #                             pattern =".shp$"
-                           #   )
-                           #   )
-                           # )
+
                            shinyFilesButton(
                              id = "selectAdHoc",
                              label = "select user defined shapefile",
@@ -464,7 +457,7 @@ ui <- dashboardPage(
                  )),
           column(4,
                  withBusyIndicatorUI(
-                   actionButton("runJFMP1", label = "Run JFMP calcultions stage 1")
+                   actionButton("runJFMP1", label = "Run JFMP calculations stage 1")
                  ))
           
         )

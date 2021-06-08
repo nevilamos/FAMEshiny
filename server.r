@@ -260,7 +260,7 @@ server <- function(session, input, output) {
     },
     contentType = "application/zip"
   )
-#INPUT FILE SELECTION OBSERVERS  ----
+  #INPUT FILE SELECTION OBSERVERS  ----
   #observer to get rawFH file to be run -----
   observe({
     roots <- c(wd='./rawFH')
@@ -272,8 +272,8 @@ server <- function(session, input, output) {
     )
     fileinfo <- parseFilePaths(roots, input$selectRawFH)
     if (nrow(fileinfo) > 0) {
-    rv$rawFHPath<-as.character(fileinfo$datapath)
-    rv$rawFHName<-basename(rv$rawFHPath)
+      rv$rawFHPath<-as.character(fileinfo$datapath)
+      rv$rawFHName<-basename(rv$rawFHPath)
     }
   })
   # observer to display selected rawFH Shapefile in UI
@@ -304,7 +304,7 @@ server <- function(session, input, output) {
     output$AdHocName<-renderText(basename(rv$AdHocName))
     
   })
-
+  
   #observer to get PU shapefile file to be run -----
   observeEvent(input$selectPU,{
     roots <- c(wd='./PUPolygons')
@@ -348,7 +348,7 @@ server <- function(session, input, output) {
   # observer to display selected customSpListName in UI
   observeEvent(rv$customSpListName,{
     output$customSpListName<-renderText(rv$customSpListName)
-      })  
+  })  
   #observer to get customResponseFile be run -----
   observe({
     roots <- c(wd='./CustomCSV')
@@ -369,7 +369,7 @@ server <- function(session, input, output) {
     output$customResponseName<-renderText(rv$customResponseName)
   })  
   
-# OBSERVERS of CHECKBOXES -----  
+  # OBSERVERS of CHECKBOXES -----  
   #observer of choice for PU polys-------------------
   observeEvent(input$usePUpolys,{
     rv$usePUpolys<-input$usePUpolys
@@ -431,7 +431,7 @@ server <- function(session, input, output) {
   })
   
   
-# OBSERVERS of NUMERIC SETTINGS  ---------
+  # OBSERVERS of NUMERIC SETTINGS  ---------
   #Observer for RasterRes---------
   observeEvent(input$RasterRes,{
     rv$RasterRes = input$RasterRes
@@ -465,8 +465,8 @@ server <- function(session, input, output) {
   observeEvent(rv$startBaseline,{
     updateNumericInput(session = session,inputId = "endBaseline",value = rv$endBaseline)
   })
-# OBSERVERS FOR RADIOBUTTON CHOICES  ----
- 
+  # OBSERVERS FOR RADIOBUTTON CHOICES  ----
+  
   #Observer for public land------------------
   observeEvent(input$public,{
     rv$public = input$public
@@ -480,7 +480,7 @@ server <- function(session, input, output) {
   observeEvent(input$otherUnknown,{
     rv$otherUnknown = input$otherUnknown
   })
-    observeEvent(rv$otherUnknown,{
+  observeEvent(rv$otherUnknown,{
     updateRadioButtons(session = session,inputId = "otherUnknown",selected = rv$otherUnknown)
   })
   
@@ -488,14 +488,14 @@ server <- function(session, input, output) {
   observeEvent(input$allOrSomeYears,{
     rv$allOrSomeYears = input$allOrSomeYears
   })
-    observeEvent(rv$allOrSomeYears,{
+  observeEvent(rv$allOrSomeYears,{
     updateRadioButtons(session = session,inputId = "allOrSomeYears",selected = rv$allOrSomeYears)
   })
-    
-# OBSERVERS for NON-FILE SELECT INPUTS ----- 
   
-#observer for select SEASONS for write rasters (yearsForRasters)  -----
-    #this is not working at the moment to reload the seasons selected in previous session
+  # OBSERVERS for NON-FILE SELECT INPUTS ----- 
+  
+  #observer for select SEASONS for write rasters (yearsForRasters)  -----
+  #this is not working at the moment to reload the seasons selected in previous session
   observeEvent(input$yearsForRasters,{
     rv$yearsForRasters = input$yearsForRasters
   })
@@ -504,16 +504,16 @@ server <- function(session, input, output) {
   })
   
   #observer for choose a region  -----
-
+  
   observeEvent(input$REGION_NO,{
     rv$REGION_NO = input$REGION_NO
   })
   observeEvent(rv$REGION_NO,{
     updateSelectInput(session = session,inputId = "REGION_NO",selected = rv$REGION_NO)
   })  
-#"################################"-------------  
-#OBSERVERS TO RUN MAIN FUNCTIONS-----  
-# Observer to runFH analysis ---------------------------------
+  #"################################"-------------  
+  #OBSERVERS TO RUN MAIN FUNCTIONS-----  
+  # Observer to runFH analysis ---------------------------------
   observeEvent(input$runFH, {
     validate(need(rv$rawFHPath, 'You need to select a raw FH to run analysis'))
     withBusyIndicatorServer("runFH", {
@@ -551,10 +551,10 @@ server <- function(session, input, output) {
       cropRasters$HDM_RASTER_PATH = HDM_RASTER_PATH
       rv$cropRasters = cropRasters
       
-
       
       
-
+      
+      
       FHAnalysis <- fhProcess(
         rawFH =  rv$rawFHPath,
         start.SEASON = input$startTimespan,
@@ -606,12 +606,12 @@ server <- function(session, input, output) {
       rv$FHAnalysis <- FHAnalysis
       
       
-        allCombs <- calcU_All_Combs(
+      allCombs <- calcU_All_Combs(
         myFHAnalysis =  rv$FHAnalysis,
         myCropRasters = rv$cropRasters,
         myRasterRes = RasterRes,
         puPoly = myPuPoly
-        )
+      )
       rv$allCombs <- allCombs
       print("made allcombs")
       
@@ -647,21 +647,21 @@ server <- function(session, input, output) {
       withBusyIndicatorServer("runRA_TFI", {
         validate(need(rv$FHAnalysis,
                       'You need to select a FH analysis to use'))
-        startBaseline<-as.integer(input$startBaseline)
-        endBaseline <- as.integer(input$endBaseline)
+        startBaseline<-as.integer(rv$startBaseline)
+        endBaseline <- as.integer(rv$endBaseline)
         validate(need(endBaseline>=startBaseline,"baseline start season must be less than or equal to end season"))
         Baseline <-startBaseline:endBaseline
-        if (input$spListChoice == FALSE) {
+        if (rv$spListChoice == FALSE) {
           rv$TaxonList <-
             read_csv("./ReferenceTables/FAME_TAXON_LIST.csv")
         } else{
           validate(need(
-            input$customSpList,
+            rv$customSpList,
             'You need to select a species list to use'
           ))
-          print(input$customSpList)
+          print(rv$customSpList)
           rv$TaxonList <-
-            read_csv(file.path("./CustomCSV", input$customSpList))
+            read_csv(rv$customSpList)
           
         }
         
@@ -681,31 +681,35 @@ server <- function(session, input, output) {
         
         print("Loaded HDMVals")
         
-        if (input$spResponseChoice == FALSE) {
+        if (rv$spResponseChoice == FALSE) {
           mySpGSResponses <- "./ReferenceTables/OrdinalExpertLong.csv"
         } else{
           mySpGSResponses <-
-            file.path("./CustomCSV", input$customResponseFile)
+            file.path("./CustomCSV", rv$customResponseFile)
         }
-        if(input$abundByGS == TRUE){
+        #Select the file giving the fauna relative abundance inputs you wish to use------
+        if(rv$abundByGS == TRUE){
           AbundDataByGS  <-  read_csv(mySpGSResponses)[, c("EFG_NO",
                                                            "GS4_NO",
                                                            "FireType",
                                                            "Abund",
-                                                           "TAXON_ID")]  #Select the file giving the fauna relative abundance inputs you wish to use
+                                                           "TAXON_ID")]  
           
-
+          # if abundance data is provide by growth stage rather than time since fire expand it to the full time since fire long format ----------  
           AbundDataLong = AbundDataByGS%>%
             dplyr::mutate(FireTypeNo = if_else(FireType == "High",2,if_else(FireType == "Low",1,0)))%>%
             dplyr::left_join( EFG_TSF_4GS, by = c('EFG_NO', 'GS4_NO'))%>%
             dplyr::arrange(TAXON_ID)
-
-
+          
+          
         } else {
+          # read abundance data already in full long format  ----
           AbundDataLong <- read_csv(mySpGSResponses)%>%
             dplyr::arrange(TAXON_ID)
           
         }
+        
+        # make the lookup list of arrays for fast calculation of cell by cell species abundance ----
         print("making Spp abund LU List")
         LU_List <- make_Spp_LU_list(myHDMSpp_NO = HDMSpp_NO,
                                     myAbundDataLong = AbundDataLong)
@@ -714,6 +718,8 @@ server <- function(session, input, output) {
         
         print("Making spYearSumm")
         
+        
+        # run the main function to get species abundance by cells -----
         SpYearSumm <- calc_SpeciesRA(
           myFHAnalysis = rv$FHAnalysis,
           myAllCombs <- rv$allCombs,
@@ -724,10 +730,12 @@ server <- function(session, input, output) {
           myHDMVals = HDMVals,
           myTaxonList = rv$TaxonList,
           writeYears = NULL,
-          #input$yearsForRasters,
+          #rv$yearsForRasters,
           myWriteSp = writeSp,
           myIDX = rv$cropRasters$IDX
         )
+        
+        # save abundance summary outputs to csv files ----
         
         rv$SpYearSumm <- SpYearSumm
         readr::write_csv(SpYearSumm$SpYearSummLong,
@@ -735,6 +743,7 @@ server <- function(session, input, output) {
         readr::write_csv(SpYearSumm$SpYearSummWide,
                          file.path(ResultsDir, "SpYearSummWide.csv"))
         
+        #   wrangle grouped summary species abundance depending on whether or not it has Planning unit column ( for JFMP calcautions) ----
         
         grpSpYearSummLong<-rv$SpYearSumm$grpSpYearSumm %>%
           dplyr::rename(Index_AllCombs = `myAllCombs$Index_AllCombs`) %>%
@@ -742,33 +751,39 @@ server <- function(session, input, output) {
             -tidyr::one_of("TAXON_ID","Index_AllCombs"),
             names_to = "SEASON",
             values_to = "sumRA"
-          ) %>%
-          dplyr::mutate(PU = rv$allCombs$U_AllCombs_TFI$PU[Index_AllCombs],
-                        EFG_NAME = rv$allCombs$U_AllCombs_TFI$EFG_NAME[Index_AllCombs]) %>%
-          dplyr::group_by(TAXON_ID,PU,EFG_NAME,SEASON) %>%
+          ) 
+        if (match("PU",names(rv$allCombs$U_AllCombs_TFI),nomatch = 0)>0){
+          grpSpYearSummLong <- grpSpYearSummLong %>% 
+            dplyr::mutate(PU = rv$allCombs$U_AllCombs_TFI$PU[Index_AllCombs],
+                          EFG_NAME = rv$allCombs$U_AllCombs_TFI$EFG_NAME[Index_AllCombs]) %>% 
+            dplyr::group_by(TAXON_ID,PU,EFG_NAME,SEASON)
+        }else{
+          grpSpYearSummLong <- grpSpYearSummLong %>%
+            dplyr::mutate(EFG_NAME = rv$allCombs$U_AllCombs_TFI$EFG_NAME[Index_AllCombs]) %>% 
+            dplyr::group_by(TAXON_ID,EFG_NAME,SEASON)}
+        
+        grpSpYearSummLong <- grpSpYearSummLong<-grpSpYearSummLong %>%
           dplyr::summarise(sumRA = sum(sumRA)) %>%
           dplyr::mutate(TAXON_ID = as.integer(TAXON_ID))
-        
+        rv$grpSpYearSummLong <- grpSpYearSummLong
         
         readr::write_csv(grpSpYearSummLong,file.path(ResultsDir,"grpSpYearSummLong.csv"))
-
+        
         
         print("finished sp year summ")
         
-        
-        print("calcuated myBaseline")
-        print(Baseline)
-        raDeltaAbund <-
+        # calculate changes in abundace realtive to baseline years
+        rv$raDeltaAbundWide <-
           calcDeltaAbund(
             SpYearSumm = SpYearSumm$SpYearSummWide,
             myFHAnalysis = rv$FHAnalysis,
             myBaseline = Baseline
           )
-        readr::write_csv(raDeltaAbund,file.path(ResultsDir,"SppSummChangeRelativetoBaseline.csv"))
-        rv$raDeltaAbundWide <- raDeltaAbund
+        readr::write_csv(rv$raDeltaAbundWide,file.path(ResultsDir,"SppSummChangeRelativetoBaseline.csv"))
+        
         
         #make long form for plotting charts
-        rv$raDeltaAbundLong <- raDeltaAbund %>%
+        rv$raDeltaAbundLong <- rv$raDeltaAbundWide %>%
           dplyr::select(
             -tidyr::one_of(
               "TAXON_ID",
@@ -787,8 +802,6 @@ server <- function(session, input, output) {
           ) %>%
           dplyr::mutate(SEASON = as.integer(SEASON))
         print("finished deltaabund")
-        
-        
       })
     })
   })
@@ -933,14 +946,14 @@ server <- function(session, input, output) {
                      #rv$FHAnalysis$GS_Summary <- GS_Summary
                      
                      readr::write_csv(GS_Summary$GS_Summary_Long,
-                               file = file.path(ResultsDir,
-                                                "GS_LONG.csv"))
+                                      file = file.path(ResultsDir,
+                                                       "GS_LONG.csv"))
                      
                      readr::write_csv(GS_Summary$GS_Summary_wide,
-                               file = file.path(ResultsDir,
-                                                "GS_WIDE.csv"))
+                                      file = file.path(ResultsDir,
+                                                       "GS_WIDE.csv"))
                      
-
+                     
                    })
                  })
                })
@@ -950,10 +963,11 @@ server <- function(session, input, output) {
   },
   ignoreInit = T, {
     withBusyIndicatorServer("runJFMP1", {
+      validate(need(rv$usePUpolys == TRUE,message = "The FHAnalysis does not contain planning/burn units for JFMP calcuations"))
       print("doing JFMP1")
-
-#wrangles the SpYearSummRA grouped on indexof all combs, plus the TaxonList that includes count of cells in area of interest to get the weighted sum of change all species in area of interest for each PU ------
-
+      
+      #wrangles the SpYearSummRA grouped on indexof all combs, plus the TaxonList that includes count of cells in area of interest to get the weighted sum of change all species in area of interest for each PU ------
+      
       PU_WeightedSumRA<<-rv$SpYearSumm$grpSpYearSumm %>%
         dplyr::rename(Index_AllCombs = `myAllCombs$Index_AllCombs`) %>%
         tidyr::pivot_longer(
@@ -967,39 +981,39 @@ server <- function(session, input, output) {
         dplyr::group_by(TAXON_ID,PU,SEASON) %>%
         dplyr::summarise(sumRA = sum(sumRA)) %>%
         dplyr::mutate(TAXON_ID = as.integer(TAXON_ID)) 
-          print("here")
-          
-          
-        PU_WeightedSumRA<<-PU_WeightedSumRA%>%
+      print("here")
+      
+      
+      PU_WeightedSumRA<<-PU_WeightedSumRA%>%
         dplyr::left_join(
           rv$TaxonList %>% dplyr::select(TAXON_ID,cellsInArea)
-          )%>%
+        )%>%
         dplyr::mutate(weightedRA = sumRA/cellsInArea) %>%
         dplyr::group_by(PU,SEASON)%>%
         dplyr::summarise(WeightedSumRA = sum(weightedRA))
-
-    print("calculated PU weighted RA")  
-  
-#Data wrangling of BBTFI outputs to extract area BBTFI for each PU, this requires inclusion ONLY of the first time areas are buned below TFI, these are then categorised as "PastBBTFI" for all years up to JFMPSeason0, and then as BBTFI (for the first time) by the JFMP)----
+      
+      print("calculated PU weighted RA")  
+      
+      #Data wrangling of BBTFI outputs to extract area BBTFI for each PU, this requires inclusion ONLY of the first time areas are buned below TFI, these are then categorised as "PastBBTFI" for all years up to JFMPSeason0, and then as BBTFI (for the first time) by the JFMP)----
       print("doing JFMPBBTFI")
-
+      
       
       PU_BBTFI_Summ<<-rv$BBTFI$BBTFI_LONG%>%
         dplyr::filter(TBTFI==1)%>%
         dplyr::mutate(JFMP_BURN = ifelse(
           SEAS> rv$JFMPSeason0,"JFMP_BBTFI","PastBBTFI"
-          )
-          )%>%
+        )
+        )%>%
         dplyr::group_by(PU,JFMP_BURN)%>%
         dplyr::summarise(Hectares = sum (Hectares))%>%
         tidyr::pivot_wider(names_from = JFMP_BURN,values_from = Hectares)
       
-     print( "Finished JFMP1")
+      print( "Finished JFMP1")
       
     })
   })
   
-# Observer prints the details of currently selected analysis ------
+  # Observer prints the details of currently selected analysis ------
   observeEvent(rv$FHAnalysis$name, ignoreInit = T,
                {
                  output$selected_FH_name <- renderText({
@@ -1010,7 +1024,7 @@ server <- function(session, input, output) {
   
   
   
-# Observer to display TFI and BBTFI plots when available ------
+  # Observer to display TFI and BBTFI plots when available ------
   
   observeEvent({
     rv$TFI
@@ -1028,7 +1042,7 @@ server <- function(session, input, output) {
       max = maxSEASON,
       value = c(1980, maxSEASON)
     )
-    # Make plot of area by TFI status
+    # Make plot of area by TFI status ----
     output$TFItrendPlot <- renderPlotly({
       rv$TFI %>%
         filter(EFG_NAME == input$EFGChoices) %>%
@@ -1103,7 +1117,7 @@ server <- function(session, input, output) {
   })
   
   
-  # Observer to display GS plots when available--------------------------------------------
+  # Observer to display GS plots when available ----
   
   observeEvent({
     rv$GS_Summary
@@ -1243,7 +1257,7 @@ server <- function(session, input, output) {
       )
       print (head(myDraftSpList))
       readr::write_csv(myDraftSpList,
-                file.path(ResultsDir, "myDraftspList.csv"))
+                       file.path(ResultsDir, "myDraftspList.csv"))
       print("made draft species List")
     })
   })
@@ -1388,9 +1402,9 @@ server <- function(session, input, output) {
       qsave(myRvList, as.character(fileinfo$datapath))
     }
   })
-
   
-    
+  
+  
   
   
   
