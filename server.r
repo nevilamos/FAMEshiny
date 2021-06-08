@@ -296,7 +296,6 @@ server <- function(session, input, output) {
     if (nrow(fileinfo) > 0) {
       rv$AdHocPath<-as.character(fileinfo$datapath)
       rv$AdHocName<-basename(rv$AdHocPath)
-      #output$AdHocName<-renderText(rv$AdHocName)
       
     }
   })
@@ -476,14 +475,7 @@ server <- function(session, input, output) {
   observeEvent(rv$public,{
     updateRadioButtons(session = session,inputId = "public",selected = rv$public)
   })
-  #Observer for public land------------------
-  observeEvent(input$public,{
-    rv$public = input$public
-  })
   
-  observeEvent(rv$public,{
-    updateRadioButtons(session = session,inputId = "public",selected = rv$public)
-  })
   #Observer for other and unknown fires------------------
   observeEvent(input$otherUnknown,{
     rv$otherUnknown = input$otherUnknown
@@ -510,6 +502,15 @@ server <- function(session, input, output) {
   observeEvent(rv$yearsForRasters,{
     updateSelectInput(session = session,inputId = "yearsForRasters",selected = rv$yearsForRasters)
   })
+  
+  #observer for choose a region  -----
+
+  observeEvent(input$REGION_NO,{
+    rv$REGION_NO = input$REGION_NO
+  })
+  observeEvent(rv$REGION_NO,{
+    updateSelectInput(session = session,inputId = "REGION_NO",selected = rv$REGION_NO)
+  })  
 #"################################"-------------  
 #OBSERVERS TO RUN MAIN FUNCTIONS-----  
 # Observer to runFH analysis ---------------------------------
@@ -518,7 +519,7 @@ server <- function(session, input, output) {
     withBusyIndicatorServer("runFH", {
       rv$outputFH <- file_path_sans_ext(basename(rv$rawFHPath))
       myREG_NO <- as.integer(input$REGION_NO)
-      RasterRes <- as.integer(input$RasterRes)
+      RasterRes <- as.integer(rv$RasterRes)
       print(paste("RasterRes =", RasterRes))
       HDM_RASTER_PATH <<-
         paste0("./HDMS/", input$RasterRes, "m/BinaryThresholded")
@@ -713,11 +714,11 @@ server <- function(session, input, output) {
         
         print("Making spYearSumm")
         
-        SpYearSumm <<- calc_SpeciesRA(
+        SpYearSumm <- calc_SpeciesRA(
           myFHAnalysis = rv$FHAnalysis,
           myAllCombs <- rv$allCombs,
           myHDMSpp_NO = HDMSpp_NO,
-          myWriteSpRasters = input$makeRArasters,
+          myWriteSpRasters = rv$makeRArasters,
           myResultsDir = ResultsDir,
           myLU_List = LU_List,
           myHDMVals = HDMVals,
