@@ -1,5 +1,5 @@
 rm(list = ls(all = TRUE))
-options(shiny.reactlog = TRUE)
+#options(shiny.reactlog = TRUE)
 
 
 options(stringsAsFactors = F)
