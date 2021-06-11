@@ -59,7 +59,7 @@ server <- function(session, input, output) {
     if (nrow(fileinfo) > 0) {
       rv$puPath<-as.character(fileinfo$datapath)
       rv$puName<-basename(rv$puPath)
-      
+
       
     }
   })
@@ -257,12 +257,13 @@ server <- function(session, input, output) {
   # Observer to runFH analysis -----
   observeEvent(input$runFH, {
     validate(need(rv$rawFHPath, 'You need to select a raw FH to run analysis'))
+    # if(rv$usePUPolys == TRUE){validate(need(!is.null(rv$puPath)), 'You need to select a PU/burn unit file to run analysis')}
     withBusyIndicatorServer("runFH", {
       rv$outputFH <- file_path_sans_ext(basename(rv$rawFHPath))
       myREG_NO <- as.integer(input$REGION_NO)
       RasterRes <- as.integer(rv$RasterRes)
       print(paste("RasterRes =", RasterRes))
-      HDM_RASTER_PATH <<-
+      HDM_RASTER_PATH <-
         paste0("./HDMS/", input$RasterRes, "m/BinaryThresholded")
       
       if (myREG_NO == 7) {
@@ -281,7 +282,7 @@ server <- function(session, input, output) {
       
       
       
-      cropRasters <<- cropNAborder(
+      cropRasters <- cropNAborder(
         REG_NO = myREG_NO,
         myRasterRes = RasterRes,
         PUBLIC_LAND_ONLY = input$public,
@@ -330,8 +331,8 @@ server <- function(session, input, output) {
       FHAnalysis<-FHAnalysis
       #check if pupoly is to be used
       if(input$usePUpolys){
-        validate(need(rv$puShape, 'You  have selected to require \n a PU/BU polygon file but have not \n selected one '))
-        myPuPoly = rv$puShape
+        validate(need(rv$puPath, 'You  have selected to requirea PU/BU polygon file but have not selected one'))
+        myPuPoly = rv$puPath
         #update the FHAnalysis$OUTdf with noburn columns
         FHAnalysis$OutDF<-FHAnalysis$OutDF%>%bind_cols(make_JFMPNoBurnTab(myFHAnalysis = FHAnalysis,JFMPSeason0 = rv$JFMPSeason0))
         FHAnalysis$YSFNames<-c(FHAnalysis$YSFNames,"YSFNoBurn")
@@ -355,26 +356,7 @@ server <- function(session, input, output) {
       )
       rv$allCombs <- allCombs
       print("made allcombs")
-      
-      
-      #save analysis to enable reloading
-      save(FHAnalysis,
-           cropRasters,
-           allCombs,
-           file = file.path(
-             "./FH_Outputs",
-             paste0(FHAnalysis$name, input$RasterRes, ".rdata")
-           ))
-      print("saved FHAnalysis to enable reloading")
-      
-      
-      updateSelectInput(session,
-                        'FHAnalysis',
-                        'Select FH dataset (.rdata)',
-                        choice = c("", list.files('./FH_Outputs/', pattern =
-                                                    ".rdata$")))
-      
-    })
+      })
     
     
   })
@@ -705,54 +687,21 @@ server <- function(session, input, output) {
   ignoreInit = T, {
     withBusyIndicatorServer("runJFMP1", {
       validate(need(rv$usePUpolys == TRUE,message = "The FHAnalysis does not contain planning/burn units for JFMP calculations"))
+      
       print("doing JFMP1")
+      print(rv$JFMPSeason0)
+      rv$puDF<-jfmp1(myPUPath = rv$puPath,
+                      grpSpYearSumm = rv$SpYearSumm$grpSpYearSumm,
+                      myAllCombs = rv$allCombs,
+                      myTaxonList = rv$TaxonList,
+                      myBBTFI = rv$BBTFI,
+                      myJFMPSeason0 = rv$JFMPSeason0)
       
-      #Wrangle the SpYearSummRA grouped on indexof all combs, plus the TaxonList that includes count of cells in area of interest to get the weighted sum of change all species in area of interest for each PU ------
-      
-      PU_WeightedSumRA<<-rv$SpYearSumm$grpSpYearSumm %>%
-        dplyr::rename(Index_AllCombs = `myAllCombs$Index_AllCombs`) %>%
-        tidyr::pivot_longer(
-          -tidyr::one_of("TAXON_ID","Index_AllCombs"),
-          names_to = "SEASON",
-          values_to = "sumRA"
-        ) %>%
-        dplyr::filter(SEASON %in% c(as.character(rv$endSEASON),"NoBurn")) %>% 
-        dplyr::mutate(SEASON = ifelse(SEASON == "NoBurn","NoBurn","Burn")) %>%
-        dplyr::mutate(PU = rv$allCombs$U_AllCombs_TFI$PU[Index_AllCombs]) %>%
-        dplyr::group_by(TAXON_ID,PU,SEASON) %>%
-        dplyr::summarise(sumRA = sum(sumRA)) %>%
-        dplyr::mutate(TAXON_ID = as.integer(TAXON_ID)) 
-      print("here")
-      
-      
-      PU_WeightedSumRA<<-PU_WeightedSumRA%>%
-        dplyr::left_join(
-          rv$TaxonList %>% dplyr::select(TAXON_ID,cellsInArea)
-        )%>%
-        dplyr::mutate(weightedRA = sumRA/cellsInArea) %>%
-        dplyr::group_by(PU,SEASON)%>%
-        dplyr::summarise(WeightedSumRA = sum(weightedRA))
-      
-      print("calculated PU weighted RA")  
-      
-      #Data wrangling of BBTFI outputs to extract area BBTFI for each PU, this requires inclusion ONLY of the first time areas are buned below TFI, these are then categorised as "PastBBTFI" for all years up to JFMPSeason0, and then as BBTFI (for the first time) by the JFMP)----
-      print("doing JFMPBBTFI")
-      
-      
-      PU_BBTFI_Summ<<-rv$BBTFI$BBTFI_LONG%>%
-        dplyr::filter(TBTFI==1)%>%
-        dplyr::mutate(JFMP_BURN = ifelse(
-          SEAS> rv$JFMPSeason0,"JFMP_BBTFI","PastBBTFI"
-        )
-        )%>%
-        dplyr::group_by(PU,JFMP_BURN)%>%
-        dplyr::summarise(Hectares = sum (Hectares))%>%
-        tidyr::pivot_wider(names_from = JFMP_BURN,values_from = Hectares)
-      
-      print( "Finished JFMP1")
-      
+  print( "Finished JFMP1")
     })
   })
+  
+
   
   # Observer prints the details of currently selected analysis ------
   observeEvent(rv$FHAnalysis$name, ignoreInit = T,
