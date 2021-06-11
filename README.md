@@ -1,2 +1,10 @@
-## FAMEshiny
-This software provides a Fire Analysis Module for Ecological values (henceforth FAME). 
+FAMEshiny
+===================================
+Fire Analysis Module for Ecological values (FAME). 
+---------------------------------------
+FAME has been developed fo use for calculation  of Ecological Resilience Metrics 
+used in the FFR division of the Department of Environment Land water and Planning, Victoria
+Australia. It comprises an R Shiny app, and related R package. 
+
+The Manual explaining the installation, use, and  outputs of FAME is contained in the repository subdirectory [here](./Manual/FAMEv2_User_Manual.pdf)
+
