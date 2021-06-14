@@ -797,7 +797,7 @@ server <- function(session, input, output) {
                        ))
       gc()
       
-      print("Finished JFMP1")
+      print(" jfmp1 output saved to disk")
     })
   })
   
@@ -823,6 +823,7 @@ server <- function(session, input, output) {
     myChoices <- myChoices[!is.na(myChoices)]
     updateSelectInput(session, "EFGChoices", choices = myChoices)
     updateTabItems(session, "tabs", "TFIplots")
+   
     minSEASON <- min(rv$TFI$SEASON)
     maxSEASON <- max(rv$TFI$SEASON)
     updateSliderInput(
