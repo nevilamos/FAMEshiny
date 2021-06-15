@@ -117,6 +117,44 @@ server <- function(session, input, output) {
     }
   })
   
+  #Observer of JFMP Area Target  -------------------
+  #Observer to get customSpList be run -----
+  observe({
+    roots <- c(wd = './CustomCSV')
+    shinyFileChoose(input,
+                    id = "targetHaFile",
+                    roots = roots,
+                    filetypes = "csv")
+    fileinfo <- parseFilePaths(roots, input$targetHaFile)
+    if (nrow(fileinfo) > 0) {
+      rv$targetHaFilepath <- as.character(fileinfo$datapath)
+      rv$targetHaFileName <- basename(rv$targetHaFilepath)
+    }
+  })
+  
+  # Observer to display selected customSpListName in UI
+  observeEvent(rv$targetHaFileName, {
+    output$targetHaFileName <- renderText(rv$targetHaFileName)
+  })
+  #Observer to get customResponseFile be run -----
+  observe({
+    roots <- c(wd = './CustomCSV')
+    shinyFileChoose(input,
+                    id = "customResponseFile",
+                    roots = roots,
+                    filetypes = "csv")
+    fileinfo <- parseFilePaths(roots, input$customResponseFile)
+    if (nrow(fileinfo) > 0) {
+      rv$customResponseFile <- as.character(fileinfo$datapath)
+      rv$customResponseName <- basename(rv$customResponseFile)
+    }
+  })
+  # Observer to display selected customSpListName in UI
+  observeEvent(rv$customResponseName, {
+    output$customResponseName <- renderText(rv$customResponseName)
+  })
+  
+  
   #Observer of custom species list choice  -------------------
   observeEvent(input$spListChoice, {
     rv$spListChoice <- input$spListChoice
@@ -784,8 +822,6 @@ server <- function(session, input, output) {
         JFMPMetricWt = rv$JFMPMetricWt
       )
       
-      
-      
       readr::write_csv(rv$puDF,
                        file.path(
                          ResultsDir,
@@ -798,6 +834,36 @@ server <- function(session, input, output) {
       gc()
       
       print(" jfmp1 output saved to disk")
+      
+      print( "running autoJFMP")
+      rv$targetHa<-read_csv(rv$targetHaFilepath)
+      rv$autoJFMP<-autoJFMP(myJFMP1 = rv$puDF,
+               myTargetHa = rv$targetHa)
+      print("debug1")
+      readr::write_csv(rv$autoJFMP,
+                       file.path(
+                         ResultsDir,
+                         paste0(
+                           "Output_AutoJFMP_",
+                           tools::file_path_sans_ext(rv$puName),
+                           ".csv"
+                         )
+                       ))
+      print("debug2")
+      rv$autoJFMPsummary<-jfmpSummary(rv$autoJFMP)
+      print("debug3")
+      readr::write_csv(rv$autoJFMPsummary,
+                       file.path(
+                         ResultsDir,
+                         paste0(
+                           "Output_AutoJFMP_summary_",
+                           tools::file_path_sans_ext(rv$puName),
+                           ".csv"
+                         )
+                       ))
+      
+      
+      
     })
   })
   

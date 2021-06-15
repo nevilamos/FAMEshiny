@@ -265,6 +265,20 @@ ui <- dashboardPage(
                                           ),
                                           textOutput("puName"),
                                           
+                                          shinyFilesButton(
+                                            id = "targetHaFile",
+                                            label = "select area Target file for JFMP",
+                                            title = "select area Target file for JFMP csv file", 
+                                            multiple = FALSE,
+                                            buttonType = "default",
+                                            class = NULL,
+                                            icon = NULL,
+                                            style = NULL,
+                                            viewtype = "detail",
+                                            
+                                          ),
+                                          textOutput("targetHaFileName"),
+                                          
                                           numericInput(
                                             "JFMPSeason0",
                                             "JFMP SEASON 0",
