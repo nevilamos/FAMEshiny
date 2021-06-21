@@ -41,7 +41,7 @@ ui <- dashboardPage(
         tabName = "GSO",
         icon = icon("calculator")
       ),
-
+      
       p(versionDate),
       p(versionFAMEFMR),
       p(""),
@@ -184,7 +184,7 @@ ui <- dashboardPage(
                   wellPanel(
                     h2("Download results"),
                     h4("Current Results Directory is:"),
-                    h4(ResultsDir),
+                    h4(textOutput("resultsDir")),
                     shinyFilesButton(
                       'files',
                       label = 'Select file(s) to download',
@@ -203,7 +203,7 @@ ui <- dashboardPage(
                 h2("New Fire Scenario Analysis"),
                 column(6,
                        wellPanel(
-
+                         
                          shinyFilesButton(
                            id = "selectRawFH",
                            label = "select raw FH",
@@ -217,14 +217,14 @@ ui <- dashboardPage(
                            
                          ),
                          textOutput("rawFHName"),
-
-
-#select region or user defined area to run analysis on ----
+                         
+                         
+                         #select region or user defined area to run analysis on ----
                          selectInput("REGION_NO", "Choose a Region",
                                      choices = as.list(c(REG_NO))),
                          conditionalPanel(
                            condition = "input.REGION_NO == '7'",
-
+                           
                            shinyFilesButton(
                              id = "selectAdHoc",
                              label = "select user defined shapefile",
@@ -242,48 +242,37 @@ ui <- dashboardPage(
                          )
                          
                        ),
-# choose whether to use planning units ( for JFMP calculations) and 
-
+                       # choose whether to use planning units ( for JFMP calculations) and 
+                       
                        wellPanel(
                          checkboxInput(inputId = "usePUpolys",
-                                       label = "Break down outputs to Planning/Burn Units",
+                                       label = "Incude burn unit/planning unit Shapefile\n for JFMP analysis",
                                        value = FALSE
                          ),
-#select planning unit shapefile----
-                         conditionalPanel("input.usePUpolys",
-                                          shinyFilesButton(
-                                            id = "selectPU",
-                                            label = "select planning unit shapefile",
-                                            title = "select planning unit shapefile for analysis area", 
-                                            multiple = FALSE,
-                                            buttonType = "default",
-                                            class = NULL,
-                                            icon = NULL,
-                                            style = NULL,
-                                            viewtype = "detail",
-                                            
-                                          ),
-                                          textOutput("puName"),
-                                          
-                                          shinyFilesButton(
-                                            id = "targetHaFile",
-                                            label = "select area Target file for JFMP",
-                                            title = "select area Target file for JFMP csv file", 
-                                            multiple = FALSE,
-                                            buttonType = "default",
-                                            class = NULL,
-                                            icon = NULL,
-                                            style = NULL,
-                                            viewtype = "detail",
-                                            
-                                          ),
-                                          textOutput("targetHaFileName"),
-                                          
-                                          numericInput(
-                                            "JFMPSeason0",
-                                            "JFMP SEASON 0",
-                                            as.integer(format(Sys.Date(), "%Y")))
-                                          )
+                         #select planning unit shapefile----
+                         conditionalPanel(
+                           condition = "input.usePUpolys",
+                           shinyFilesButton(
+                             id = "selectPU",
+                             label = "select planning unit shapefile",
+                             title = "select planning unit shapefile for analysis area", 
+                             multiple = FALSE,
+                             buttonType = "default",
+                             class = NULL,
+                             icon = NULL,
+                             style = NULL,
+                             viewtype = "detail",
+                             
+                           ),
+                           textOutput("puName"),
+                           
+                           
+                           
+                           numericInput(
+                             "JFMPSeason0",
+                             "JFMP SEASON 0",
+                             as.integer(format(Sys.Date(), "%Y")))
+                         )
                        )
                 ),
                 column(
@@ -310,176 +299,262 @@ ui <- dashboardPage(
                     withBusyIndicatorUI(actionButton("runFH", label = "Run FH Analysis"))
                   )
                   
-
+                  
                 )
-
+                
               )),
       # fAbund_TFI tab content------------------------------------------------------------------------------------------
       tabItem(
         tabName = "fAbund_TFI",
+        
         h2("Spatial TFI and Fauna Abundance Calculations "),
-        fluidRow(wellPanel(
-          
-          # h3("Load a pre-existing FH analysis datafile?"),
-          # selectInput(
-          #   'FHOutputLoad',
-          #   'FH analysis to use',
-          #   choice = c(
-          #     "use current loaded FH analysis",
-          #     list.files('./FH_Outputs/', pattern =
-          #                  ".rdata$", full.names = T)
-          #   )
-          #),
-          textOutput("selected_FH_name")
-          
-        )),
-        fluidRow(column(8,
-                        wellPanel(
-                          fluidRow(
-                            column(
-                              6,
-                              h3("Fauna Abundance Calculations "),
-                              numericInput("startBaseline",
-                                           "enter start season for abundance baseline",
-                                           ""),
-                              numericInput("endBaseline",
-                                           "enter end season for abundance baseline",
-                                           "")
-                            ),
-                            # use standard or choose custom species responses----------------------------------------------------------
-                            column(
-                              6,
-                              checkboxInput(
-                                inputId = "spListChoice",
-                                label = "Use custom species table",
-                                value = FALSE,
-                                width = NULL
-                              ),
-                              conditionalPanel(
-                                condition = 'input.spListChoice',
-                                shinyFilesButton(
-                                  id = "customSpList",
-                                  label = "select custom species list",
-                                  title = "select custom species list csv file", 
-                                  multiple = FALSE,
-                                  buttonType = "default",
-                                  class = NULL,
-                                  icon = NULL,
-                                  style = NULL,
-                                  viewtype = "detail",
-                                  
-                                ),
-                                textOutput("customSpListName"),
-                              ),
-                              
-                              checkboxInput(
-                                inputId = "spResponseChoice",
-                                label = "Use custom relative abundance table",
-                                value = FALSE,
-                                width = NULL
-                              ),
-                              conditionalPanel(
-                                condition = 'input.spResponseChoice',
-                                checkboxInput(
-                                  inputId = 'abundByGS',
-                                  label = "Relative abundance table by growth stage",
-                                  value = TRUE,
-                                  width =NULL
-                                )
-                              ),
-                              conditionalPanel(
-                                condition = 'input.spResponseChoice',
-                                shinyFilesButton(
-                                  id = "customResponseFile",
-                                  label = "Select user defined species response file",
-                                  title = "Select user defined species response file", 
-                                  multiple = FALSE,
-                                  buttonType = "default",
-                                  class = NULL,
-                                  icon = NULL,
-                                  style = NULL,
-                                  viewtype = "detail",
-                                  
-                                ),
-                                textOutput("customResponseName"),
-                              ),
-                              
-                              checkboxInput(
-                                inputId = "makeRArasters",
-                                label = "Make relative abundance rasters",
-                                value = FALSE,
-                                width = NULL
-                              ),
-                              conditionalPanel(
-                                condition = 'input.makeRArasters',
-                                radioButtons(
-                                  "allOrSomeYears",
-                                  "Years to make rasters",
-                                  choices = c("all", "some")
-                                ),
-                                conditionalPanel(
-                                  condition = 'input.allOrSomeYears == "some"',
-                                  selectInput(
-                                    "yearsForRasters",
-                                    "Select one or more years for Rasters",
-                                    choices = "",
-                                    multiple = T
-                                  )
-                                )
-                              )
-                            )
-                          )
-                        )),
-                 #TFI choices inputs-------------------------
-                 column(
-                   4,
-                   wellPanel(
-                     h3("TFI related calculations"),
+        fluidRow(
+          wellPanel(
+            textOutput("selected_FH_name")
+          )
+        ),
+        fluidRow(
+          column(6,
+                 wellPanel(
+                   fluidRow(
+                     #Fauna abundance headings conditional on whether JFMP or "standard" analysis is been run -----
+                     conditionalPanel(condition = "input.usePUpolys == 0",
+                                      h3("Fauna Abundance Calculations ")
+                     ),
+                     conditionalPanel(
+                       condition = "input.usePUpolys == 1",
+                       h3("JFMP Choices ")
+                     ),
+                     # inputs conditional on whether JFMP or "standard" analysis is been run -----                    
+                     conditionalPanel(
+                       condition = "input.usePUpolys == 0",
+                       numericInput("startBaseline",
+                                    "enter start season for abundance baseline",
+                                    ""),
+                       numericInput("endBaseline",
+                                    "enter end season for abundance baseline",
+                                    ""),
+                     ),
+                     
+                     # use standard or choose custom species responses------
+                     
+                     
                      checkboxInput(
-                       "makeTFIrasters",
-                       "Make TFIstatus maps for each year",
+                       inputId = "spListChoice",
+                       label = "Use custom species table",
                        value = FALSE,
                        width = NULL
                      ),
+                     conditionalPanel(
+                       condition = 'input.spListChoice',
+                       shinyFilesButton(
+                         id = "customSpList",
+                         label = "select custom species list",
+                         title = "select custom species list csv file", 
+                         multiple = FALSE,
+                         buttonType = "default",
+                         class = NULL,
+                         icon = NULL,
+                         style = NULL,
+                         viewtype = "detail",
+                         
+                       ),
+                       textOutput("customSpListName"),
+                     ),
+                     
                      checkboxInput(
-                       "makeBBTFIrasters",
-                       "Make BBTFIstatus maps for each year",
+                       inputId = "spResponseChoice",
+                       label = "Use custom relative abundance table",
                        value = FALSE,
                        width = NULL
+                     ),
+                     conditionalPanel(
+                       condition = 'input.spResponseChoice',
+                       checkboxInput(
+                         inputId = 'abundByGS',
+                         label = "Relative abundance table by growth stage",
+                         value = TRUE,
+                         width =NULL
+                       )
+                     ),
+                     conditionalPanel(
+                       condition = 'input.spResponseChoice',
+                       shinyFilesButton(
+                         id = "customResponseFile",
+                         label = "Select user defined species response file",
+                         title = "Select user defined species response file", 
+                         multiple = FALSE,
+                         buttonType = "default",
+                         class = NULL,
+                         icon = NULL,
+                         style = NULL,
+                         viewtype = "detail",
+                         
+                       ),
+                       textOutput("customResponseName"),
+                     ),
+                     # inputs conditional on whether JFMP or "standard" analysis is been run -----  
+                     conditionalPanel(
+                       condition = "input.usePUpolys == 0",
+                       checkboxInput(
+                         inputId = "makeRArasters",
+                         label = "Make relative abundance rasters",
+                         value = FALSE,
+                         width = NULL
+                       ),
+                       conditionalPanel(
+                         condition = 'input.makeRArasters',
+                         radioButtons(
+                           "allOrSomeYears",
+                           "Years to make rasters",
+                           choices = c("all", "some")
+                         ),
+                         conditionalPanel(
+                           condition = 'input.allOrSomeYears == "some"',
+                           selectInput(
+                             "yearsForRasters",
+                             "Select one or more years for Rasters",
+                             choices = "",
+                             multiple = T
+                           )
+                         )
+                       )
+                     ),
+                     withBusyIndicatorUI(
+                       actionButton("runRA_TFI", label = "Run all calculations")
+                     ),
+                     conditionalPanel(
+                       condition = "input.usePUpolys == 1",
+                       shinyFilesButton(
+                         id = "targetHaFile",
+                         label = "select area target file for JFMP",
+                         title = "select area target file for JFMP csv file", 
+                         multiple = FALSE,
+                         buttonType = "default",
+                         class = NULL,
+                         icon = NULL,
+                         style = NULL,
+                         viewtype = "detail",
+                         
+                       ),
+                       textOutput("targetHaFileName"),
+                       
+                       shinyFilesButton(
+                         id = "jfmpMetricWtFile",
+                         label = "select file containing JFMP metric weights",
+                         title = "JFMP metric weights csv file", 
+                         multiple = FALSE,
+                         buttonType = "default",
+                         class = NULL,
+                         icon = NULL,
+                         style = NULL,
+                         viewtype = "detail",
+                         
+                       ),
+                       textOutput("jfmpMetricWtFileName"),
+                       
+                       shinyFilesButton(
+                         id = "zoneWtFile",
+                         label = "select file containing JFMP zone weights",
+                         title = "JFMP metric weights csv file", 
+                         multiple = FALSE,
+                         buttonType = "default",
+                         class = NULL,
+                         icon = NULL,
+                         style = NULL,
+                         viewtype = "detail",
+                         
+                       ),
+                       
+                       textOutput("zoneWtFileName"),
+                       
+                       withBusyIndicatorUI(
+                         actionButton(
+                           "runJFMP1",
+                           label = "Run JFMP calculations stage 1"
+                         )
+                       ),
+
+                       shinyFilesButton(
+                         id = "draftJFMPFile",
+                         label = "select draft jfmp input",
+                         title = "select draft jfmp input csv file",
+                         multiple = FALSE,
+                         buttonType = "default",
+                         class = NULL,
+                         icon = NULL,
+                         style = NULL,
+                         viewtype = "detail",
+                         
+                       ),
+                       textOutput("draftJFMPName"),
+                       
+                       withBusyIndicatorUI(
+                         actionButton(
+                           "runCompareJFMP",
+                           label = "Compare Draft JFMP"
+                         )
+                       ),
+                       
+                       conditionalPanel(
+                         condition = "input.usePUpolys == 0",
+                         withBusyIndicatorUI(
+                           actionButton(
+                             "runRA",
+                             label = "Run fauna relative abundance calculations"
+                           )
+                         ),
+                       )
                      )
                    )
-                 )),
-        #TFI and RA action buttons-------------------------------------
-        fluidRow(
-          column(4,
-                 # runscript buttons
-                 withBusyIndicatorUI(
-                   actionButton("runRA", label = "Run fauna relative abundance calculations")
-                 )),
-          column(4,
-                 withBusyIndicatorUI(
-                   actionButton("runTFI", label = "Run TFI calculations")
-                 )),
-          
-          column(4,
-                 withBusyIndicatorUI(
-                   actionButton("runGS", label = "Run GS calculations")
-                 )),
-          column(4,
-                 withBusyIndicatorUI(
-                   actionButton("runRA_TFI", label = "Run all calculations")
-                 )),
-          column(4,
-                 withBusyIndicatorUI(
-                   actionButton("runJFMP1", label = "Run JFMP calculations stage 1")
-                 ))
-          
-        )
+                 )
+          ),
+          #TFI choices inputs-------------------------
+          conditionalPanel(
+            condition = "input.usePUpolys == 0",
+            column(
+              6,
+              wellPanel(
+                h3("TFI related calculations"),
+                checkboxInput(
+                  "makeTFIrasters",
+                  "Make TFIstatus maps for each year",
+                  value = FALSE,
+                  width = NULL
+                ),
+                checkboxInput(
+                  "makeBBTFIrasters",
+                  "Make BBTFIstatus maps for each year",
+                  value = FALSE,
+                  width = NULL
+                ),
+                
+                
+                withBusyIndicatorUI(
+                  actionButton("runTFI", label = "Run TFI calculations")
+                ),
+                withBusyIndicatorUI(
+                  actionButton("runGS", label = "Run GS calculations")
+                ),
+              )
+            )
+          )
+        ),
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
         
         
       ),
       #Tab  TFI charts --------------------------------------------------------------------
+
       tabItem(tabName = "TFIplots",
               fluidPage(
                 wellPanel(h4("TFI Plots"),

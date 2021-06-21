@@ -43,15 +43,15 @@ WD <- getwd()
 
 
 #Makes resultsDir
-ResultsDir <- file.path("./results", StartTimeString)
+resultsDir <- file.path("./results", StartTimeString)
 
-
-for (d in c(ResultsDir)) {
+# 
+for (d in c(resultsDir)) {
   dir.create(d)
 }
 rm(d)
-dir.create(file.path(ResultsDir, "RA_Rasters"))
-dir.create(file.path(ResultsDir, "TFI_Rasters"))
+dir.create(file.path(resultsDir, "RA_Rasters"))
+dir.create(file.path(resultsDir, "TFI_Rasters"))
 
 # make lookup tables used in app
 source("makeLUTS.R")

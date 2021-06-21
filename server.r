@@ -1,5 +1,16 @@
 server <- function(session, input, output) {
   rv <- reactiveValues()
+  observe({
+    rv$resultsDir <- resultsDir
+    output$resultsDir <- renderText(rv$resultsDir)
+    if (dir.exists(rv$resultsDir)) {
+      
+    } else{
+      dir.create(rv$resultsDir)
+      dir.create(file.path(rv$resultsDir, "RA_Rasters"))
+      dir.create(file.path(rv$resultsDir, "TFI_Rasters"))
+    }
+  })
   
   #INPUT FILE SELECTION OBSERVERS  ----
   #Observer to get rawFH file to be run -----
@@ -58,8 +69,14 @@ server <- function(session, input, output) {
     }
   })
   # Observer to display selected PU Shapefile in UI
-  observeEvent(rv$puName, {
-    output$puName <- renderText(basename(rv$puName))
+  observe({
+    if (is.null(rv$puName)) {
+      myPuName <- ""
+    } else {
+      myPuName <- rv$puName
+    }
+    output$puName <- renderText(myPuName)
+    
     
   })
   
@@ -82,6 +99,7 @@ server <- function(session, input, output) {
   observeEvent(rv$customSpListName, {
     output$customSpListName <- renderText(rv$customSpListName)
   })
+  
   #Observer to get customResponseFile be run -----
   observe({
     roots <- c(wd = './CustomCSV')
@@ -100,20 +118,79 @@ server <- function(session, input, output) {
     output$customResponseName <- renderText(rv$customResponseName)
   })
   
+  #Observer to get zone wt File be run -----
+  observe({
+    roots <- c(wd = './CustomCSV')
+    shinyFileChoose(input,
+                    id = "zoneWtFile",
+                    roots = roots,
+                    filetypes = "csv")
+    fileinfo <- parseFilePaths(roots, input$zoneWtFile)
+    if (nrow(fileinfo) > 0) {
+      rv$zoneWtFile <- as.character(fileinfo$datapath)
+      rv$zoneWtFileName <- basename(rv$zoneWtFile)
+    }
+  })
+  # Observer to display selected jfmpMetricWtFileName in UI
+  observeEvent(rv$zoneWtFileName, {
+    output$zoneWtFileName <- renderText(rv$zoneWtFileName)
+  })
+  
+  #Observer to get jfmp metric wt File be run -----
+  observe({
+    roots <- c(wd = './CustomCSV')
+    shinyFileChoose(input,
+                    id = "jfmpMetricWtFile",
+                    roots = roots,
+                    filetypes = "csv")
+    fileinfo <- parseFilePaths(roots, input$jfmpMetricWtFile)
+    if (nrow(fileinfo) > 0) {
+      rv$jfmpMetricWtFile <- as.character(fileinfo$datapath)
+      rv$jfmpMetricWtFileName <- basename(rv$jfmpMetricWtFile)
+    }
+  })
+  # Observer to display selected zoneWtFileName in UI
+  observeEvent(rv$jfmpMetricWtFileName, {
+    output$jfmpMetricWtFileName <- renderText(rv$jfmpMetricWtFileName)
+  })
+  
+  #Observer to get  draft jfmp input file be run -----
+  observe({
+    roots <- c(wd = './CustomCSV')
+    shinyFileChoose(input,
+                    id = "draftJFMPFile",
+                    roots = roots,
+                    filetypes = "csv")
+    fileinfo <- parseFilePaths(roots, input$draftJFMPFile)
+    if (nrow(fileinfo) > 0) {
+      rv$draftJFMPFile <- as.character(fileinfo$datapath)
+      rv$draftJFMPName <- basename(rv$draftJFMPFile)
+    }
+  })
+  # Observer to display selected draft jfmpName in UI
+  observeEvent(rv$draftJFMPName, {
+    output$draftJFMPName <- renderText(rv$draftJFMPName)
+  })
+  
+  
+  
   # OBSERVERS of CHECKBOXES -----
   #Observer of choice for PU polys-------------------
   observeEvent(input$usePUpolys, {
     rv$usePUpolys <- input$usePUpolys
+    
   })
   observeEvent(rv$usePUpolys, {
     if (rv$usePUpolys == TRUE) {
       updateCheckboxInput(session = session,
                           inputId = "usePUpolys",
                           value = TRUE)
-    } else{
+    } else {
       updateCheckboxInput(session = session,
                           inputId = "usePUpolys",
                           value = FALSE)
+      rv$puPath = NULL
+      rv$puName = NULL
     }
   })
   
@@ -396,7 +473,7 @@ server <- function(session, input, output) {
       FHAnalysis$Start_Season = NULL
       FHAnalysis$name <- paste0("FH_Analysis_", rv$outputFH)
       st_write(FHAnalysis$OutDF,
-               file.path(ResultsDir, paste0(FHAnalysis$name, ".shp")),
+               file.path(rv$resultsDir, paste0(FHAnalysis$name, ".shp")),
                append = FALSE)
       #)
       print("Save input settings to a list and then append into FH analysis object")
@@ -416,7 +493,7 @@ server <- function(session, input, output) {
         validate(
           need(
             rv$puPath,
-            'You  have selected to requirea PU/BU polygon file but have not selected one'
+            'You  have selected to require a PU/BU polygon file but have not selected one'
           )
         )
         myPuPoly = rv$puPath
@@ -450,8 +527,9 @@ server <- function(session, input, output) {
     })
     
     
-  
-    print("finished FH analysis")})
+    
+    print("finished FH analysis")
+  })
   # Observer to run relative abundance analysis  -------------------------------------------------------
   observeEvent({
     input$runRA | input$runRA_TFI | input$runJFMP1
@@ -460,13 +538,13 @@ server <- function(session, input, output) {
     withBusyIndicatorServer("runRA", {
       withBusyIndicatorServer("runRA_TFI", {
         validate(need(rv$FHAnalysis,
-                      'You need to select a FH analysis to use'))
+                      'You need to run or load a FH analysis first'))
         startBaseline <- as.integer(rv$startBaseline)
         endBaseline <- as.integer(rv$endBaseline)
         validate(
           need(
             endBaseline >= startBaseline,
-            "baseline start season must be less than or equal to end season"
+            "must have baseline start season <= end season"
           )
         )
         Baseline <- startBaseline:endBaseline
@@ -544,7 +622,7 @@ server <- function(session, input, output) {
           myAllCombs <- rv$allCombs,
           myHDMSpp_NO = HDMSpp_NO,
           myWriteSpRasters = rv$makeRArasters,
-          myResultsDir = ResultsDir,
+          myResultsDir = rv$resultsDir,
           myLU_List = LU_List,
           myHDMVals = HDMVals,
           myTaxonList = rv$TaxonList,
@@ -559,11 +637,11 @@ server <- function(session, input, output) {
         
         readr::write_csv(
           rv$SpYearSumm$SpYearSummLong,
-          file.path(ResultsDir, "SpYearSummLong.csv")
+          file.path(rv$resultsDir, "SpYearSummLong.csv")
         )
         readr::write_csv(
           rv$SpYearSumm$SpYearSummWide,
-          file.path(ResultsDir, "SpYearSummWide.csv")
+          file.path(rv$resultsDir, "SpYearSummWide.csv")
         )
         #Wrangle grouped summary species abundance depending on whether or not it has Planning unit column ( for JFMP calcautions) ----
         
@@ -595,7 +673,7 @@ server <- function(session, input, output) {
         
         
         readr::write_csv(rv$grpSpYearSummLong,
-                         file.path(ResultsDir, "grpSpYearSummLong.csv"))
+                         file.path(rv$resultsDir, "grpSpYearSummLong.csv"))
         
         gc()
         print("finished sp year summ")
@@ -609,7 +687,10 @@ server <- function(session, input, output) {
           )
         readr::write_csv(
           rv$raDeltaAbundWide,
-          file.path(ResultsDir, "SppSummChangeRelativetoBaseline.csv")
+          file.path(
+            rv$resultsDir,
+            "SppSummChangeRelativetoBaseline.csv"
+          )
         )
         gc()
         
@@ -628,7 +709,9 @@ server <- function(session, input, output) {
             )
           ) %>%
           tidyr::pivot_longer(
-            -tidyr::one_of("COMMON_NAME", "SCIENTIFIC_NAME", "Baseline"),
+            -tidyr::one_of("COMMON_NAME",
+                           "SCIENTIFIC_NAME",
+                           "Baseline"),
             names_to = "SEASON",
             values_to = "DeltaRA"
           ) %>%
@@ -676,7 +759,7 @@ server <- function(session, input, output) {
           myAllCombs = rv$allCombs,
           myTFI_LUT = TFI_LUT,
           OutputRasters = input$makeTFIrasters,
-          myResultsDir = ResultsDir
+          myResultsDir = rv$resultsDir
         )
         
         
@@ -702,7 +785,7 @@ server <- function(session, input, output) {
         
         #write results out to csv files
         readr::write_csv(TFI,
-                         file = file.path(ResultsDir, "TFI_LONG.csv"))
+                         file = file.path(rv$resultsDir, "TFI_LONG.csv"))
         readr::write_csv(
           TFI %>%
             group_by(EFG_NAME, SEASON, TFI_STATUS) %>%
@@ -712,7 +795,7 @@ server <- function(session, input, output) {
               values_from = AreaHa,
               values_fill = 0
             ),
-          file = file.path(ResultsDir, "TFI_EFG_SUMMARY.csv")
+          file = file.path(rv$resultsDir, "TFI_EFG_SUMMARY.csv")
         )
         
         
@@ -738,34 +821,31 @@ server <- function(session, input, output) {
           myFHAnalysis = rv$FHAnalysis,
           myAllCombs = rv$allCombs,
           makeBBTFIrasters = input$makeBBTFIrasters,
-          myResultsDir = ResultsDir
+          myResultsDir = rv$resultsDir
         )
         print("finished BBTFI calcs")
         
         rv$BBTFI <- BBTFI
         
         write.csv(BBTFI$BBTFI_LONG,
-                  file = file.path(ResultsDir,
+                  file = file.path(rv$resultsDir,
                                    "BBTFI_LONG.csv"))
         write.csv(
           BBTFI$BBTFI_LONG %>%
             group_by(EFG_NAME, TBTFI) %>%
             summarise(AreaHa = sum(Hectares)) %>%
             pivot_wider(names_from = TBTFI, values_from = AreaHa),
-          file = file.path(ResultsDir,
+          file = file.path(rv$resultsDir,
                            "TimesBBTFI_SUMMARY.csv")
         )
         
         write.csv(BBTFI$BBTFI_WIDE,
-                  file = file.path(ResultsDir,
+                  file = file.path(rv$resultsDir,
                                    "BBTFI_WIDE.csv"))
-        
-        
-        
-        
       })
     })
   })
+  
   # Observer to run GS calculations-----------------------
   observeEvent(input$runGS | input$runRA_TFI,
                ignoreInit = T, {
@@ -784,17 +864,16 @@ server <- function(session, input, output) {
                      #rv$FHAnalysis$GS_Summary <- GS_Summary
                      
                      readr::write_csv(GS_Summary$GS_Summary_Long,
-                                      file = file.path(ResultsDir,
+                                      file = file.path(rv$resultsDir,
                                                        "GS_LONG.csv"))
                      
                      readr::write_csv(GS_Summary$GS_Summary_wide,
-                                      file = file.path(ResultsDir,
+                                      file = file.path(rv$resultsDir,
                                                        "GS_WIDE.csv"))
-                     
-                     
                    })
                  })
                })
+  
   # Observer to run JFMP1  related calculations---------------------
   observeEvent({
     input$runJFMP1
@@ -804,12 +883,12 @@ server <- function(session, input, output) {
       validate(
         need(rv$usePUpolys == TRUE, message = "The FHAnalysis does not contain planning/burn units for JFMP calculations")
       )
-      
+      validate(need(length(rv$jfmpMetricWtFile) > 0, message = "You need to select a JFMP metric weight file"))
+      validate(need(length(rv$zoneWtFile) > 0, message = "You need to select a JFMP zone Weight file"))
       print("doing JFMP1")
       #read in lookup tables for weighting of JFMP
-      rv$ZoneWt <- read_csv("./ReferenceTables/ZoneWt.csv")
-      rv$JFMPMetricWt <-
-        read_csv("./ReferenceTables/JFMPMetricWt.csv")
+      rv$zoneWt <- read_csv(rv$zoneWtFile)
+      rv$jfmpMetricWt <- read_csv(rv$jfmpMetricWtFile)
       
       rv$puDF <- jfmp1(
         myPUPath = rv$puPath,
@@ -818,13 +897,13 @@ server <- function(session, input, output) {
         myTaxonList = rv$TaxonList,
         myBBTFI = rv$BBTFI,
         myJFMPSeason0 = rv$JFMPSeason0,
-        ZoneWt = rv$ZoneWt,
-        JFMPMetricWt = rv$JFMPMetricWt
+        zoneWt = rv$zoneWt,
+        jfmpMetricWt = rv$jfmpMetricWt
       )
       
       readr::write_csv(rv$puDF,
                        file.path(
-                         ResultsDir,
+                         rv$resultsDir,
                          paste0(
                            "Output_1_PU_Rankings_",
                            tools::file_path_sans_ext(rv$puName),
@@ -835,26 +914,26 @@ server <- function(session, input, output) {
       
       print(" jfmp1 output saved to disk")
       
-      print( "running autoJFMP")
-      rv$targetHa<-read_csv(rv$targetHaFilepath)
-      rv$autoJFMP<-autoJFMP(myJFMP1 = rv$puDF,
-               myTargetHa = rv$targetHa)
-      print("debug1")
+      print("running autoJFMP")
+      rv$targetHa <- read_csv(rv$targetHaFilepath)
+      rv$autoJFMP <- autoJFMP(myJFMP1 = rv$puDF,
+                              myTargetHa = rv$targetHa)
+      
       readr::write_csv(rv$autoJFMP,
                        file.path(
-                         ResultsDir,
+                         rv$resultsDir,
                          paste0(
                            "Output_AutoJFMP_",
                            tools::file_path_sans_ext(rv$puName),
                            ".csv"
                          )
                        ))
-      print("debug2")
-      rv$autoJFMPsummary<-jfmpSummary(rv$autoJFMP)
-      print("debug3")
+      
+      rv$autoJFMPsummary <- jfmpSummary(rv$autoJFMP)
+      
       readr::write_csv(rv$autoJFMPsummary,
                        file.path(
-                         ResultsDir,
+                         rv$resultsDir,
                          paste0(
                            "Output_AutoJFMP_summary_",
                            tools::file_path_sans_ext(rv$puName),
@@ -862,10 +941,44 @@ server <- function(session, input, output) {
                          )
                        ))
       
-      
+      print("finished auto JFMP")
       
     })
   })
+  
+  # observer for draft JFMP comparison ------
+  observeEvent(
+    input$runCompareJFMP,
+    ignoreInit = T,
+    {
+      draftJfmpOut <-
+        processDraftJFMP(myDraftJFMPFile = rv$draftJFMPFile,
+                         myAutoJFMP = rv$autoJFMP)
+      jfmpName <- file_path_sans_ext(basename(rv$draftJFMPFile))
+      rv$draftJfmpOut <- draftJfmpOut
+      write_csv(rv$draftJfmpOut,
+                file.path(rv$resultsDir,
+                          paste0("Output_3_1_",
+                                 jfmpName, ".csv")))
+      # Table with one row for each District
+      # region , and columns for:
+      #   – Hectares allocated to burns in draft JFMP in each zone
+      # – Total hectares allocated to burn
+      # –	Score for each metric (x4) if JFMP implemented
+      # –	Score for each metrics (x4) if JFMP not implemented
+      # this is same format as the autoJFMP summary but for draft JFMP
+      draftJFMPSummary <- jfmpSummary(rv$draftJfmpOut)
+      rv$draftJFMPSummary <- draftJFMPSummary
+      write_csv(rv$draftJFMPSummary,
+                file.path(
+                  rv$resultsDir,
+                  paste0("Output_3_2_Summary_",
+                         jfmpName, ".csv")
+                )
+      )
+      print("Finished Draft JFMP summary")
+    }
+  )
   
   
   
@@ -874,9 +987,12 @@ server <- function(session, input, output) {
                {
                  output$selected_FH_name <- renderText({
                    paste("FH Analysis selected =" ,
-                         as.character(rv$FHAnalysis$name))
-                 })
-               })
+                         as.character(rv$FHAnalysis$name)
+                   )
+                 }
+                 )
+               }
+  )
   
   
   
@@ -889,7 +1005,7 @@ server <- function(session, input, output) {
     myChoices <- myChoices[!is.na(myChoices)]
     updateSelectInput(session, "EFGChoices", choices = myChoices)
     updateTabItems(session, "tabs", "TFIplots")
-   
+    
     minSEASON <- min(rv$TFI$SEASON)
     maxSEASON <- max(rv$TFI$SEASON)
     updateSliderInput(
@@ -948,7 +1064,6 @@ server <- function(session, input, output) {
           Area = rep(0, SEASL)
           Padding <- data.frame(TBTFI, SEAS, Area)
           bbtfivals <- rbind(bbtfivals, Padding)
-          
         }
       }
       
@@ -974,57 +1089,56 @@ server <- function(session, input, output) {
   
   
   # Observer to display GS plots when available ----
-  
-  observeEvent({
-    rv$GS_Summary
-  }, ignoreInit = T, {
-    myChoices <- unique(rv$GS_Summary$GS_Summary_Long$EFG_NAME)
-    myChoices <- myChoices[!is.na(myChoices)]
-    updateSelectInput(session, "GSEFGChoices", choices = myChoices)
-    updateTabItems(session, "tabs", "GSplots")
-    minSEASON <- min(rv$GS_Summary$GS_Summary_Long$SEASON)
-    maxSEASON <- max(rv$GS_Summary$GS_Summary_Long$SEASON)
-    updateSliderInput(
-      session,
-      "GSSeasonChoices",
-      min = minSEASON,
-      max = maxSEASON,
-      value = c(1980, maxSEASON)
-    )
-    output$GSPlot <- renderPlotly({
-      rv$GS_Summary$GS_Summary_Long %>%
-        filter(EFG_NAME == input$GSEFGChoices) %>%
-        group_by(GROWTH_STAGE, SEASON) %>%
-        summarise(Area = sum(Hectares)) %>%
-        #reordering the factor for GROWTH STAGE so they plot stacked appropriately not working
-        mutate(GROWTH_STAGE = factor(
-          GROWTH_STAGE,
-          levels = c("Juvenile",
-                     "Adolescent",
-                     "Mature",
-                     "Old")
-        )) %>%
-        plot_ly(
-          x =  ~ SEASON,
-          y =  ~ Area,
-          type = "bar",
-          color =  ~ GROWTH_STAGE,
-          colors = c(
-            "Old" = "#80b1d3",
-            "Mature" = "#8dd3c7",
-            "Adolescent" = "#fb8072",
-            "Juvenile" = "#ffffb3"
+  observeEvent(
+    rv$GS_Summary,
+    ignoreInit = T, {
+      myChoices <- unique(rv$GS_Summary$GS_Summary_Long$EFG_NAME)
+      myChoices <- myChoices[!is.na(myChoices)]
+      updateSelectInput(session, "GSEFGChoices", choices = myChoices)
+      updateTabItems(session, "tabs", "GSplots")
+      minSEASON <- min(rv$GS_Summary$GS_Summary_Long$SEASON)
+      maxSEASON <- max(rv$GS_Summary$GS_Summary_Long$SEASON)
+      updateSliderInput(
+        session,
+        "GSSeasonChoices",
+        min = minSEASON,
+        max = maxSEASON,
+        value = c(1980, maxSEASON)
+      )
+      output$GSPlot <- renderPlotly({
+        rv$GS_Summary$GS_Summary_Long %>%
+          filter(EFG_NAME == input$GSEFGChoices) %>%
+          group_by(GROWTH_STAGE, SEASON) %>%
+          summarise(Area = sum(Hectares)) %>%
+          #reordering the factor for GROWTH STAGE so they plot stacked appropriately
+          mutate(GROWTH_STAGE = factor(
+            GROWTH_STAGE,
+            levels = c("Juvenile",
+                       "Adolescent",
+                       "Mature",
+                       "Old")
+          )) %>%
+          plot_ly(
+            x =  ~ SEASON,
+            y =  ~ Area,
+            type = "bar",
+            color =  ~ GROWTH_STAGE,
+            colors = c(
+              "Old" = "#80b1d3",
+              "Mature" = "#8dd3c7",
+              "Adolescent" = "#fb8072",
+              "Juvenile" = "#ffffb3"
+            )
+          ) %>%
+          layout(
+            title = paste0(input$GSEFGChoices, "\n", "Growth Stages"),
+            yaxis = list(rangemode = "tozero", title = "Area (ha)"),
+            xaxis = list(range = input$GSSeasonChoices + c(-0.5, 0.5)),
+            barmode = 'stack',
+            showlegend = T
           )
-        ) %>%
-        layout(
-          title = paste0(input$GSEFGChoices, "\n", "Growth Stages"),
-          yaxis = list(rangemode = "tozero", title = "Area (ha)"),
-          xaxis = list(range = input$GSSeasonChoices + c(-0.5, 0.5)),
-          barmode = 'stack',
-          showlegend = T
-        )
+      })
     })
-  })
   
   
   # Observers make RA charts when available--------------------------------------------
@@ -1113,7 +1227,7 @@ server <- function(session, input, output) {
       )
       print (head(myDraftSpList))
       readr::write_csv(myDraftSpList,
-                       file.path(ResultsDir, "myDraftspList.csv"))
+                       file.path(rv$resultsDir, "myDraftspList.csv"))
       print("made draft species List")
     })
   })
@@ -1143,11 +1257,13 @@ server <- function(session, input, output) {
       )
       #print(myEFG_LMU)
       write_csv(myEFG_LMU$LMU_EFG_AREA,
-                file.path(ResultsDir, "LMU_Area.csv"))
+                file.path(rv$resultsDir, "LMU_Area.csv"))
       write_csv(myEFG_LMU$Spp_EFG_LMU,
-                file.path(ResultsDir, "Spp_EFG_LMU.csv"))
-      write_csv(myEFG_LMU$LMU_Scenario,
-                file.path(ResultsDir, "Draft_LMU_Scenarios.csv"))
+                file.path(rv$resultsDir, "Spp_EFG_LMU.csv"))
+      write_csv(
+        myEFG_LMU$LMU_Scenario,
+        file.path(rv$resultsDir, "Draft_LMU_Scenarios.csv")
+      )
     })
   })
   
@@ -1204,7 +1320,7 @@ server <- function(session, input, output) {
       
       writeLines(
         c(
-          paste0("GSOResultsDir ='", file.path(WD, ResultsDir), "'"),
+          paste0("GSOResultsDir ='", file.path(WD, rv$resultsDir), "'"),
           paste0("FireType ='", input$GSOFireType, "'"),
           paste0("Comparison = '" , input$GSOBaseLine, "'"),
           paste0("Classes = '", input$GSOFaunaClasses, "'"),
@@ -1237,9 +1353,11 @@ server <- function(session, input, output) {
         fileConn
       )
       close(fileConn)
-      rmarkdown::render("./GSO/GSOAnalysisOutput.Rmd",
-                        output_dir = ResultsDir,
-                        clean = T)
+      rmarkdown::render(
+        "./GSO/GSOAnalysisOutput.Rmd",
+        output_dir = rv$resultsDir,
+        clean = T
+      )
     })
   })
   
@@ -1273,8 +1391,6 @@ server <- function(session, input, output) {
       x <- (names(myRvList))
       for (i in x) {
         rv[[i]] <- myRvList[[i]]
-        print(i)
-        
       }
       gc()
     }

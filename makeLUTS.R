@@ -76,7 +76,7 @@ TFI_STATUS_LUT <- structure(
   class = c("tbl_df", "tbl", "data.frame")
 )
 write_csv(TFI_STATUS_LUT,
-          file.path(ResultsDir, "TFI_Rasters", "TFI_STATUS_LUT.csv"))
+          file.path(resultsDir, "TFI_Rasters", "TFI_STATUS_LUT.csv"))
 
 # Firetype look up table
 FIRETYPE_LUT <- data.frame(TYPE = c(1, 2),
