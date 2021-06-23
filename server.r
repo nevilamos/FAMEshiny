@@ -745,7 +745,7 @@ server <- function(session, input, output) {
   
   # Observer to run TFI  related calculations---------------------
   observeEvent({
-    input$runTFI | input$runRA_TFI
+    input$runTFI | input$runRA_TFI 
   },
   ignoreInit = T, {
     withBusyIndicatorServer("runTFI", {
@@ -754,7 +754,7 @@ server <- function(session, input, output) {
                       'You need to select a FH analysis to use'))
         print("running TFI calc")
         
-        TFI <- calc_TFI_2(
+        rv$TFI <- calc_TFI_2(
           myFHAnalysis = rv$FHAnalysis,
           myAllCombs = rv$allCombs,
           myTFI_LUT = TFI_LUT,
@@ -767,7 +767,7 @@ server <- function(session, input, output) {
         
         # need to change the sort order for the factor to get correct stacking
         # order ( no alphabetical) on chart
-        TFI$TFI_STATUS <-
+        rv$TFI$TFI_STATUS <-
           factor(
             TFI$TFI_STATUS,
             levels = c(
@@ -779,15 +779,12 @@ server <- function(session, input, output) {
           )
         
         
-        rv$TFI <- TFI
-        #save TFI to the FHAnalysis.rdata
-        #rv$FHAnalysis$TFI <- TFI
-        
+
         #write results out to csv files
-        readr::write_csv(TFI,
+        readr::write_csv(rv$TFI,
                          file = file.path(rv$resultsDir, "TFI_LONG.csv"))
         readr::write_csv(
-          TFI %>%
+          rv$TFI %>%
             group_by(EFG_NAME, SEASON, TFI_STATUS) %>%
             summarise(AreaHa = sum(Hectares)) %>%
             pivot_wider(
@@ -812,12 +809,14 @@ server <- function(session, input, output) {
   ignoreInit = T, {
     withBusyIndicatorServer("runTFI", {
       withBusyIndicatorServer("runRA_TFI", {
-        validate(need(rv$FHAnalysis,
-                      'You need to select a FH analysis to use'))
+        validate(
+          need(rv$FHAnalysis,
+               'You need to select a FH analysis to use')
+        )
         
         print ("calculating BBTFI")
         
-        BBTFI <- calcBBTFI_2(
+        rv$BBTFI <- calcBBTFI_2(
           myFHAnalysis = rv$FHAnalysis,
           myAllCombs = rv$allCombs,
           makeBBTFIrasters = input$makeBBTFIrasters,
@@ -825,13 +824,13 @@ server <- function(session, input, output) {
         )
         print("finished BBTFI calcs")
         
-        rv$BBTFI <- BBTFI
         
-        write.csv(BBTFI$BBTFI_LONG,
+        
+        write.csv(rv$BBTFI$BBTFI_LONG,
                   file = file.path(rv$resultsDir,
                                    "BBTFI_LONG.csv"))
         write.csv(
-          BBTFI$BBTFI_LONG %>%
+          rv$BBTFI$BBTFI_LONG %>%
             group_by(EFG_NAME, TBTFI) %>%
             summarise(AreaHa = sum(Hectares)) %>%
             pivot_wider(names_from = TBTFI, values_from = AreaHa),
@@ -839,7 +838,7 @@ server <- function(session, input, output) {
                            "TimesBBTFI_SUMMARY.csv")
         )
         
-        write.csv(BBTFI$BBTFI_WIDE,
+        write.csv(rv$BBTFI$BBTFI_WIDE,
                   file = file.path(rv$resultsDir,
                                    "BBTFI_WIDE.csv"))
       })
@@ -855,19 +854,18 @@ server <- function(session, input, output) {
                                    'You need to select a FH analysis to use'))
                      
                      print ("GS Calculations")
-                     GS_Summary <-
+                     rv$GS_Summary <-
                        makeGS_Summary(myFHAnalysis = rv$FHAnalysis,
                                       myAllCombs = rv$allCombs)
                      print("finished GS calcs")
                      
-                     rv$GS_Summary <- GS_Summary
-                     #rv$FHAnalysis$GS_Summary <- GS_Summary
+
                      
-                     readr::write_csv(GS_Summary$GS_Summary_Long,
+                     readr::write_csv(rv$GS_Summary$GS_Summary_Long,
                                       file = file.path(rv$resultsDir,
                                                        "GS_LONG.csv"))
                      
-                     readr::write_csv(GS_Summary$GS_Summary_wide,
+                     readr::write_csv(rv$GS_Summary$GS_Summary_wide,
                                       file = file.path(rv$resultsDir,
                                                        "GS_WIDE.csv"))
                    })
@@ -889,7 +887,7 @@ server <- function(session, input, output) {
       #read in lookup tables for weighting of JFMP
       rv$zoneWt <- read_csv(rv$zoneWtFile)
       rv$jfmpMetricWt <- read_csv(rv$jfmpMetricWtFile)
-
+      
       rv$puDF <- jfmp1(
         myPUPath = rv$puPath,
         grpSpYearSumm = rv$SpYearSumm$grpSpYearSumm,
@@ -950,16 +948,16 @@ server <- function(session, input, output) {
   observeEvent(
     input$runCompareJFMP,
     ignoreInit = T,
-    {
-      draftJfmpOut <-
-        processDraftJFMP(myDraftJFMPFile = rv$draftJFMPFile,
-                         myAutoJFMP = rv$autoJFMP)
-      jfmpName <- file_path_sans_ext(basename(rv$draftJFMPFile))
-      rv$draftJfmpOut <- draftJfmpOut
+    {   
+      rv$draftJfmpOut  <-
+        joinDraftJFMP(myDraftJFMPFile = rv$draftJFMPFile,
+                      myAutoJFMP = rv$autoJFMP)
+      draftFileName <- file_path_sans_ext(basename(rv$draftJFMPFile))
+      
       write_csv(rv$draftJfmpOut,
                 file.path(rv$resultsDir,
                           paste0("Output_3_1_",
-                                 jfmpName, ".csv")))
+                                 draftFileName, ".csv")))
       # Table with one row for each District
       # region , and columns for:
       #   – Hectares allocated to burns in draft JFMP in each zone
@@ -967,26 +965,40 @@ server <- function(session, input, output) {
       # –	Score for each metric (x4) if JFMP implemented
       # –	Score for each metrics (x4) if JFMP not implemented
       # this is same format as the autoJFMP summary but for draft JFMP
-      draftJFMPSummary <- jfmpSummary(rv$draftJfmpOut)
-      rv$draftJFMPSummary <- draftJFMPSummary
+      rv$draftJFMPSummary <- jfmpSummary(myAutoJFMP = rv$draftJfmpOut)
+      
       write_csv(rv$draftJFMPSummary,
                 file.path(
                   rv$resultsDir,
                   paste0("Output_3_2_Summary_",
-                         jfmpName, ".csv")
+                         draftFileName, ".csv")
                 )
       )
       print("Finished Draft JFMP summary")
+      
+      
+      #JFMP_NeverBBTFI_Region_Summary ----
+      rv$jfmpBBTFISumm<-jfmpBBTFISumm(mydraftJfmpOut = rv$draftJfmpOut)
+      
+      print("Finished JFMP BBTFI summary")  
+      
+      rv$jfmpRASumm <-jfmpRASumm(myDraftJfmpOut =rv$draftJfmpOut,
+                                 myGrpSpYearSummLong = rv$grpSpYearSummLong,
+                                 myTaxonList =rv$TaxonList,
+                                 myStartBaseline=rv$startBaseline,
+                                 myEndBaseline = rv$endBaseline,
+                                 myJFMPSeason0 = rv$JFMPSeason0)
+      
+      print("Finished JFMP RA summary") 
+      
     }
   )
-  
-  
   
   # Observer prints the details of currently selected analysis ------
   observeEvent(rv$FHAnalysis$name, ignoreInit = T,
                {
                  output$selected_FH_name <- renderText({
-                   paste("FH Analysis selected =" ,
+                   paste("FH Analysis selected =\n" ,
                          as.character(rv$FHAnalysis$name)
                    )
                  }

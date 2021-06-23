@@ -417,6 +417,15 @@ ui <- dashboardPage(
                              choices = "",
                              multiple = T
                            )
+                         ),
+                         conditionalPanel(
+                           condition = "input.usePUpolys == 0",
+                           withBusyIndicatorUI(
+                             actionButton(
+                               "runRA",
+                               label = "Run fauna relative abundance calculations"
+                             )
+                           )
                          )
                        )
                      ),
@@ -496,15 +505,7 @@ ui <- dashboardPage(
                          )
                        ),
                        
-                       conditionalPanel(
-                         condition = "input.usePUpolys == 0",
-                         withBusyIndicatorUI(
-                           actionButton(
-                             "runRA",
-                             label = "Run fauna relative abundance calculations"
-                           )
-                         ),
-                       )
+
                      )
                    )
                  )
