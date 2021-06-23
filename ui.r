@@ -456,7 +456,7 @@ ui <- dashboardPage(
                        shinyFilesButton(
                          id = "zoneWtFile",
                          label = "select file containing JFMP zone weights",
-                         title = "JFMP metric weights csv file", 
+                         title = "JFMP FMZ weights csv file", 
                          multiple = FALSE,
                          buttonType = "default",
                          class = NULL,
