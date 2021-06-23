@@ -1,6 +1,6 @@
 rm(list = ls(all = TRUE))
-#options(shiny.reactlog = TRUE)
-
+options(shiny.reactlog = TRUE)
+options(shiny.error = browser)
 
 options(stringsAsFactors = F)
 source("installationCheck.R")
@@ -9,7 +9,7 @@ source("installationCheck.R")
 
 
 #get version of FAMEFMR in use and set app version 
-versionDate = "Version 2.1.1 June 8  2021"
+versionDate = "Version 2.1.2 June 22  2021"
 versionFAMEFMR = paste ("R", getRversion(),"FAMEFMR",packageVersion("FAMEFMR"))
 
 
@@ -67,4 +67,4 @@ names(TFI_LUT)[1] <- "EFG"
 
 
 EFG_TSF_4GS <-
-  read_csv("./ReferenceTables/EFG_TSF_4GScorrectedAllEFGto400yrsV2.csv")[, c('EFG_NO', 'GS4_NO', "YSF")]
+  read_csv("./ReferenceTables/EFG_TSF_4GScorrectedAllEFGto400yrsV2.csv")[, c("EFG_NO" , "GS4_NO", "YSF")]
