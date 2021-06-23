@@ -420,9 +420,9 @@ ui <- dashboardPage(
                          )
                        )
                      ),
-                     withBusyIndicatorUI(
-                       actionButton("runRA_TFI", label = "Run all calculations")
-                     ),
+                     # withBusyIndicatorUI(
+                     #   actionButton("runRA_TFI", label = "Run all calculations")
+                     # ),
                      conditionalPanel(
                        condition = "input.usePUpolys == 1",
                        shinyFilesButton(
