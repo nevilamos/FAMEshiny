@@ -617,7 +617,7 @@ server <- function(session, input, output) {
         
         
         # Run the main function to get species abundance by cells -----
-        rv$SpYearSumm <- calc_SpeciesRA(
+        rv$SpYearSumm<- calc_SpeciesRA(
           myFHAnalysis = rv$FHAnalysis,
           myAllCombs <- rv$allCombs,
           myHDMSpp_NO = HDMSpp_NO,
@@ -889,7 +889,7 @@ server <- function(session, input, output) {
       #read in lookup tables for weighting of JFMP
       rv$zoneWt <- read_csv(rv$zoneWtFile)
       rv$jfmpMetricWt <- read_csv(rv$jfmpMetricWtFile)
-      
+
       rv$puDF <- jfmp1(
         myPUPath = rv$puPath,
         grpSpYearSumm = rv$SpYearSumm$grpSpYearSumm,
