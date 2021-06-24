@@ -1,6 +1,6 @@
 rm(list = ls(all = TRUE))
-options(shiny.reactlog = TRUE)
-options(shiny.error = browser)
+#options(shiny.reactlog = TRUE)
+#options(shiny.error = browser)
 
 options(stringsAsFactors = F)
 source("installationCheck.R")

@@ -1615,13 +1615,11 @@ server <- function(session, input, output) {
     updateSelectInput(
       session,
       inputId = 'customSpList',
-      label = 'Select custom csv file',
       choices = c("", list.files('./CustomCSV', pattern = ".csv$"))
     )
     updateSelectInput(
       session,
       inputId = 'customResponseFile',
-      label = 'Select custom csv file',
       choices = c("", list.files('./CustomCSV', pattern = ".csv$"))
     )
   })
