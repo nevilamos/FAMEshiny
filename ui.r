@@ -153,9 +153,9 @@ ui <- dashboardPage(
                       
                       # runscript button
                       withBusyIndicatorUI(actionButton("runDSpList", label = "Run draft species list")),
-                                  withBusyIndicatorUI(
-                                    actionButton("runspEFGpList", label = "Run Spp EFG LMU for list for GSO")
-                                  )
+                      withBusyIndicatorUI(
+                        actionButton("runspEFGpList", label = "Run Spp EFG LMU for list for GSO")
+                      )
                       
                       
                   ),
@@ -168,7 +168,9 @@ ui <- dashboardPage(
                        
                        box(width =12,background = "light-blue",title= "Downloads",
                            downloadButton("downloadTool", "Download FAME ArcGIS preproccessing tool"),
-                           downloadButton("downloadManual", "Download FAME manual")
+                           downloadButton("downloadManual", "Download FAME manual"),
+                           tags$h1("Revised, alternate 2"),
+                           HTML("<p>Download FAME manual <a https://github.com/nevilamos/FAMEshiny/blob/main/Manual/FAMEv2_User_Manual.pdf</a>!</p>")
                        ),
                        box(width =12, background = "red",title = "WARNING BUTTON BELOW WILL SHUT DOWN SERVER",
                            useShinyjs(),
@@ -507,11 +509,19 @@ ui <- dashboardPage(
                           )
                         ),
                         
-                        splitLayout(
+                        
+                      )
+                  ),
+                  
+                  conditionalPanel(
+                    condition = "input.usePUpolys == 1",
+                    box(width =12,solidHeader = T,background = "light-blue",
+                        title = "Compare alternative JFMPs",
+                    splitLayout(
                           shinyFilesButton(
                             id = "draftJFMPFile",
-                            label = "select draft jfmp input",
-                            title = "select draft jfmp input csv file",
+                            label = "select draft JFMP input",
+                            title = "select draft JFMP input csv file",
                             multiple = FALSE,
                             buttonType = "default",
                             class = NULL,
@@ -529,8 +539,8 @@ ui <- dashboardPage(
                             label = "Compare Draft JFMP"
                           )
                         ),
-                      )
-                  ),
+                  )),
+                  
                   conditionalPanel(
                     condition = "input.usePUpolys == 0",
                     box(title = "TFI and GS Calculations",
@@ -561,20 +571,26 @@ ui <- dashboardPage(
                 )
                 
               ),
-                
-                fluidRow(
-                  column(6,
-                         # runFH analysis action  button----
-                         box(width = 12,background = "light-blue",
-                             withBusyIndicatorUI(
-                               actionButton("runFH", 
-                                            label = "Run FH Analysis",
-                                            class = "btn-warning")))),
+              
+              fluidRow(
+                column(6,
+                       # runFH analysis action  button----
+                       box(width = 12,background = "light-blue",
+                           withBusyIndicatorUI(
+                             actionButton("runFH", 
+                                          label = "Run FH Analysis",
+                                          class = "btn-warning")))),
+                conditionalPanel(
+                  condition = "input.usePUpolys == 0",
                   column(6,
                          box(width = 12,background = "light-blue",
                              withBusyIndicatorUI(
                                actionButton("runRA_TFI", label = "Run all calculations")
-                             ))))
+                             )
+                         )
+                  )
+                )
+              )
       ),
       # fAbund_TFI tab content------------------------------------------------------------------------------------------
       tabItem(
@@ -722,96 +738,96 @@ ui <- dashboardPage(
                   6,
                   
                   box(width =12,background = "light-blue",title ="Select and upload GSO .csv files",
-                    fileInput(
-                      inputId = "addGSOCSV",
-                      label = "gsofiles to upload",
-                      accept = c("csv", ".csv")
-                    )),
+                      fileInput(
+                        inputId = "addGSOCSV",
+                        label = "gsofiles to upload",
+                        accept = c("csv", ".csv")
+                      )),
                   box(width =12,background = "light-blue",title ="Select GSO input tables",
-                    selectInput(
-                      'spEFGLMU',
-                      'Select Spp_EFG_LMU.csv file',
-                      choices = c(
-                        "Spp_EFG_LMU.csv",
-                        list.files('./GSOInputs/', pattern = "Spp_EFG_LMU.csv$")
+                      selectInput(
+                        'spEFGLMU',
+                        'Select Spp_EFG_LMU.csv file',
+                        choices = c(
+                          "Spp_EFG_LMU.csv",
+                          list.files('./GSOInputs/', pattern = "Spp_EFG_LMU.csv$")
+                        )
+                      ),
+                      selectInput(
+                        'lmuArea',
+                        'LMU_Area.csv file',
+                        choice = c(
+                          "LMU_Area.csv",
+                          list.files('./GSOInputs/', pattern = "LMU_Area.csv$")
+                        )
+                      ),
+                      selectInput(
+                        'lmuScenarios',
+                        'LMU_Scenarios.csv file',
+                        choice = c(
+                          "LMU_Scenarios.csv",
+                          list.files('./GSOInputs/', pattern = "LMU_Scenarios.csv$")
+                        )
+                      ),
+                      selectInput(
+                        'ObsData',
+                        'ObsData.csv file',
+                        choice = c(
+                          "ObsData.csv",
+                          list.files('./GSOInputs/', pattern = "ObsData.csv$")
+                        )
                       )
-                    ),
-                    selectInput(
-                      'lmuArea',
-                      'LMU_Area.csv file',
-                      choice = c(
-                        "LMU_Area.csv",
-                        list.files('./GSOInputs/', pattern = "LMU_Area.csv$")
-                      )
-                    ),
-                    selectInput(
-                      'lmuScenarios',
-                      'LMU_Scenarios.csv file',
-                      choice = c(
-                        "LMU_Scenarios.csv",
-                        list.files('./GSOInputs/', pattern = "LMU_Scenarios.csv$")
-                      )
-                    ),
-                    selectInput(
-                      'ObsData',
-                      'ObsData.csv file',
-                      choice = c(
-                        "ObsData.csv",
-                        list.files('./GSOInputs/', pattern = "ObsData.csv$")
-                      )
-                    )
                   )
                 ),
                 column(
                   6,
                   box(width =12,background = "light-blue",title= "Analysis options",
-                    h4(
-                      "Please note all inputs are case sensitive, do not include any spaces"
-                    ),
-                    selectInput(
-                      "GSOFireType",
-                      choices = c("High", "Low"),
-                      label = "Low or High fire type."
-                    ),
-                    selectInput(
-                      "GSOBaseLine",
-                      label = "Baseline for comparisons.'Optimisation' or select from input scenarios",
-                      choices = c("Optimisation")
-                    ),
-                    selectInput(
-                      "GSOFaunaClasses",
-                      label = "Which fauna classes to use",
-                      choices = c("All", "Birds", "Mammals", "Reptiles", "Frogs"),
-                      selected="All",
-                      #"Insects", "Fishes", "Crustaceans", "Annelids",Molluscs", "Nemerteans", "Flatworms", "Cnidarians","Echinoderms", "Zooplankton"
-                      multiple = T
-                    ),
-                    selectInput(
-                      "GSOrule",
-                      "Select rule to use",
-                      choices = c(
-                        'Rule0',
-                        'Rule1',
-                        'Rule1a',
-                        'Rule1b',
-                        'Rule1c',
-                        'Rule2',
-                        'Rule2a',
-                        'Rule2b',
-                        'Rule2c',
-                        'Rule3',
-                        'Rule3a',
-                        'Rule3b',
-                        'Rule3c'
-                      )
-                    ),
-                    
-                    numericInput("GSOdwt", "weight for option 2", 0.75),
-                    
-                    numericInput("GSOnrep", "Number of iterations to run", 100),
-                    numericInput("GSOnsim", "Number of simulations to generate 95% CI?", 5),
-                    
-                    withBusyIndicatorUI(actionButton("runGSO", "Run Aspatial GSO"))
+                      h4(
+                        "Please note all inputs are case sensitive, do not include any spaces"
+                      ),
+                      selectInput(
+                        "GSOFireType",
+                        choices = c("High", "Low"),
+                        label = "Low or High fire type."
+                      ),
+                      selectInput(
+                        "GSOBaseLine",
+                        label = "Baseline for comparisons.'Optimisation' or select from input scenarios",
+                        choices = c("Optimisation")
+                      ),
+                      selectInput(
+                        "GSOFaunaClasses",
+                        label = "Which fauna classes to use",
+                        choices = c("All", "Birds", "Mammals", "Reptiles", "Frogs"),
+                        selected="All",
+                        #"Insects", "Fishes", "Crustaceans", "Annelids",Molluscs", "Nemerteans", "Flatworms", "Cnidarians","Echinoderms", "Zooplankton"
+                        multiple = T
+                      ),
+                      selectInput(
+                        "GSOrule",
+                        "Select rule to use",
+                        choices = c(
+                          'Rule0',
+                          'Rule1',
+                          'Rule1a',
+                          'Rule1b',
+                          'Rule1c',
+                          'Rule2',
+                          'Rule2a',
+                          'Rule2b',
+                          'Rule2c',
+                          'Rule3',
+                          'Rule3a',
+                          'Rule3b',
+                          'Rule3c'
+                        )
+                      ),
+                      
+                      numericInput("GSOdwt", "weight for option 2", 0.75),
+                      
+                      numericInput("GSOnrep", "Number of iterations to run", 100),
+                      numericInput("GSOnsim", "Number of simulations to generate 95% CI?", 5),
+                      
+                      withBusyIndicatorUI(actionButton("runGSO", "Run Aspatial GSO"))
                   )
                 )
               ))

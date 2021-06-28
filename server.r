@@ -347,6 +347,22 @@ server <- function(session, input, output) {
       value = rv$endBaseline
     )
   })
+  
+  #Observer for jfmpSEASON0----
+  observeEvent(input$JFMPSeason0,{
+    rv$JFMPSeason0 <- input$JFMPSeason0
+  })
+  
+  observeEvent(rv$JFMPSeason0, {
+    updateNumericInput(
+      session = session,
+      inputId = "JFMPSeason0",
+      value = rv$JFMPSeason0
+    )
+  })
+  
+  
+  
   # OBSERVERS FOR RADIOBUTTON CHOICES  ----
   
   #Observer for public land------------------
@@ -433,8 +449,8 @@ server <- function(session, input, output) {
       
       
       if (input$usePUpolys  == TRUE) {
-        rv$JFMPSeason0 <- input$JFMPSeason0
-        rv$endSEASON <- input$JFMPSeason0 + 4
+        
+        rv$endSEASON <- rv$JFMPSeason0 + 4
       } else {
         rv$endSEASON <- NULL
       }
@@ -471,7 +487,11 @@ server <- function(session, input, output) {
       FHAnalysis$Region_No = myREG_NO
       FHAnalysis$PUBLIC_ONLY = input$public
       FHAnalysis$Start_Season = NULL
+      
       FHAnalysis$name <- paste0("FH_Analysis_", rv$outputFH)
+      if(input$usePUpolys == 1){
+        FHAnalysis$name<-paste0(FHAnalysis$name,rv$puName)
+      }
       st_write(FHAnalysis$OutDF,
                file.path(rv$resultsDir, paste0(FHAnalysis$name, ".shp")),
                append = FALSE)
@@ -497,7 +517,7 @@ server <- function(session, input, output) {
           )
         )
         myPuPoly = rv$puPath
-        #update the FHAnalysis$OUTdf with noburn columns
+        #update the FHAnalysis$OutDF  with noburn columns
         FHAnalysis$OutDF <-
           FHAnalysis$OutDF %>% bind_cols(make_JFMPNoBurnTab(
             myFHAnalysis = FHAnalysis,
@@ -779,7 +799,7 @@ server <- function(session, input, output) {
           )
         
         
-
+        
         #write results out to csv files
         readr::write_csv(rv$TFI,
                          file = file.path(rv$resultsDir, "TFI_LONG.csv"))
@@ -859,7 +879,7 @@ server <- function(session, input, output) {
                                       myAllCombs = rv$allCombs)
                      print("finished GS calcs")
                      
-
+                     
                      
                      readr::write_csv(rv$GS_Summary$GS_Summary_Long,
                                       file = file.path(rv$resultsDir,
@@ -888,7 +908,7 @@ server <- function(session, input, output) {
       rv$zoneWt <- read_csv(rv$zoneWtFile)
       rv$jfmpMetricWt <- read_csv(rv$jfmpMetricWtFile)
       
-      rv$puDF <- jfmp1(
+      puDF<- jfmp1(
         myPUPath = rv$puPath,
         grpSpYearSumm = rv$SpYearSumm$grpSpYearSumm,
         myAllCombs = rv$allCombs,
@@ -898,7 +918,7 @@ server <- function(session, input, output) {
         zoneWt = rv$zoneWt,
         jfmpMetricWt = rv$jfmpMetricWt
       )
-      
+      rv$puDF<-puDF
       readr::write_csv(rv$puDF,
                        file.path(
                          rv$resultsDir,
@@ -927,7 +947,8 @@ server <- function(session, input, output) {
                          )
                        ))
       
-      rv$autoJFMPsummary <- jfmpSummary(rv$autoJFMP)
+      autoJFMPsummary <- jfmpSummary(rv$autoJFMP)
+      rv$autoJFMPsummary<-autoJFMPsummary
       
       readr::write_csv(rv$autoJFMPsummary,
                        file.path(
@@ -949,11 +970,11 @@ server <- function(session, input, output) {
     input$runCompareJFMP,
     ignoreInit = T,
     {   
-      rv$draftJfmpOut  <-
+      draftJfmpOut  <-
         joinDraftJFMP(myDraftJFMPFile = rv$draftJFMPFile,
                       myAutoJFMP = rv$autoJFMP)
       draftFileName <- file_path_sans_ext(basename(rv$draftJFMPFile))
-      
+      rv$draftJfmpOut<-draftJfmpOut
       write_csv(rv$draftJfmpOut,
                 file.path(rv$resultsDir,
                           paste0("Output_3_1_",
@@ -965,9 +986,9 @@ server <- function(session, input, output) {
       # –	Score for each metric (x4) if JFMP implemented
       # –	Score for each metrics (x4) if JFMP not implemented
       # this is same format as the autoJFMP summary but for draft JFMP
-      rv$draftJFMPSummary <- jfmpSummary(myAutoJFMP = rv$draftJfmpOut)
-      
-      write_csv(rv$draftJFMPSummary,
+      draftJFMPSummary<- jfmpSummary(myAutoJFMP = rv$draftJfmpOut)
+      rv$draftJFMPSummary<-draftJFMPSummary
+      write_csv(draftJFMPSummary,
                 file.path(
                   rv$resultsDir,
                   paste0("Output_3_2_Summary_",
@@ -978,28 +999,44 @@ server <- function(session, input, output) {
       
       
       #JFMP_NeverBBTFI_Region_Summary ----
-      rv$jfmpBBTFISumm<-jfmpBBTFISumm(mydraftJfmpOut = rv$draftJfmpOut)
+      jfmpBBTFISumm<-jfmpBBTFISumm(mydraftJfmpOut = rv$draftJfmpOut)
+      rv$jfmpBBTFISumm<-jfmpBBTFISumm
+      
       
       print("Finished JFMP BBTFI summary")  
       
-      rv$jfmpRASumm <-jfmpRASumm(myDraftJfmpOut =rv$draftJfmpOut,
-                                 myGrpSpYearSummLong = rv$grpSpYearSummLong,
-                                 myTaxonList =rv$TaxonList,
-                                 myStartBaseline=rv$startBaseline,
-                                 myEndBaseline = rv$endBaseline,
-                                 myJFMPSeason0 = rv$JFMPSeason0)
+      jfmpRASumm <-jfmpRASumm(
+        myDraftJfmpOut =rv$draftJfmpOut,
+        myGrpSpYearSummLong = rv$grpSpYearSummLong,
+        myTaxonList =rv$TaxonList,
+        myStartBaseline=rv$startBaseline,
+        myEndBaseline = rv$endBaseline,
+        myJFMPSeason0 = rv$JFMPSeason0)
       
+      rv$jfmpRASumm <- jfmpRASumm
+      
+      print(rv$jfmpRASumm)
+      
+      nBelowThreshHold<-rv$jfmpRASumm %>%
+        group_by(JFMP_Name) %>%
+        summarise(n_BelowThreshold = sum(BelowThreshold))
+      
+      rv$nBelowThreshHold<-nBelowThreshHold
+      print(rv$nBelowThreshHold)
+      write_csv(rv$jfmpRASumm,
+                file.path(rv$resultsDir,"jfmpSppRaSumm.csv")) 
+      write_csv(rv$nBelowThreshHold,
+                file.path(rv$resultsDir,"jfmpNBelowThreshHold.csv")) 
       print("Finished JFMP RA summary") 
-      
     }
   )
   
-  # Observer prints the details of currently selected analysis ------
+  # Observer prints the details of currently selected FHanalysis ------
   observeEvent(rv$FHAnalysis$name, ignoreInit = T,
                {
                  output$selected_FH_name <- renderText({
                    paste("FH Analysis selected =\n" ,
-                         as.character(rv$FHAnalysis$name)
+                         as.character(rv$resultsDir,rv$FHAnalysis$name)
                    )
                  }
                  )
@@ -1016,7 +1053,7 @@ server <- function(session, input, output) {
     myChoices <- unique(rv$TFI$EFG_NAME)
     myChoices <- myChoices[!is.na(myChoices)]
     updateSelectInput(session, "EFGChoices", choices = myChoices)
-    updateTabItems(session, "tabs", "TFIplots")
+    #updateTabItems(session, "tabs", "TFIplots")
     
     minSEASON <- min(rv$TFI$SEASON)
     maxSEASON <- max(rv$TFI$SEASON)
@@ -1107,7 +1144,7 @@ server <- function(session, input, output) {
       myChoices <- unique(rv$GS_Summary$GS_Summary_Long$EFG_NAME)
       myChoices <- myChoices[!is.na(myChoices)]
       updateSelectInput(session, "GSEFGChoices", choices = myChoices)
-      updateTabItems(session, "tabs", "GSplots")
+      #updateTabItems(session, "tabs", "GSplots")
       minSEASON <- min(rv$GS_Summary$GS_Summary_Long$SEASON)
       maxSEASON <- max(rv$GS_Summary$GS_Summary_Long$SEASON)
       updateSliderInput(
@@ -1157,8 +1194,8 @@ server <- function(session, input, output) {
   observeEvent(rv$SpYearSumm, ignoreInit = T, {
     myChoices <- unique(rv$SpYearSumm$SpYearSummLong$COMMON_NAME)
     updateSelectizeInput(session, "raSpChoices", choices = myChoices)
-    updateTabItems(session, "tabs", "RAplots")
-    #gets the seasons that have been calcuated and removes the dummy no abund ( SEASON =999) so that this does not inflate the axes
+    #updateTabItems(session, "tabs", "RAplots")
+    #gets the seasons that have been calculated and removes the dummy no abund ( SEASON =9999) so that this does not inflate the axes
     allSEASONS <- rv$SpYearSumm$SpYearSummLong$SEASON
     displaySEASONS <- allSEASONS[allSEASONS != 9999]
     minSEASON <- min(displaySEASONS)
