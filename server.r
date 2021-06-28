@@ -13,7 +13,7 @@ server <- function(session, input, output) {
   })
   
   #INPUT FILE SELECTION OBSERVERS  ----
-  #Observer to get rawFH file to be run -----
+#Observer to get rawFH file to be run -----
   observe({
     roots <- c(wd = './rawFH')
     shinyFileChoose(input,
@@ -26,14 +26,14 @@ server <- function(session, input, output) {
       rv$rawFHName <- basename(rv$rawFHPath)
     }
   })
-  # Observer to display selected rawFH Shapefile in UI
+#Observer to display selected rawFH Shapefile in UI
   observeEvent(rv$rawFHName, {
     output$rawFHName <- renderText(basename(rv$rawFHName))
     
   })
   
   
-  #Observer to get AdHoc shapefile file to be run -----
+#Observer to get AdHoc shapefile file to be run -----
   observeEvent(input$selectAdHoc, {
     roots <- c(wd = './AdHocPolygons')
     shinyFileChoose(input,
@@ -47,13 +47,13 @@ server <- function(session, input, output) {
       
     }
   })
-  # Observer to display selected Ad Hoc Shapefile in UI
+#Observer to display selected Ad Hoc Shapefile in UI
   observeEvent(rv$AdHocName, {
     output$AdHocName <- renderText(basename(rv$AdHocName))
     
   })
   
-  #Observer to get PU shapefile file to be run -----
+#Observer to get PU shapefile file to be run -----
   observeEvent(input$selectPU, {
     roots <- c(wd = './PUPolygons')
     shinyFileChoose(input,
@@ -68,7 +68,7 @@ server <- function(session, input, output) {
       
     }
   })
-  # Observer to display selected PU Shapefile in UI
+#Observer to display selected PU Shapefile in UI
   observe({
     if (is.null(rv$puName)) {
       myPuName <- ""
@@ -81,7 +81,7 @@ server <- function(session, input, output) {
   })
   
   
-  #Observer to get customSpList be run -----
+#Observer to get customSpList be run -----
   observe({
     roots <- c(wd = './CustomCSV')
     shinyFileChoose(input,
@@ -95,12 +95,12 @@ server <- function(session, input, output) {
     }
   })
   
-  # Observer to display selected customSpListName in UI
+#Observer to display selected customSpListName in UI
   observeEvent(rv$customSpListName, {
     output$customSpListName <- renderText(rv$customSpListName)
   })
   
-  #Observer to get customResponseFile be run -----
+#Observer to get customResponseFile be run -----
   observe({
     roots <- c(wd = './CustomCSV')
     shinyFileChoose(input,
@@ -113,12 +113,12 @@ server <- function(session, input, output) {
       rv$customResponseName <- basename(rv$customResponseFile)
     }
   })
-  # Observer to display selected customSpListName in UI
+#Observer to display selected customSpListName in UI
   observeEvent(rv$customResponseName, {
     output$customResponseName <- renderText(rv$customResponseName)
   })
   
-  #Observer to get zone wt File be run -----
+#Observer to get zone wt File be run -----
   observe({
     roots <- c(wd = './CustomCSV')
     shinyFileChoose(input,
@@ -131,12 +131,12 @@ server <- function(session, input, output) {
       rv$zoneWtFileName <- basename(rv$zoneWtFile)
     }
   })
-  # Observer to display selected jfmpMetricWtFileName in UI
+#Observer to display selected jfmpMetricWtFileName in UI
   observeEvent(rv$zoneWtFileName, {
     output$zoneWtFileName <- renderText(rv$zoneWtFileName)
   })
   
-  #Observer to get jfmp metric wt File be run -----
+#Observer to get jfmp metric wt File be run -----
   observe({
     roots <- c(wd = './CustomCSV')
     shinyFileChoose(input,
@@ -149,12 +149,12 @@ server <- function(session, input, output) {
       rv$jfmpMetricWtFileName <- basename(rv$jfmpMetricWtFile)
     }
   })
-  # Observer to display selected zoneWtFileName in UI
+#Observer to display selected zoneWtFileName in UI
   observeEvent(rv$jfmpMetricWtFileName, {
     output$jfmpMetricWtFileName <- renderText(rv$jfmpMetricWtFileName)
   })
   
-  #Observer to get  draft jfmp input file be run -----
+#Observer to get  draft jfmp input file be run -----
   observe({
     roots <- c(wd = './CustomCSV')
     shinyFileChoose(input,
@@ -167,7 +167,7 @@ server <- function(session, input, output) {
       rv$draftJFMPName <- basename(rv$draftJFMPFile)
     }
   })
-  # Observer to display selected draft jfmpName in UI
+#Observer to display selected draft jfmpName in UI
   observeEvent(rv$draftJFMPName, {
     output$draftJFMPName <- renderText(rv$draftJFMPName)
   })
@@ -175,10 +175,11 @@ server <- function(session, input, output) {
   
   
   # OBSERVERS of CHECKBOXES -----
-  #Observer of choice for PU polys-------------------
-  observeEvent(input$usePUpolys, {
+#Observer of choice for PU polys-------------------
+  observeEvent(input$usePUpolys,ignoreInit = T, {
     rv$usePUpolys <- input$usePUpolys
-    
+    rv$makeTFIrasters = FALSE
+    rv$makeBBTFIrasters = FALSE
   })
   observeEvent(rv$usePUpolys, {
     if (rv$usePUpolys == TRUE) {
@@ -194,8 +195,8 @@ server <- function(session, input, output) {
     }
   })
   
-  #Observer of JFMP Area Target  -------------------
-  #Observer to get customSpList be run -----
+#Observer of JFMP Area Target  -------------------
+#Observer to get customSpList be run -----
   observe({
     roots <- c(wd = './CustomCSV')
     shinyFileChoose(input,
@@ -208,12 +209,20 @@ server <- function(session, input, output) {
       rv$targetHaFileName <- basename(rv$targetHaFilepath)
     }
   })
+#Observer for makeTFIrasters-----
+  observeEvent(input$makeTFIrasters,{
+    rv$makeTFIrasters = input$makeTFIrasters}
+  )
+#Observer for makeBBTFIrasters----- 
+  observeEvent(input$makeBBTFIrasters,{
+    rv$makeBBTFIrasters =input$makeBBTFIrasters
+  })
   
-  # Observer to display selected customSpListName in UI
+#Observer to display selected customSpListName in UI
   observeEvent(rv$targetHaFileName, {
     output$targetHaFileName <- renderText(rv$targetHaFileName)
   })
-  #Observer to get customResponseFile be run -----
+#Observer to get customResponseFile be run -----
   observe({
     roots <- c(wd = './CustomCSV')
     shinyFileChoose(input,
@@ -226,13 +235,13 @@ server <- function(session, input, output) {
       rv$customResponseName <- basename(rv$customResponseFile)
     }
   })
-  # Observer to display selected customSpListName in UI
+#Observer to display selected customSpListName in UI
   observeEvent(rv$customResponseName, {
     output$customResponseName <- renderText(rv$customResponseName)
   })
   
   
-  #Observer of custom species list choice  -------------------
+#Observer of custom species list choice  -------------------
   observeEvent(input$spListChoice, {
     rv$spListChoice <- input$spListChoice
   })
@@ -248,7 +257,7 @@ server <- function(session, input, output) {
     }
   })
   
-  #Observer of custom relative abundance table choice-------------------
+#Observer of custom relative abundance table choice-------------------
   observeEvent(input$spResponseChoice, {
     rv$spResponseChoice <- input$spResponseChoice
   })
@@ -264,7 +273,7 @@ server <- function(session, input, output) {
     }
   })
   
-  #Observer of Relative abundance table by growth stage choice -------------------
+#Observer of Relative abundance table by growth stage choice -------------------
   observeEvent(input$abundByGS, {
     rv$abundByGS <- input$abundByGS
   })
@@ -280,7 +289,7 @@ server <- function(session, input, output) {
     }
   })
   
-  #Observer of make rasters choice -------------------
+#Observer of make rasters choice -------------------
   observeEvent(input$makeRArasters, {
     rv$makeRArasters <- input$makeRArasters
   })
@@ -298,7 +307,7 @@ server <- function(session, input, output) {
   
   
   # OBSERVERS of NUMERIC SETTINGS  ---------
-  #Observer for RasterRes---------
+#Observer for RasterRes---------
   observeEvent(input$RasterRes, {
     rv$RasterRes = input$RasterRes
   })
@@ -310,7 +319,7 @@ server <- function(session, input, output) {
     )
   })
   
-  #Observer for First season for analysis output (startTimespan)------------------
+#Observer for First season for analysis output (startTimespan)------------------
   observeEvent(input$startTimespan, {
     rv$startTimespan = input$startTimespan
   })
@@ -323,7 +332,7 @@ server <- function(session, input, output) {
     )
   })
   
-  #Observer for start baseline------------------
+#Observer for start baseline------------------
   observeEvent(input$startBaseline, {
     rv$startBaseline = input$startBaseline
   })
@@ -335,7 +344,7 @@ server <- function(session, input, output) {
       value = rv$startBaseline
     )
   })
-  #Observer for end baseline------------------
+#Observer for end baseline------------------
   observeEvent(input$endBaseline, {
     rv$endBaseline = input$endBaseline
   })
@@ -348,7 +357,7 @@ server <- function(session, input, output) {
     )
   })
   
-  #Observer for jfmpSEASON0----
+#Observer for jfmpSEASON0----
   observeEvent(input$JFMPSeason0,{
     rv$JFMPSeason0 <- input$JFMPSeason0
   })
@@ -365,7 +374,7 @@ server <- function(session, input, output) {
   
   # OBSERVERS FOR RADIOBUTTON CHOICES  ----
   
-  #Observer for public land------------------
+#Observer for public land------------------
   observeEvent(input$public, {
     rv$public = input$public
   })
@@ -376,7 +385,7 @@ server <- function(session, input, output) {
                        selected = rv$public)
   })
   
-  #Observer for other and unknown fires------------------
+#Observer for other and unknown fires------------------
   observeEvent(input$otherUnknown, {
     rv$otherUnknown = input$otherUnknown
   })
@@ -388,7 +397,7 @@ server <- function(session, input, output) {
     )
   })
   
-  #Observer for allOrSomeYears for writing rasters------------------
+#Observer for allOrSomeYears for writing rasters------------------
   observeEvent(input$allOrSomeYears, {
     rv$allOrSomeYears = input$allOrSomeYears
   })
@@ -402,7 +411,7 @@ server <- function(session, input, output) {
   
   # OBSERVERS for NON-FILE SELECT INPUTS -----
   
-  #Observer for select SEASONS for write rasters (yearsForRasters)  -----
+#Observer for select SEASONS for write rasters (yearsForRasters)  -----
   #this is not working at the moment to reload the seasons selected in previous session
   observeEvent(input$yearsForRasters, {
     rv$yearsForRasters = input$yearsForRasters
@@ -415,7 +424,7 @@ server <- function(session, input, output) {
     )
   })
   
-  #Observer for choose a region  -----
+#Observer for choose a region  -----
   
   observeEvent(input$REGION_NO, {
     rv$REGION_NO = input$REGION_NO
@@ -429,7 +438,7 @@ server <- function(session, input, output) {
   })
   
   #OBSERVERS TO RUN MAIN FUNCTIONS-----
-  # Observer to runFH analysis -----
+#Observer to runFH analysis -----
   observeEvent(input$runFH, {
     validate(need(rv$rawFHPath, 'You need to select a raw FH to run analysis'))
     # if(rv$usePUPolys == TRUE){validate(need(!is.null(rv$puPath)), 'You need to select a PU/burn unit file to run analysis')}
@@ -550,7 +559,7 @@ server <- function(session, input, output) {
     
     print("finished FH analysis")
   })
-  # Observer to run relative abundance analysis  -------------------------------------------------------
+#Observer to run relative abundance analysis  -------------------------------------------------------
   observeEvent({
     input$runRA | input$runRA_TFI | input$runJFMP1
     
@@ -740,7 +749,7 @@ server <- function(session, input, output) {
       })
     })
   })
-  # Observer to get update years for calculations-----------------------------------------------------
+#Observer to get update years for calculations-----------------------------------------------------
   observeEvent(rv$FHAnalysis$TimeSpan, {
     updateSelectInput(
       session,
@@ -763,11 +772,10 @@ server <- function(session, input, output) {
     
   })
   
-  # Observer to run TFI  related calculations---------------------
+#Observer to run TFI  related calculations---------------------
   observeEvent({
     input$runTFI | input$runRA_TFI 
-  },
-  ignoreInit = T, {
+    },ignoreInit = T, {
     withBusyIndicatorServer("runTFI", {
       withBusyIndicatorServer("runRA_TFI", {
         validate(need(rv$FHAnalysis,
@@ -778,10 +786,9 @@ server <- function(session, input, output) {
           myFHAnalysis = rv$FHAnalysis,
           myAllCombs = rv$allCombs,
           myTFI_LUT = TFI_LUT,
-          OutputRasters = input$makeTFIrasters,
+          OutputRasters = rv$makeTFIrasters,
           myResultsDir = rv$resultsDir
         )
-        
         
         
         
@@ -789,7 +796,7 @@ server <- function(session, input, output) {
         # order ( no alphabetical) on chart
         rv$TFI$TFI_STATUS <-
           factor(
-            TFI$TFI_STATUS,
+            rv$TFI$TFI_STATUS,
             levels = c(
               "BELOW_MIN_TFI",
               "WITHIN_TFI",
@@ -815,14 +822,13 @@ server <- function(session, input, output) {
           file = file.path(rv$resultsDir, "TFI_EFG_SUMMARY.csv")
         )
         
-        
-        print("Finished TFI calcualtions")
+        print("Finished TFI calculations")
         
         
       })
     })
   })
-  # Observer to run BBTFI  related calculations---------------------
+#Observer to run BBTFI  related calculations---------------------
   observeEvent({
     input$runTFI | input$runRA_TFI | input$runJFMP1
   },
@@ -839,7 +845,7 @@ server <- function(session, input, output) {
         rv$BBTFI <- calcBBTFI_2(
           myFHAnalysis = rv$FHAnalysis,
           myAllCombs = rv$allCombs,
-          makeBBTFIrasters = input$makeBBTFIrasters,
+          makeBBTFIrasters = rv$makeBBTFIrasters,
           myResultsDir = rv$resultsDir
         )
         print("finished BBTFI calcs")
@@ -865,7 +871,7 @@ server <- function(session, input, output) {
     })
   })
   
-  # Observer to run GS calculations-----------------------
+#Observer to run GS calculations-----------------------
   observeEvent(input$runGS | input$runRA_TFI,
                ignoreInit = T, {
                  withBusyIndicatorServer("runGS", {
@@ -874,13 +880,16 @@ server <- function(session, input, output) {
                                    'You need to select a FH analysis to use'))
                      
                      print ("GS Calculations")
-                     rv$GS_Summary <-
+                     GS_Summary <-
                        makeGS_Summary(myFHAnalysis = rv$FHAnalysis,
                                       myAllCombs = rv$allCombs)
-                     print("finished GS calcs")
                      
+                     print(names(GS_Summary))
+                     print(GS_Summary)
                      
-                     
+                  
+                     rv$GS_Summary = GS_Summary
+                     print(rv$GS_Summary)
                      readr::write_csv(rv$GS_Summary$GS_Summary_Long,
                                       file = file.path(rv$resultsDir,
                                                        "GS_LONG.csv"))
@@ -888,11 +897,12 @@ server <- function(session, input, output) {
                      readr::write_csv(rv$GS_Summary$GS_Summary_wide,
                                       file = file.path(rv$resultsDir,
                                                        "GS_WIDE.csv"))
+                     print("finished GS calcs")
                    })
                  })
                })
   
-  # Observer to run JFMP1  related calculations---------------------
+#Observer to run JFMP1  related calculations---------------------
   observeEvent({
     input$runJFMP1
   },
@@ -1031,7 +1041,7 @@ server <- function(session, input, output) {
     }
   )
   
-  # Observer prints the details of currently selected FHanalysis ------
+#Observer prints the details of currently selected FHanalysis ------
   observeEvent(rv$FHAnalysis$name, ignoreInit = T,
                {
                  output$selected_FH_name <- renderText({
@@ -1045,99 +1055,98 @@ server <- function(session, input, output) {
   
   
   
-  # Observer to display TFI and BBTFI plots when available ------
+#Observer to display TFI and BBTFI plots when available ------
   
-  observeEvent({
-    rv$TFI
-  }, ignoreInit = T, {
-    myChoices <- unique(rv$TFI$EFG_NAME)
-    myChoices <- myChoices[!is.na(myChoices)]
-    updateSelectInput(session, "EFGChoices", choices = myChoices)
-    #updateTabItems(session, "tabs", "TFIplots")
-    
-    minSEASON <- min(rv$TFI$SEASON)
-    maxSEASON <- max(rv$TFI$SEASON)
-    updateSliderInput(
-      session,
-      "tfiSeasonChoices",
-      min = minSEASON,
-      max = maxSEASON,
-      value = c(1980, maxSEASON)
-    )
-    # Make plot of area by TFI status ----
-    output$TFItrendPlot <- renderPlotly({
-      rv$TFI %>%
-        filter(EFG_NAME == input$EFGChoices) %>%
-        group_by(TFI_STATUS, SEASON) %>%
-        summarise(Area = sum(Hectares)) %>%
-        plot_ly(
-          x =  ~ SEASON,
-          y =  ~ Area,
-          group =  ~ TFI_STATUS,
-          type = "bar",
-          color =  ~ TFI_STATUS,
-          colors = c(
-            "BELOW_MIN_TFI" = "#fb8072",
-            "WITHIN_TFI" = "#8dd3c7",
-            "ABOVE_MAX_TFI" = "#80b1d3",
-            "NONE" = "#ffffb3"
-          )
-        ) %>%
-        layout(
-          title = paste0(input$EFGChoices, "\n", "TFI Status"),
-          yaxis = list(rangemode = "tozero", title = "Area (ha)"),
-          xaxis = list(range = (
-            input$tfiSeasonChoices + c(-0.5, 0.5)
-          )),
-          barmode = 'stack',
-          showlegend = T
-        )
-    })
-    
-    #if(nrow(bbtfivals)>0){
-    
-    output$BBTFIPlot <- renderPlotly({
-      bbtfivals <- rv$BBTFI$BBTFI_LONG %>%
-        filter(EFG_NAME == input$EFGChoices) %>%
-        mutate(TBTFI = as.factor(TBTFI)) %>%
-        group_by(TBTFI, SEAS) %>%
-        summarise(Area = sum(Hectares)) %>%
-        drop_na()
-      #work around to maintain column width where there are gaps between values
-      if (nrow(bbtfivals) > 0) {
-        myYears <- input$tfiSeasonChoices[1]:input$tfiSeasonChoices[2]
-        SEAS <- myYears[!myYears %in% unique(bbtfivals$SEAS)]
-        SEASL <- length(SEAS)
-        if (SEASL > 0) {
-          TBTFI = (rep(NA, SEASL))
-          Area = rep(0, SEASL)
-          Padding <- data.frame(TBTFI, SEAS, Area)
-          bbtfivals <- rbind(bbtfivals, Padding)
-        }
-      }
+  observeEvent(
+    {rv$TFI}, ignoreInit = T, {
+      myChoices <- unique(rv$TFI$EFG_NAME)
+      myChoices <- myChoices[!is.na(myChoices)]
+      updateSelectInput(session, "EFGChoices", choices = myChoices)
+      #updateTabItems(session, "tabs", "TFIplots")
       
-      bbtfivals %>%
-        plot_ly(
-          x =  ~ SEAS,
-          y =  ~ Area,
-          type = "bar",
-          color =  ~ TBTFI
-        ) %>%
-        layout(
-          title = paste0(input$EFGChoices, "\n", "Times burned below TFI"),
-          yaxis = list(rangemode = "tozero", title = "Area (ha)"),
-          xaxis = list(range = input$tfiSeasonChoices + c(-0.5, 0.5)),
-          barmode = 'stack',
-          showlegend = T
-        )
+      minSEASON <- min(rv$TFI$SEASON)
+      maxSEASON <- max(rv$TFI$SEASON)
+      updateSliderInput(
+        session,
+        "tfiSeasonChoices",
+        min = minSEASON,
+        max = maxSEASON,
+        value = c(1980, maxSEASON)
+      )
+      # Make plot of area by TFI status ----
+      output$TFItrendPlot <- renderPlotly({
+        rv$TFI %>%
+          filter(EFG_NAME == input$EFGChoices) %>%
+          group_by(TFI_STATUS, SEASON) %>%
+          summarise(Area = sum(Hectares)) %>%
+          plot_ly(
+            x =  ~ SEASON,
+            y =  ~ Area,
+            group =  ~ TFI_STATUS,
+            type = "bar",
+            color =  ~ TFI_STATUS,
+            colors = c(
+              "BELOW_MIN_TFI" = "#fb8072",
+              "WITHIN_TFI" = "#8dd3c7",
+              "ABOVE_MAX_TFI" = "#80b1d3",
+              "NONE" = "#ffffb3"
+            )
+          ) %>%
+          layout(
+            title = paste0(input$EFGChoices, "\n", "TFI Status"),
+            yaxis = list(rangemode = "tozero", title = "Area (ha)"),
+            xaxis = list(range = (
+              input$tfiSeasonChoices + c(-0.5, 0.5)
+            )),
+            barmode = 'stack',
+            showlegend = T
+          )
+      })
+      
+      #if(nrow(bbtfivals)>0){
+      
+      output$BBTFIPlot <- renderPlotly({
+        bbtfivals <- rv$BBTFI$BBTFI_LONG %>%
+          filter(EFG_NAME == input$EFGChoices) %>%
+          mutate(TBTFI = as.factor(TBTFI)) %>%
+          group_by(TBTFI, SEAS) %>%
+          summarise(Area = sum(Hectares)) %>%
+          drop_na()
+        #work around to maintain column width where there are gaps between values
+        if (nrow(bbtfivals) > 0) {
+          myYears <- input$tfiSeasonChoices[1]:input$tfiSeasonChoices[2]
+          SEAS <- myYears[!myYears %in% unique(bbtfivals$SEAS)]
+          SEASL <- length(SEAS)
+          if (SEASL > 0) {
+            TBTFI = (rep(NA, SEASL))
+            Area = rep(0, SEASL)
+            Padding <- data.frame(TBTFI, SEAS, Area)
+            bbtfivals <- rbind(bbtfivals, Padding)
+          }
+        }
+        
+        bbtfivals %>%
+          plot_ly(
+            x =  ~ SEAS,
+            y =  ~ Area,
+            type = "bar",
+            color =  ~ TBTFI
+          ) %>%
+          layout(
+            title = paste0(input$EFGChoices, "\n", "Times burned below TFI"),
+            yaxis = list(rangemode = "tozero", title = "Area (ha)"),
+            xaxis = list(range = input$tfiSeasonChoices + c(-0.5, 0.5)),
+            barmode = 'stack',
+            showlegend = T
+          )
+      })
+      #output$BBTFIPlot <- renderUI(plotlyOutput("myBBTFIPlot"))
+      #}
+      
     })
-    #output$BBTFIPlot <- renderUI(plotlyOutput("myBBTFIPlot"))
-    #}
-    
-  })
   
   
-  # Observer to display GS plots when available ----
+#Observer to display GS plots when available ----
   observeEvent(
     rv$GS_Summary,
     ignoreInit = T, {
@@ -1190,7 +1199,7 @@ server <- function(session, input, output) {
     })
   
   
-  # Observers make RA charts when available--------------------------------------------
+#Observers make RA charts when available--------------------------------------------
   observeEvent(rv$SpYearSumm, ignoreInit = T, {
     myChoices <- unique(rv$SpYearSumm$SpYearSummLong$COMMON_NAME)
     updateSelectizeInput(session, "raSpChoices", choices = myChoices)
@@ -1321,7 +1330,7 @@ server <- function(session, input, output) {
   # Run Aspatial GSO-------------------------------------------------
   
   # this section runs the rmd script and documents for aspatial GSO that was written by Paul Moloney in 2017. and modified to use shiny GUI
-  # Observers for GSO .csv uploads  ---------------------------------
+#Observers for GSO .csv uploads  ---------------------------------
   observe({
     myInput = input$addGSOCSV
     savePath = "./GSOInputs"
@@ -1410,7 +1419,7 @@ server <- function(session, input, output) {
     })
   })
   
-  # Observer to save current analysis reactive values to file as list----
+#Observer to save current analysis reactive values to file as list----
   observeEvent(input$saveAnalysis, {
     roots <- c("UserFolder" = "./FH_Outputs")
     myRvList <- reactiveValuesToList(rv)
@@ -1423,7 +1432,7 @@ server <- function(session, input, output) {
     }
   })
   # UTILITIES - LOADING PREVIOUS ANALYSIS AND SERVER SHUTDOWN
-  # Observer to load analysis from list as qs file-----
+#Observer to load analysis from list as qs file-----
   observe({
     roots <- c("UserFolder" = "./FH_Outputs")
     shinyFileChoose(input,
@@ -1446,7 +1455,7 @@ server <- function(session, input, output) {
     
   })
   
-  # Observer to shut down server ----
+#Observer to shut down server ----
   #THIS IS NOT WORKING WITH CURRENT UBUNTU VERSION DUE TO SECURITY CHANGES
   # SHOULD BE REPLACED BY aws TIME OUT SETTINGS ON SERVER
   observeEvent(input$close, {
@@ -1455,7 +1464,7 @@ server <- function(session, input, output) {
   })
   
   # UPLOADS AND DOWNLOADS OF FILES AND RESULTS -----
-  # Observer for loading fire scenario shapefiles ----
+#Observer for loading fire scenario shapefiles ----
   #This code is repeated with modifications for each shapefile load ideally would be made into function or module
   observe({
     myInput = input$rawFH
@@ -1522,7 +1531,7 @@ server <- function(session, input, output) {
   
   
   
-  # Observer for loading AdHoc shapefiles ---------------------------------
+#Observer for loading AdHoc shapefiles ---------------------------------
   observe({
     myInput = input$adHocPoly
     savePath = "./AdHocPolygons"
@@ -1584,7 +1593,7 @@ server <- function(session, input, output) {
     
   })
   
-  #Observer for loading PUPoly shapefiles ---------------------------------
+#Observer for loading PUPoly shapefiles ---------------------------------
   observe({
     myInput = input$puPoly
     savePath = "./PUPolygons"
@@ -1643,7 +1652,7 @@ server <- function(session, input, output) {
     outputOptions(output, "panelStatus1", suspendWhenHidden = FALSE)
     
   })
-  # Observer for custom .csv uploads  ------------------
+#Observer for custom .csv uploads  ------------------
   observe({
     myInput = input$addCustomCSV
     savePath = "./CustomCSV"
