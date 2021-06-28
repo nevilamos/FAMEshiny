@@ -168,7 +168,9 @@ ui <- dashboardPage(
                        
                        box(width =12,background = "light-blue",title= "Downloads",
                            downloadButton("downloadTool", "Download FAME ArcGIS preproccessing tool"),
-                           downloadButton("downloadManual", "Download FAME manual")
+                           downloadButton("downloadManual", "Download FAME manual"),
+                           tags$h1("Revised, alternate 2"),
+                           HTML("<p>Download FAME manual <a https://github.com/nevilamos/FAMEshiny/blob/main/Manual/FAMEv2_User_Manual.pdf</a>!</p>")
                        ),
                        box(width =12, background = "red",title = "WARNING BUTTON BELOW WILL SHUT DOWN SERVER",
                            useShinyjs(),
