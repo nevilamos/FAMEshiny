@@ -16,20 +16,23 @@ ui <- dashboardPage(
         tabName = "AnalysisSettings",
         icon = icon("fire")
       ),
-      menuItem(
-        "TFI Plots",
-        tabName = "TFIplots",
-        icon = icon("chart-line")
-      ),
-      menuItem(
-        "GS Plots",
-        tabName = "GSplots",
-        icon = icon("chart-bar")
-      ),
-      menuItem(
-        "Fauna RA Plots",
-        tabName = "RAplots",
-        icon = icon("dove")
+      conditionalPanel(
+        condition = "input.usePUpolys == 0",
+        menuItem(
+          "TFI Plots",
+          tabName = "TFIplots",
+          icon = icon("chart-line")
+        ),
+        menuItem(
+          "GS Plots",
+          tabName = "GSplots",
+          icon = icon("chart-bar")
+        ),
+        menuItem(
+          "Fauna RA Plots",
+          tabName = "RAplots",
+          icon = icon("dove")
+        )
       ),
       menuItem(
         "Aspatial GSO Inputs" ,
@@ -89,12 +92,7 @@ ui <- dashboardPage(
     shinyDashboardThemes(
       theme = "blue_gradient"
     ),
-    
-    
-    
-    
-    
-    
+ 
     tabItems(
       tabItem(tabName = "Intro",
               fluidRow(column(
@@ -157,9 +155,7 @@ ui <- dashboardPage(
                       withBusyIndicatorUI(
                         actionButton("runspEFGpList", label = "Run Spp EFG LMU for list for GSO")
                       )
-                      
-                      
-                  ),
+                ),
                   
                   
                 )
@@ -307,10 +303,7 @@ ui <- dashboardPage(
                                ),
                                textOutput("puName")
                              ),
-                             
-                             
-                             
-                             numericInput(
+                           numericInput(
                                "JFMPSeason0",
                                "JFMP SEASON 0",
                                as.integer(format(Sys.Date(), "%Y")))
