@@ -1,11 +1,9 @@
 # library(aws.s3)
 newDirPaths<-c("AdHocPolygons",
                "CustomCSV",
-               "FAMEPreProcessing",
                "FH_Outputs",
                "HDMS",
                "InputGeneralRasters",
-               "Manual",
                "PUPolygons",
                "rawFH",
                "ReferenceShapefiles",
