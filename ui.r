@@ -89,7 +89,8 @@ ui <- dashboardPage(
     shinyDashboardThemes(
       theme = "blue_gradient"
     ),
-    useShinyjs(),
+    
+    
     
     
     
@@ -348,7 +349,7 @@ ui <- dashboardPage(
                       fluidRow(column(2,
                                       checkboxInput(
                                         inputId = "spListChoice",
-                                        label = "Use custom secies table",
+                                        label = "Use custom species list",
                                         value = FALSE,
                                         width = NULL
                                       )),
@@ -517,7 +518,7 @@ ui <- dashboardPage(
                     condition = "input.usePUpolys == 1",
                     box(width =12,solidHeader = T,background = "light-blue",
                         title = "Compare alternative JFMPs",
-                    splitLayout(
+                        splitLayout(
                           shinyFilesButton(
                             id = "draftJFMPFile",
                             label = "select draft JFMP input",
@@ -539,33 +540,36 @@ ui <- dashboardPage(
                             label = "Compare Draft JFMP"
                           )
                         ),
-                  )),
+                    )),
                   
                   conditionalPanel(
                     condition = "input.usePUpolys == 0",
                     box(title = "TFI and GS Calculations",
                         width =12,solidHeader = T,background = "light-blue",
                         
-                        splitLayout(checkboxInput(
-                          "makeTFIrasters",
-                          "Make TFIstatus maps for each year",
-                          value = FALSE,
-                          width = NULL
-                        ),
-                        checkboxInput(
-                          "makeBBTFIrasters",
-                          "Make BBTFIstatus maps for each year",
-                          value = FALSE,
-                          width = NULL
-                        )),
+                        splitLayout(
+                          checkboxInput(
+                            inputId = "makeTFIrasters",
+                            label =  "Make TFIstatus maps for each year",
+                            value = FALSE,
+                            width = NULL
+                          ),
+                          checkboxInput(
+                            inputId = "makeBBTFIrasters",
+                            label =  "Make BBTFIstatus maps for each year",
+                            value = FALSE,
+                            width = NULL
+                          )),
                         
                         
-                        splitLayout(withBusyIndicatorUI(
-                          actionButton("runTFI", label = "Run TFI calculations")
-                        ),
-                        withBusyIndicatorUI(
-                          actionButton("runGS", label = "Run GS calculations")
-                        ))
+                        splitLayout(
+                          withBusyIndicatorUI(
+                            actionButton("runTFI", label = "Run TFI calculations")
+                          ),
+                          withBusyIndicatorUI(
+                            actionButton("runGS", label = "Run GS calculations")
+                          )
+                        )
                     )
                   )
                 )
@@ -615,18 +619,6 @@ ui <- dashboardPage(
             )
           )
         ),
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
       ),
       #Tab  TFI charts --------------------------------------------------------------------
       
@@ -637,9 +629,9 @@ ui <- dashboardPage(
                             column(
                               6,
                               selectInput(
-                                "EFGChoices",
+                                inputId = "EFGChoices",
+                                label = "TFI EFG Choices",
                                 choices = NULL ,
-                                label = "Choose EFG Number  (to clear use backspace)",
                                 selected = NULL,
                                 multiple = F
                               )
