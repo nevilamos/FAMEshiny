@@ -2,7 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
-FAMEshiny.zip
 AdHocPolygons
 CustomCSV
 DESCRIPTION
@@ -13,18 +12,9 @@ ReferenceShapefiles
 ReferenceTables
 rawFH
 results
-FAMEPreProcessing
-FAME_Manual.pdf
 www
-dummyname
 GSOInputs
 .RDataTmp
-AWS_KEYS.R
-Manual
 FAME_inputfiles.zip
-D_DeltaRALong.r
-D_DeltaRALong.rds
-InitialG_calc.rdata.RData
-plot G mk1.R
 select and rename files.R
 PUPolygons
