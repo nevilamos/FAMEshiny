@@ -8,8 +8,9 @@ library(tidyr)
 library(stringr)
 library(nloptr)
 library(ggplot2)
+library(FAMEGSO)
+#source("GSO_Functions.R")
 
-source("GSO_Functions.R")
 #### Pre-written text ####
 ## Pre-written text to be selected, depending on users choices in markdown document.
 

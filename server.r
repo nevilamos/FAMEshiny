@@ -1736,5 +1736,61 @@ server <- function(session, input, output) {
     },
     contentType = "application/zip"
   )
-  
+#render tabs menu for UI ------  
+  output$tabsmenu<- renderMenu({
+    tabs_list1<-list(
+      # menuItem("Home",
+      #          tabName = "Intro",
+      #          icon = icon("home")),
+      
+      menuItem(
+        "Settings for Spatial Analyses",
+        tabName = "AnalysisSettings",
+        icon = icon("fire")
+      ),
+      menuItem(
+        "Settings for Aspatial GSO" ,
+        tabName = "GSO",
+        icon = icon("calculator")
+      ),
+      menuItem(
+        text = "Utilities",
+        tabName = "util",
+        icon = icon("cloud-upload-alt")
+      )
+    )
+    
+    tabs_list2<-list(
+      menuItem(
+        "TFI Plots",
+        tabName = "TFIplots",
+        icon = icon("chart-line")
+      ),
+      menuItem(
+        "GS Plots",
+        tabName = "GSplots",
+        icon = icon("chart-bar")
+      ),
+      menuItem(
+        "Fauna RA Plots",
+        tabName = "RAplots",
+        icon = icon("dove")
+      ))
+    
+    tabs_list3 <-list(
+      # menuItem("User Manual",
+      #          tabName = "Manual",
+      #          icon = icon("book")),
+      menuItem(text = versionDate),
+      menuItem(text = versionFAMEFMR)
+    )
+    if(input$usePUpolys == 0){
+      tabs_list<-c(tabs_list1,tabs_list2,tabs_list3)
+    } else {
+      tabs_list<-c(tabs_list1,tabs_list3)
+    } 
+    sidebarMenu(tabs_list)
+    
+  })
+
 }

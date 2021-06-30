@@ -1,48 +1,37 @@
 ui <- dashboardPage(
-  dashboardHeader(disable = T),
+  dashboardHeader(
+    # formatting individual letters to different size and colour
+    title = span("F",
+                 style = "color: white; font-size: 40px",
+                 span("ire",
+                      style = "color: black; font-size: 30px" 
+                 ),
+                 span("A",
+                      style = "color: white; font-size: 40px" 
+                 ),
+                 span("nalysis",
+                      style = "color: black; font-size: 30px" 
+                 ),
+                 span("M",
+                      style = "color: white; font-size: 40px" 
+                 ),
+                 span("odule for",
+                      style = "color: Black; font-size: 30px" 
+                 ),
+                 span("E",
+                      style = "color: white; font-size: 40px" 
+                 ),
+                 span("cological values",
+                      style = "color: black; font-size: 30px" 
+                 )
+    ),titleWidth = "100vw"),
+  
   dashboardSidebar(
     width = 300,
     sidebarMenu(
-      id = "tabs",
-      color = "green",
-      menuItem("Home", tabName = "Intro", icon = icon("home")),
-      menuItem(
-        text = "Utilities",
-        tabName = "util",
-        icon = icon("cloud-upload-alt")
-      ),
-      menuItem(
-        "Settings for Analysis",
-        tabName = "AnalysisSettings",
-        icon = icon("fire")
-      ),
-      conditionalPanel(
-        condition = "input.usePUpolys == 0",
-        menuItem(
-          "TFI Plots",
-          tabName = "TFIplots",
-          icon = icon("chart-line")
-        ),
-        menuItem(
-          "GS Plots",
-          tabName = "GSplots",
-          icon = icon("chart-bar")
-        ),
-        menuItem(
-          "Fauna RA Plots",
-          tabName = "RAplots",
-          icon = icon("dove")
-        )
-      ),
-      menuItem(
-        "Aspatial GSO Inputs" ,
-        tabName = "GSO",
-        icon = icon("calculator")
-      ),
       
-      p(versionDate),
-      p(versionFAMEFMR),
-      p(""),
+      sidebarMenuOutput("tabsmenu"),
+
       # save and reload analysis  buttons -----
       withBusyIndicatorUI(
         shinyFilesButton(
@@ -92,17 +81,30 @@ ui <- dashboardPage(
     shinyDashboardThemes(
       theme = "blue_gradient"
     ),
- 
+    setBackgroundImage(
+      src = "08732250_before_after_2014_fire.jpg",shinydashboard = TRUE
+    ),
+    tags$head(tags$style(HTML('
+      .main-header .logo {
+        font-weight: bold;
+        font-size: 40px;
+        font-family:Georgia;
+        color:red;
+      }
+      .main-header .logo #mydiv b{
+        font-weight: bold;
+        font-size: 40px;
+        font-family:Georgia;
+      }
+      
+    '))),
+    tags$head(tags$style('body {color:red;}')),
+    
     tabItems(
-      tabItem(tabName = "Intro",
-              fluidRow(column(
-                8,
-                
-                img(src = "FAME.png"),
-                img(src = "08732250_before_after_2014_fire.jpg")
-                
-              ),
-              column(4))),
+      #tab to display manual pdf
+      # tabItem(tabName = "Manual",
+      #         tags$iframe(style="height:1200px; width:1200px", 
+      #                     src="FAME_Manual.pdf")),
       # Upload and other utilities tab--------------------------------------------
       tabItem(tabName = "util",
               fluidRow(
@@ -151,11 +153,11 @@ ui <- dashboardPage(
                       radioButtons("sppublic", "Restrict analysis to Public Land", c("Yes", "No")),
                       
                       # runscript button
-                      withBusyIndicatorUI(actionButton("runDSpList", label = "Run draft species list")),
+                      withBusyIndicatorUI(actionButton(style="color: #fff; background-color: #337ab7; border-color: #2e6da4","runDSpList", label = "Run draft species list")),
                       withBusyIndicatorUI(
-                        actionButton("runspEFGpList", label = "Run Spp EFG LMU for list for GSO")
+                        actionButton(style="color: #fff; background-color: #337ab7; border-color: #2e6da4","runspEFGpList", label = "Run Spp EFG LMU for list for GSO")
                       )
-                ),
+                  ),
                   
                   
                 )
@@ -174,7 +176,7 @@ ui <- dashboardPage(
                            extendShinyjs(text = jscode, functions = c("closeWindow")),
                            
                            h5("Make sure you have downloaded all your data first"),
-                           actionButton("close", "Shut Down Server")
+                           actionButton(style="color: #fff; background-color: #337ab7; border-color: #2e6da4","close", "Shut Down Server")
                        )),
                 column(8,
                        box(width =12,title="Download results",
@@ -303,7 +305,7 @@ ui <- dashboardPage(
                                ),
                                textOutput("puName")
                              ),
-                           numericInput(
+                             numericInput(
                                "JFMPSeason0",
                                "JFMP SEASON 0",
                                as.integer(format(Sys.Date(), "%Y")))
@@ -434,9 +436,9 @@ ui <- dashboardPage(
                         conditionalPanel(
                           condition = "input.usePUpolys == 0",
                           withBusyIndicatorUI(
-                            actionButton(
-                              "runRA",
-                              label = "Run fauna relative abundance calculations"
+                            actionButton(style="color: #fff; background-color: #337ab7; border-color: #2e6da4",
+                                         "runRA",
+                                         label = "Run fauna relative abundance calculations"
                             )
                           )
                         ),
@@ -497,9 +499,9 @@ ui <- dashboardPage(
                         ),
                         
                         withBusyIndicatorUI(
-                          actionButton(
-                            "runJFMP1",
-                            label = "Run JFMP calculations stage 1"
+                          actionButton(style="color: #fff; background-color: #337ab7; border-color: #2e6da4",
+                                       "runJFMP1",
+                                       label = "Run JFMP calculations stage 1"
                           )
                         ),
                         
@@ -528,9 +530,9 @@ ui <- dashboardPage(
                         ),
                         
                         withBusyIndicatorUI(
-                          actionButton(
-                            "runCompareJFMP",
-                            label = "Compare Draft JFMP"
+                          actionButton(style="color: #fff; background-color: #337ab7; border-color: #2e6da4",
+                                       "runCompareJFMP",
+                                       label = "Compare Draft JFMP"
                           )
                         ),
                     )),
@@ -557,10 +559,10 @@ ui <- dashboardPage(
                         
                         splitLayout(
                           withBusyIndicatorUI(
-                            actionButton("runTFI", label = "Run TFI calculations")
+                            actionButton(style="color: #fff; background-color: #337ab7; border-color: #2e6da4","runTFI", label = "Run TFI calculations")
                           ),
                           withBusyIndicatorUI(
-                            actionButton("runGS", label = "Run GS calculations")
+                            actionButton(style="color: #fff; background-color: #337ab7; border-color: #2e6da4","runGS", label = "Run GS calculations")
                           )
                         )
                     )
@@ -574,15 +576,14 @@ ui <- dashboardPage(
                        # runFH analysis action  button----
                        box(width = 12,background = "light-blue",
                            withBusyIndicatorUI(
-                             actionButton("runFH", 
-                                          label = "Run FH Analysis",
-                                          class = "btn-warning")))),
+                             actionButton(style="color: #fff; background-color: #337ab7; border-color: #2e6da4","runFH", 
+                                          label = "Run FH Analysis")))),
                 conditionalPanel(
                   condition = "input.usePUpolys == 0",
                   column(6,
                          box(width = 12,background = "light-blue",
                              withBusyIndicatorUI(
-                               actionButton("runRA_TFI", label = "Run all calculations")
+                               actionButton(style="color: #fff; background-color: #337ab7; border-color: #2e6da4","runRA_TFI", label = "Run all calculations")
                              )
                          )
                   )
@@ -812,7 +813,7 @@ ui <- dashboardPage(
                       numericInput("GSOnrep", "Number of iterations to run", 100),
                       numericInput("GSOnsim", "Number of simulations to generate 95% CI?", 5),
                       
-                      withBusyIndicatorUI(actionButton("runGSO", "Run Aspatial GSO"))
+                      withBusyIndicatorUI(actionButton(style="color: #fff; background-color: #337ab7; border-color: #2e6da4","runGSO", "Run Aspatial GSO"))
                   )
                 )
               ))
