@@ -985,7 +985,9 @@ server <- function(session, input, output) {
         joinDraftJFMP(myDraftJFMPFile = rv$draftJFMPFile,
                       myAutoJFMP = rv$autoJFMP)
       draftFileName <- file_path_sans_ext(basename(rv$draftJFMPFile))
+      
       rv$draftJfmpOut<-draftJfmpOut
+      
       write_csv(rv$draftJfmpOut,
                 file.path(rv$resultsDir,
                           paste0("Output_3_1_",
@@ -997,7 +999,7 @@ server <- function(session, input, output) {
       # –	Score for each metric (x4) if JFMP implemented
       # –	Score for each metrics (x4) if JFMP not implemented
       # this is same format as the autoJFMP summary but for draft JFMP
-      draftJFMPSummary<- jfmpSummary(myAutoJFMP = rv$draftJfmpOut)
+      draftJFMPSummary<- jfmpSummary(myDraftJfmpOut = rv$draftJfmpOut)
       rv$draftJFMPSummary<-draftJFMPSummary
       write_csv(draftJFMPSummary,
                 file.path(
