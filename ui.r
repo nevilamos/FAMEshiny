@@ -283,7 +283,7 @@ ui <- dashboardPage(
                        box(title = "JFMP Settings",width = 12,background = "light-blue",
                            checkboxInput(
                              inputId = "usePUpolys",
-                             label = "Incude burn unit/planning unit shapefile for JFMP analysis",
+                             label = "Include burn unit/planning unit shapefile for JFMP analysis",
                              value = FALSE
                            ),
                            
