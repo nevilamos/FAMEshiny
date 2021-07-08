@@ -22,23 +22,21 @@ for(mypath in newDirPaths){
 
   } else {
     dir.create(mypath,recursive = T)
-#     
-#     aws.s3::s3sync(path=paste0("./",mypath),
-#                    bucket = "ecological-risk-analysis",
-#                    prefix = paste0("FAME_FMR","/",mypath),
-#                    check_region = F,
-#                    direction = "download"
-#                    
-#     )
-#     
-#     
+
    }
 #   
 #   
 }
 if(!file.exists("FAME_inputfiles.zip")){
   download.file("https://ecological-risk-analysis.s3-ap-southeast-2.amazonaws.com/FAME_FMR/FAME_inputfiles.zip","FAME_inputfiles.zip")
-  unzip("./FAME_inputfiles.zip",exdir = ".")
+  
+  if (.Platform$OS.type == "unix"){
+    system("unzip -o ./FAME_inputfiles.zip && cp -rl ./FAME_inputfiles ./  && rm -r ./FAME_inputfiles")
+  }else{
+    unzip("./FAME_inputfiles.zip",exdir = ".")
+    system("xcopy .\\FAME_inputfiles\ . /E/H/y")
+    unlink("FAME_inputfiles",recursive=TRUE)
+  }
   
 }
 
