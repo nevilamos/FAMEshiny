@@ -952,7 +952,7 @@ server <- function(session, input, output) {
                        file.path(
                          rv$resultsDir,
                          paste0(
-                           "Output_AutoJFMP_",
+                           "AutoJFMP_",
                            tools::file_path_sans_ext(rv$puName),
                            ".csv"
                          )
@@ -965,7 +965,7 @@ server <- function(session, input, output) {
                        file.path(
                          rv$resultsDir,
                          paste0(
-                           "Output_AutoJFMP_summary_",
+                           "AutoJFMP_summary_",
                            tools::file_path_sans_ext(rv$puName),
                            ".csv"
                          )
@@ -990,7 +990,7 @@ server <- function(session, input, output) {
       
       write_csv(rv$draftJfmpOut,
                 file.path(rv$resultsDir,
-                          paste0("Output_3_1_",
+                          paste0("draftJfmpOut_",
                                  draftFileName, ".csv")))
       # Table with one row for each District
       # region , and columns for:
@@ -1004,7 +1004,7 @@ server <- function(session, input, output) {
       write_csv(draftJFMPSummary,
                 file.path(
                   rv$resultsDir,
-                  paste0("Output_3_2_Summary_",
+                  paste0("Summary_draftJfmpOut_",
                          draftFileName, ".csv")
                 )
       )
@@ -1039,7 +1039,7 @@ server <- function(session, input, output) {
       write_csv(rv$jfmpRASumm,
                 file.path(rv$resultsDir,"jfmpSppRaSumm.csv")) 
       write_csv(rv$nBelowThreshHold,
-                file.path(rv$resultsDir,"jfmpNBelowThreshHold.csv")) 
+                file.path(rv$resultsDir,"jfmpCountSpeciesBelowThreshHold.csv")) 
       print("Finished JFMP RA summary") 
     }
   )
@@ -1699,7 +1699,7 @@ server <- function(session, input, output) {
   )
   
   
-  downloadManualFileName <- "./Manual/FAMEv2_User_Manual.pdf"
+  downloadManualFileName <- "./Manual/FAMEv3_User_Manual.pdf"
   output$downloadManual <- downloadHandler(
     filename = function() {
       downloadManualFileName
