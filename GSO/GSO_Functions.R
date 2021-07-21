@@ -4,7 +4,7 @@
 # Paul's function
 
 # ## Function to assign growth stage category given the EFG and TSF
-# EFGCodes = read_csv("../ReferenceTables/GS_lookupGSO.csv")
+# EFGCodes = read.csv("../ReferenceTables/GS_lookupGSO.csv")
 # GSfn <- function(efg, tsf, data = EFGCodes) {
 #   dat <-
 #     c(unique(arrange(data[which(data$EFG_NO == efg), ], BGS_START)$BGS_START), 1000)[-1]
@@ -533,8 +533,7 @@ OptRunCI <-
     resultS <- Scenarios(OptData, Scen = Scen, efg = efgs)
     resultS2 <- as.data.frame(t(c(resultS$GMA, resultn$geom)))
     names(resultS2) <-
-      #c(levels(resultS$Scenario)[resultS$Scenario], 'Optimisation')
-      c(resultS$Scenario, 'Optimisation')
+      c(levels(resultS$Scenario)[resultS$Scenario], 'Optimisation')
     SpecRes <- SppRes(OptData, resultn, Scen = Scen, TArea = area)
     SpList <- array(NA, dim = c(nrow(SpecRes), ncol(SpecRes), N))
     SpList[, , 1] <- as.matrix(SpecRes)

@@ -15,14 +15,7 @@ print(getwd())
 
 ```{r Options,include=FALSE, cache=FALSE}
 # Packages
-library(readxl)
-library(dplyr)
-library(tidyr)
-library(stringr)
-library(nloptr)
-library(ggplot2)
-library(readr)
-
+library(readxl);library(dplyr);library(tidyr);library(stringr);library(nloptr);library(ggplot2);
 source("GSOSettings.r")
 
 print("Running GSO Analysis")
