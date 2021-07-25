@@ -150,7 +150,7 @@ ui <- dashboardPage(
                                                       ".shp$"))
                         )
                       ),
-                      radioButtons("sppublic", "Restrict analysis to Public Land", c("Yes", "No")),
+                      radioButtons("sppublic", "Restrict to Public Land", c("Yes" = TRUE, "No"= FALSE)),
                       
                       # runscript button
                       withBusyIndicatorUI(actionButton(style="color: #fff; background-color: #337ab7; border-color: #2e6da4","runDSpList", label = "Run draft species list")),
@@ -228,7 +228,7 @@ ui <- dashboardPage(
                            #                           width = "fit",),
                            
                            selectInput("REGION_NO", "Choose a Region",
-                                       choices = as.list(c(REG_NO)),,width = "50%"),
+                                       choices = as.list(c(REG_NO)),width = "50%"),
                            conditionalPanel(
                              condition = "input.REGION_NO == '7'",
                              
@@ -253,7 +253,7 @@ ui <- dashboardPage(
                                     radioButtons("RasterRes", "Select Raster Resolution", cellSizes),
                              ),
                              column(4,
-                                    radioButtons("public", "Restrict to Public Land", c("Yes", "No"))
+                                    radioButtons("public", "Restrict to Public Land", c("Yes" = TRUE, "No"= FALSE))
                              ),
                              column(4,
                                     radioButtons(
