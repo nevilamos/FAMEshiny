@@ -143,7 +143,7 @@ ui <- dashboardPage(
                                                     ".shp$"))
                       )
                     ),
-                    radioButtons("sppublic", "Restrict analysis to Public Land", c("Yes", "No")),
+                    radioButtons("sppublic", "Restrict to Public Land", c("Yes" = TRUE, "No"= FALSE)),
                     
                     # runscript button
                     withBusyIndicatorUI(actionButton("runDSpList", label = "Run draft species list")),
@@ -202,7 +202,7 @@ ui <- dashboardPage(
                   wellPanel(
                     radioButtons("RasterRes", "Select Raster Resolution", cellSizes),
                     
-                    radioButtons("public", "Restrict analysis to Public Land", c("Yes", "No")),
+                    radioButtons("public", "Restrict to Public Land", c("Yes" = TRUE, "No"= FALSE)),
                     radioButtons(
                       inputId = "otherUnknown",
                       label = "Value for other and unknown fires",
