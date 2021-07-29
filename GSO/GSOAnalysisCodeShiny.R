@@ -9,7 +9,7 @@ library(stringr)
 library(nloptr)
 library(ggplot2)
 
-source("GSO_Functions.R")
+
 #### Pre-written text ####
 ## Pre-written text to be selected, depending on users choices in markdown document.
 

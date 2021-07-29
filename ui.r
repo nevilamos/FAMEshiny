@@ -130,7 +130,7 @@ ui <- dashboardPage(
                       htmlOutput("message_text1"),
                       fileInput(
                         inputId = "addCustomCSV",
-                        label = "Add Custom Species List or FaunaAbundLUT CSV",
+                        label = "Add Custom input CSV",
                         accept = c("csv", ".csv")
                       )
                       
