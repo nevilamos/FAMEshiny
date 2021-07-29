@@ -980,18 +980,22 @@ server <- function(session, input, output) {
   observeEvent(
     input$runCompareJFMP,
     ignoreInit = T,
-    {   
-      draftJfmpOut  <-
-        joinDraftJFMP(myDraftJFMPFile = rv$draftJFMPFile,
-                      myAutoJFMP = rv$autoJFMP)
+    tryCatch({ {   
+
+
+        draftJfmpOut  <-
+          joinDraftJFMP(myDraftJFMPFile = rv$draftJFMPFile,
+                        myAutoJFMP = rv$autoJFMP)
+        
+      
       draftFileName <- file_path_sans_ext(basename(rv$draftJFMPFile))
       
       rv$draftJfmpOut<-draftJfmpOut
       
       write_csv(rv$draftJfmpOut,
-                file.path(rv$resultsDir,
-                          paste0("draftJfmpOut_",
-                                 draftFileName, ".csv")))
+                 file.path(rv$resultsDir,
+                           paste0("draftJfmpOut_",
+                                  draftFileName, ".csv")))
       # Table with one row for each District
       # region , and columns for:
       #   – Hectares allocated to burns in draft JFMP in each zone
@@ -1020,7 +1024,7 @@ server <- function(session, input, output) {
       
       jfmpRASumm <-jfmpRASumm(
         myDraftJfmpOut =rv$draftJfmpOut,
-        myGrpSpYearSummLong = rv$grpSpYearSummLong,
+        myGrpSpYearSummLong = rv$grpSpYearSummLong[!is.na(rv$grpSpYearSummLong$PU),],
         myTaxonList =rv$TaxonList,
         myStartBaseline=rv$startBaseline,
         myEndBaseline = rv$endBaseline,
@@ -1041,7 +1045,13 @@ server <- function(session, input, output) {
       write_csv(rv$nBelowThreshHold,
                 file.path(rv$resultsDir,"jfmpCountSpeciesBelowThreshHold.csv")) 
       print("Finished JFMP RA summary") 
-    }
+    }},
+    warning = function(warn){
+      showNotification(paste0(warn), type = 'warning')
+    },
+    error = function(err){
+      showNotification(paste0(err), type = 'err')
+    })
   )
   
   #Observer prints the details of currently selected FHanalysis ------
