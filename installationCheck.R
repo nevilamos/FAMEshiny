@@ -50,7 +50,7 @@ package.check <- lapply(
 
 #check that FAMEFMR package is installed and get it from github if not.
 if(require("FAMEFMR")==FALSE){
-  devtools::install_github("nevilamos/FAMEFMR")
+  devtools::install_github("nevilamos/FAMEFMR@v0.4.0")
 }
 
 
