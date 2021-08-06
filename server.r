@@ -113,7 +113,7 @@ server <- function(session, input, output) {
       rv$customResponseName <- basename(rv$customResponseFile)
     }
   })
-  #Observer to display selected customSpListName in UI
+  #Observer to display selected customResponseName in UI
   observeEvent(rv$customResponseName, {
     output$customResponseName <- renderText(rv$customResponseName)
   })
@@ -612,7 +612,7 @@ server <- function(session, input, output) {
           mySpGSResponses <- "./ReferenceTables/OrdinalExpertLong.csv"
         } else{
           mySpGSResponses <-
-            file.path("./CustomCSV", rv$customResponseFile)
+            file.path(rv$customResponseFile)
         }
         #Select the file giving the fauna relative abundance inputs you wish to use------
         if (rv$abundByGS == TRUE) {
