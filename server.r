@@ -1582,13 +1582,11 @@ server <- function(session, input, output) {
         myText1 = "shapefile uploaded"
         showtable1 = "YES"
         output$rawFHTable <- renderTable(myInput[, 1:2])
-        # updateSelectInput(
-        #   session,
-        #   'AdHocShape',
-        #   'Select AdHoc Area shapefile',
-        #   choice = c("", list.files('./AdHocPolygons/', pattern =
-        #                               ".shp$"))
-        # )
+        updateSelectInput(
+          session,
+          inputId = 'spAdHocShape',
+          choices = c("", list.files('./AdHocPolygons', pattern = ".shp$"))
+        )
       } else{
         myText1 = paste(
           "<span style=\"color:red\">one or more of .shp,.shx,.dbf,.prj are missing\n Or additional files selected</span>"
