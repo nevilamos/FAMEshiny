@@ -581,10 +581,14 @@ ui <- dashboardPage(
                 conditionalPanel(
                   condition = "input.usePUpolys == 0",
                   column(6,
-                         box(width = 12,background = "light-blue",
+                         box(width = 6,background = "light-blue",
                              withBusyIndicatorUI(
                                actionButton(style="color: #fff; background-color: #337ab7; border-color: #2e6da4","runRA_TFI", label = "Run all calculations")
-                             )
+                             ),
+                         ),box(width = 6,background = "light-blue",
+                               withBusyIndicatorUI(
+                                 actionButton(style="color: #fff; background-color: #337ab7; border-color: #2e6da4","prepareDashboard", label = "Prepare Dashbord Outputs")
+                               ),
                          )
                   )
                 )
