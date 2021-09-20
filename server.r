@@ -1594,7 +1594,7 @@ server <- function(session, input, output) {
   # SHOULD BE REPLACED BY aws TIME OUT SETTINGS ON SERVER
   observeEvent(input$close, {
     js$closeWindow()
-    system("shutdown")
+    system("sudo shutdown -h now")
   })
 
   # UPLOADS AND DOWNLOADS OF FILES AND RESULTS ----
