@@ -1,89 +1,54 @@
 source("global.r")
+unlink(resultsDir,recursive = TRUE)
+source("batchsettings.r")
 
-#server <- function(session, input, output) {
-#rv <- reactiveValues()
 
-
-source("temp.r")
-#load settings/saved session file list to list called rv,
 #(rv name in kept for consistency with rv <- reactiveValues in shiny app)
 rv<-list()
-
-#observe({
-rv$resultsDir <- resultsDir
-#output$resultsDir <- renderText(rv$resultsDir)
-if (dir.exists(rv$resultsDir)) {
-  
-} else {
-  dir.create(rv$resultsDir)
-  dir.create(file.path(rv$resultsDir, "RA_Rasters"))
-  dir.create(file.path(rv$resultsDir, "TFI_Rasters"))
-}
-#})
-
-# INPUT FILES  ----
-# 
+for (myFH in rawFHPaths){
 #  rawFH file to be run ----
+rv$rawFHPath <- myFH
 
-rv$rawFHPath <- rawFHPath
+
 rv$rawFHName <- basename(rv$rawFHPath)
+
 #AdHoc shapefile file to be run ----
 rv$AdHocPath <- AdHocPath
 rv$AdHocName <- basename(rv$AdHocPath)
-
-
 
 #customSpList be run ----
 
 rv$customSpList <- customSpList
 rv$customSpListName <- basename(rv$customSpList)
 
-
-
-
-
-
-# OBSERVERS of CHECKBOXES ----
-# Observer of choice for PU polys sets values to null if false----
+# Observer of choice for PU polys sets values to null if FALSE  ----
 rv$usePUpolys = usePUpolys
 if (!rv$usePUpolys == TRUE) {
-  
   rv$puPath <- NULL
   rv$puName <- NULL
 } else {
   # PU shapefile file to be run ----
-  
   rv$puPath <- puPath
   rv$puName <- basename(rv$puPath)
-  
-  # Observer of JFMP Area Target  ----
+
   # zone wt File be run ----
-  
   rv$zoneWtFile <- zoneWtFile
   rv$zoneWtFileName <- basename(rv$zoneWtFile)
-  
-  
-  # Observer to get jfmp metric wt File be run ----
-  
+
+  # jfmp metric wt File be run ----
   rv$jfmpMetricWtFile <- jfmpMetricWtFile
   rv$jfmpMetricWtFileName <- basename(rv$jfmpMetricWtFile)
   
-  # Observer to get  draft jfmp input file be run ----
-  
+  # JFMP Area Target file  ----
 
   rv$targetHaFilepath <- targetHaFilepath
   rv$targetHaFileName <- basename(rv$targetHaFilepath)
 }
 
-
-
-
-# Observer for makeTFIrasters----
-
+# whether or not to make make TFI rasters----
 rv$makeTFIrasters <- makeTFIrasters
 
-# Observer for makeBBTFIrasters----
-
+# whether or not to make  BBTFI rasters----
 rv$makeBBTFIrasters <- makeBBTFIrasters
 
 # Observer of custom relative abundance table choice----
@@ -169,26 +134,33 @@ rv$otherUnknown <- otherUnknown
 
 #rv$yearsForRasters <- yearsForRasters
 
-
+rv$runCompareJFMP<-runCompareJFMP
 
 # Observer for choose a region  ----
 rv$REGION_NO <- REGION_NO
 
 # OBSERVERS TO RUN MAIN FUNCTIONS----
+
 # Observer to runFH analysis ----
 
 rv$outputFH <- file_path_sans_ext(basename(rv$rawFHPath))
-if (rv$usePUpolys == 1) {
-  rv$outputFH <- paste(rv$outputFH, rv$puName, sep = "_")
+if (rv$usePUpolys == TRUE) {
+  rv$outputFH <- paste(rv$outputFH, file_path_sans_ext(basename(rv$puName)), sep = "_")
 }
 
+#output directories creation
+
+rv$resultsDir<-file.path(resultsDir,rv$outputFH)
+for (i in c("RA_Rasters","TFI_Rasters","BBTFI_Rasters")){
+  dir.create(file.path(rv$resultsDir,i),recursive = TRUE)
+  }
 myREG_NO <- as.integer(rv$REGION_NO)
 RasterRes <- as.integer(rv$RasterRes)
 print(paste("RasterRes =", RasterRes))
 HDM_RASTER_PATH <-
   paste0("./HDMS/", rv$RasterRes, "m/BinaryThresholded")
 
-if (REG_NO == 7) {
+if (rv$REGION_NO == 7) {
   clipShape <- rv$AdHocPath
 } else {
   clipShape <- "./ReferenceShapefiles/LF_DISTRICT.shp"
@@ -729,7 +701,8 @@ if(rv$runCompareJFMP == TRUE){
   print("Finished JFMP RA summary") 
 }
 
-
-qsave(rv, as.character(fileinfo$datapath))
+analysisPath<-file.path(resultsDir ,paste0(gsub(".shp","",rv$outputFH),ifelse(is.null(rv$customSpListName),"DefaultTaxa",gsub(".csv","",rv$customSpListName)),".qs"))
+qsave(rv, analysisPath)
+}
 
 
