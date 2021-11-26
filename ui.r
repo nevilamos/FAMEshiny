@@ -426,23 +426,24 @@ ui <- dashboardPage(
                   value = FALSE,
                   width = NULL
                 ),
-                # conditionalPanel(
-                #   condition = 'input.makeRArasters',
-                #   radioButtons(
-                #     "allOrSomeYears",
-                #     "Years to make rasters",
-                #     choices = c("all", "some")
-                #   ),
-                #   conditionalPanel(
-                #     condition = 'input.allOrSomeYears == "some"',
-                #     selectInput(
-                #       "yearsForRasters",
-                #       "Select one or more years for Rasters",
-                #       choices = "",
-                #       multiple = T
-                #     )
-                #   )
-                # ),
+                conditionalPanel(
+                  condition = 'input.makeRArasters',
+                  radioButtons(
+                    inputId = "allOrSomeYears",
+                    label = "Years to make rasters",
+                    inline = TRUE,
+                    choices = c("all", "some")
+                  ),
+                  conditionalPanel(
+                    condition = 'input.allOrSomeYears == "some"',
+                    selectInput(
+                      "yearsForRasters",
+                      "Select one or more years for Rasters",
+                      choices = "",
+                      multiple = T
+                    )
+                  )
+                ),
                 conditionalPanel(
                   condition = "input.usePUpolys == 0",
                   withBusyIndicatorUI(

@@ -201,7 +201,7 @@ server <- function(session, input, output) {
   })
 
   # Observer of JFMP Area Target  ----
-  # Observer to get customSpList be run ----
+
   observe({
     roots <- c(wd = "./CustomCSV")
     shinyFileChoose(input,
@@ -425,14 +425,16 @@ server <- function(session, input, output) {
   # Observer for allOrSomeYears for writing rasters----
   observeEvent(input$allOrSomeYears, {
     rv$allOrSomeYears <- input$allOrSomeYears
+    rv$writeYears = NULL
   })
-  observeEvent(rv$allOrSomeYears, {
-    updateRadioButtons(
-      session = session,
-      inputId = "allOrSomeYears",
-      selected = rv$allOrSomeYears
-    )
-  })
+  # observeEvent(rv$allOrSomeYears, {
+  #   updateRadioButtons(
+  #     session = session,
+  #     inputId = "allOrSomeYears",
+  #     selected = rv$allOrSomeYears
+  #   )
+  #   
+  # })
 
   # OBSERVERS for NON-FILE SELECT INPUTS ----
 
@@ -440,6 +442,7 @@ server <- function(session, input, output) {
   # this is not working at the moment to reload the seasons selected in previous session
   observeEvent(input$yearsForRasters, {
     rv$yearsForRasters <- input$yearsForRasters
+    rv$writeYears = rv$yearsForRasters
   })
   observeEvent(rv$yearsForRasters, {
     updateSelectInput(
@@ -686,8 +689,7 @@ server <- function(session, input, output) {
             myLU_List = LU_List,
             myHDMVals = HDMVals,
             myTaxonList = rv$TaxonList,
-            writeYears = NULL,
-            # rv$yearsForRasters,
+            writeYears = rv$writeYears,
             myWriteSp = writeSp,
             myIDX = rv$cropRasters$IDX
           )
