@@ -2,10 +2,8 @@
 .Rhistory
 .RData
 .Ruserdata
-FAMEshiny.zip
 AdHocPolygons
 CustomCSV
-DESCRIPTION
 FH_Outputs
 HDMS
 InputGeneralRasters
@@ -19,6 +17,5 @@ GSOInputs
 .RDataTmp
 FAME_inputfiles.zip
 select and rename files.R
-PU
 PUPolygons
-test
+

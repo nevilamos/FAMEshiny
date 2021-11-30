@@ -18,16 +18,19 @@ packages = c("aws.s3",
              "plotly",
              "qs",
              "raster",
+             "readr",
              "readxl",
              "Rfast",
              "rmarkdown",
              "rlang",
+             "scales",
              "sf",
              "shiny",
              "shinycssloaders",
              "shinydashboard",
              "shinyFiles",
              "shinyjs",
+             "shinyWidgets",
              "stringr",
              "tabularaster",
              "tibble",
@@ -47,7 +50,7 @@ package.check <- lapply(
 
 #check that FAMEFMR package is installed and get it from github if not.
 if(require("FAMEFMR")==FALSE){
-  devtools::install_github("nevilamos/FAMEFMR")
+  devtools::install_github("nevilamos/FAMEFMR@v0.5.0")
 }
 
 

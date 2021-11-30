@@ -9,7 +9,7 @@ library(stringr)
 library(nloptr)
 library(ggplot2)
 
-source("GSO_Functions.R")
+
 #### Pre-written text ####
 ## Pre-written text to be selected, depending on users choices in markdown document.
 
@@ -216,12 +216,10 @@ write.csv(OptSpp, file.path(GSOResultsDir, ('GSO Species Changes.csv')), row.nam
 SppDec <-
   data.frame(
     SpecDec = c('More than 20%', 'More than 50%', '100% (local extinction)'),
-    
     rbind(
-      colSums(as.matrix(OptSpp[, -1:-4] < -20)),
-      colSums(as.matrix(OptSpp[, -1:-4] < -50)),
-      colSums(as.matrix(OptSpp[, -1:-4] == -100))
+      colSums(OptSpp[, -1:-4] < -20),
+      colSums(OptSpp[, -1:-4] < -50),
+      colSums(OptSpp[, -1:-4] == -100)
     )
   )
 names(SppDec) <- c('Species declining by', names(OptSpp)[-1:-4])
-

@@ -1,16 +1,15 @@
 # library(aws.s3)
 newDirPaths<-c("AdHocPolygons",
                "CustomCSV",
-               "FAMEPreProcessing",
                "FH_Outputs",
                "HDMS",
                "InputGeneralRasters",
-               "Manual",
+               "PUPolygons",
                "rawFH",
                "ReferenceShapefiles",
                "ReferenceTables",
                "results",
-               "www"# this name is a workaround for the shinyapp a directory and files ./www is required but s3sync will not open the directory so this name is used instead and renamed at the end of the process
+               "www"# 
 )
 # 
 # 
@@ -23,23 +22,21 @@ for(mypath in newDirPaths){
 
   } else {
     dir.create(mypath,recursive = T)
-#     
-#     aws.s3::s3sync(path=paste0("./",mypath),
-#                    bucket = "ecological-risk-analysis",
-#                    prefix = paste0("FAME_FMR","/",mypath),
-#                    check_region = F,
-#                    direction = "download"
-#                    
-#     )
-#     
-#     
+
    }
 #   
 #   
 }
 if(!file.exists("FAME_inputfiles.zip")){
   download.file("https://ecological-risk-analysis.s3-ap-southeast-2.amazonaws.com/FAME_FMR/FAME_inputfiles.zip","FAME_inputfiles.zip")
-  unzip("./FAME_inputfiles.zip",exdir = ".")
+  
+  if (.Platform$OS.type == "unix"){
+    system("unzip -o ./FAME_inputfiles.zip && cp -rl ./FAME_inputfiles ./  && rm -r ./FAME_inputfiles")
+  }else{
+    unzip("./FAME_inputfiles.zip",exdir = ".")
+    system("xcopy .\\FAME_inputfiles\ . /E/H/y")
+    unlink("FAME_inputfiles",recursive=TRUE)
+  }
   
 }
 
