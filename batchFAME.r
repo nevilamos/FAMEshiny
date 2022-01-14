@@ -8,7 +8,7 @@ rv<-list()
 for (myFH in rawFHPaths){
   #  rawFH file to be run ----
   rv$rawFHPath <- myFH
-  
+  rv$HDMValsPath<-HDMValsPath
   
   rv$rawFHName <- basename(rv$rawFHPath)
   
@@ -291,11 +291,7 @@ for (myFH in rawFHPaths){
     
     
     print("getting HDMvals")
-    HDMVals <- qread(paste0(
-      "./HDMS/HDMVals",
-      rv$FHAnalysis$RasterRes,
-      "list.qs"
-    ))
+    HDMVals <- qread(HDMValsPath)
     
     print("Loaded HDMVals")
     

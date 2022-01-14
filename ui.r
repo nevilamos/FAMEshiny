@@ -353,6 +353,12 @@ ui <- dashboardPage(
                     label = "Use custom species list",
                     value = FALSE,
                     width = NULL
+                  ),
+                  checkboxInput(
+                    inputId = "hdmTypeChoice",
+                    label = "Use continuous HDMS",
+                    value = FALSE,
+                    width = NULL
                   )
                 ),
                 conditionalPanel(

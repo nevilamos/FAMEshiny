@@ -632,11 +632,20 @@ server <- function(session, input, output) {
 
 
           print("getting HDMvals")
-          HDMVals <- qread(paste0(
+          if(input$hdmTypeChoice == FALSE){
+            HDMVals <- qread(paste0(
             "./HDMS/HDMVals",
             rv$FHAnalysis$RasterRes,
             "list.qs"
           ))
+          }else{
+            HDMVals <- qread(paste0(
+              "./HDMS/HDMValsMaskedUnthresholded",
+              rv$FHAnalysis$RasterRes,
+              "list.qs"
+            ))
+          }
+          
 
           print("Loaded HDMVals")
 
