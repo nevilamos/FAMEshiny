@@ -13,9 +13,10 @@ for (myFH in rawFHPaths){
   rv$rawFHName <- basename(rv$rawFHPath)
   
   #AdHoc shapefile file to be run ----
-  rv$AdHocPath <- AdHocPath
-  rv$AdHocName <- basename(rv$AdHocPath)
-  
+  if (REGION_NO == "7"){
+    rv$AdHocPath <- AdHocPath
+    rv$AdHocName <- basename(rv$AdHocPath)
+  }
   # whether or not to make make TFI rasters----
   rv$makeTFIrasters <- makeTFIrasters
   
@@ -23,70 +24,70 @@ for (myFH in rawFHPaths){
   rv$makeBBTFIrasters <- makeBBTFIrasters
   
   #whether or not to run species calculations
-
-    #customSpList be run ----
+  
+  #customSpList be run ----
+  
+  rv$customSpList <- customSpList
+  rv$customSpListName <- basename(rv$customSpList)
+  
+  # Observer of choice for PU polys sets values to null if FALSE  ----
+  rv$usePUpolys = usePUpolys
+  if (!rv$usePUpolys == TRUE) {
+    rv$puPath <- NULL
+    rv$puName <- NULL
+  } else {
+    # PU shapefile file to be run ----
+    rv$puPath <- puPath
+    rv$puName <- basename(rv$puPath)
     
-    rv$customSpList <- customSpList
-    rv$customSpListName <- basename(rv$customSpList)
+    # zone wt File be run ----
+    rv$zoneWtFile <- zoneWtFile
+    rv$zoneWtFileName <- basename(rv$zoneWtFile)
     
-    # Observer of choice for PU polys sets values to null if FALSE  ----
-    rv$usePUpolys = usePUpolys
-    if (!rv$usePUpolys == TRUE) {
-      rv$puPath <- NULL
-      rv$puName <- NULL
-    } else {
-      # PU shapefile file to be run ----
-      rv$puPath <- puPath
-      rv$puName <- basename(rv$puPath)
-      
-      # zone wt File be run ----
-      rv$zoneWtFile <- zoneWtFile
-      rv$zoneWtFileName <- basename(rv$zoneWtFile)
-      
-      # jfmp metric wt File be run ----
-      rv$jfmpMetricWtFile <- jfmpMetricWtFile
-      rv$jfmpMetricWtFileName <- basename(rv$jfmpMetricWtFile)
-      
-      # JFMP Area Target file  ----
-      
-      rv$targetHaFilepath <- targetHaFilepath
-      rv$targetHaFileName <- basename(rv$targetHaFilepath)
-    }
+    # jfmp metric wt File be run ----
+    rv$jfmpMetricWtFile <- jfmpMetricWtFile
+    rv$jfmpMetricWtFileName <- basename(rv$jfmpMetricWtFile)
     
+    # JFMP Area Target file  ----
     
+    rv$targetHaFilepath <- targetHaFilepath
+    rv$targetHaFileName <- basename(rv$targetHaFilepath)
+  }
+  
+  
+  
+  # Observer of custom relative abundance table choice----
+  
+  rv$spResponseChoice <- spResponseChoice
+  
+  if (rv$spResponseChoice == TRUE){
+    # customResponseFile be run ----
     
-    # Observer of custom relative abundance table choice----
-    
-    rv$spResponseChoice <- spResponseChoice
-    
-    if (rv$spResponseChoice == TRUE){
-      # customResponseFile be run ----
-      
-      rv$customResponseFile <- customResponseFile
-      rv$customResponseName <- basename(rv$customResponseFile) 
-    }
-    
-    
-    
-    
-    # Observer of custom species list choice  ----
-    
-    rv$spListChoice <- spListChoice
-    
-    
-    
-    # Observer of custom relative abundance table choice----
-    
-    rv$spResponseChoice <- spResponseChoice
-    
-    
-    # Observer of Relative abundance table by growth stage choice ----
-    
-    rv$abundByGS <- abundByGS
-    
-    # Observer of make rasters choice ----
-    rv$makeRArasters <- makeRArasters
-    
+    rv$customResponseFile <- customResponseFile
+    rv$customResponseName <- basename(rv$customResponseFile) 
+  }
+  
+  
+  
+  
+  # Observer of custom species list choice  ----
+  
+  rv$spListChoice <- spListChoice
+  
+  
+  
+  # Observer of custom relative abundance table choice----
+  
+  rv$spResponseChoice <- spResponseChoice
+  
+  
+  # Observer of Relative abundance table by growth stage choice ----
+  
+  rv$abundByGS <- abundByGS
+  
+  # Observer of make rasters choice ----
+  rv$makeRArasters <- makeRArasters
+  
   
   
   

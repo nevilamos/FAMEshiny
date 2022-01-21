@@ -8,30 +8,30 @@ public = FALSE
 RasterRes = 225
 
 #path(s) to your rawFH file ( output of the ARCGIS preprocessing tool) each given as a separate string of the full path or ./path relative to the working directory. 
-rawFHPaths = c("D:/FAMEshiny/rawFH/FIRE_HISTORY20210310_DemoAdHocPolygon.shp")
+rawFHPaths = c("./rawFH/rawFHwith175520210806.shp")
 
 #the root directory in which results directories should be created and outputs saved
 resultsDir = "./results"
 #the integer value of the region number 1-6 for FFR regions,7 for user supplied adHoc polygon, 99 for Statewide
-REGION_NO = "7"
+REGION_NO = "99"
 #path to the ad Hoc polygon if REGION_NO 			== 7 otherwise NULL
-AdHocPath = "D:\\FAMEshiny\\AdHocPolygons\\DemoAdHocPolygon.shp"
-
-doSpeciesCalculations= TRUE
+AdHocPath = #"D:\\FAMEshiny\\AdHocPolygons\\DemoAdHocPolygon.shp"
+  
+  doSpeciesCalculations= TRUE
 
 # whether or not custom species list is used ( TRUE for custom species list) otherwise FALSE
 spListChoice = TRUE #FALSE
-customSpList = "D:/FAMEshiny/CustomCSV/5spWithAreas.csv"
+customSpList = "./CustomCSV/FAME_TAXON_LIST_NoLeadbeaters.csv"
 
 #whether the species response file contains abundance data by 4 growth stages ( TRUE) or YSF (FALSE) 0-400
 abundByGS = TRUE # FALSE
 # whether the defualt or custom response file is used for abundance responses
 spResponseChoice = FALSE
 #path of custom response abundance file if spResponseChoice==TRUE
-customResponseFile = "D:/RobfilesV2/FAME_V2_FaunaAbund_LUT_20210916.csv" 
+customResponseFile = "" 
 
 #Path with  HDM cell values file
-HDMValsPath<-"D:/FAMEshiny/HDMS/HDMValsMaskedUnthresholded225list.qs"#paste0("./HDMS/HDMVals",  RasterRes,  "list.qs")
+HDMValsPath<-"./HDMS/HDMValsMaskedUnthresholded225list.qs"#paste0("./HDMS/HDMVals",  RasterRes,  "list.qs")
 
 #value to use for cases where fire type is "OTHER" or "UNKNOWN",1 ="BURN",2="BUSHFIRE",NA = Fire excluded from analysis default is 2 ("BUSHFIRE")
 otherUnknown = 2
@@ -63,11 +63,7 @@ runJFMP = FALSE
 JFMPSeason0 = 2018
 
 runCompareJFMP =FALSE
-puPath = "D:/FAMEshiny/PUPolygons/DemoPUPolysVG94.shp"
-zoneWtFile = "D:/FAMEshiny/CustomCSV/DemoJFMP/DemoJFMPZoneWt.csv"
-jfmpMetricWtFile= "D:/FAMEshiny/CustomCSV/DemoJFMP/DemoJFMPMetricWt.csv"
-targetHaFilepath<-"D:/FAMEshiny/CustomCSV/DemoJFMP/DemoJFMPTargets.csv"
-
-
-
-
+puPath = "./PUPolygons/DemoPUPolysVG94.shp"
+zoneWtFile = "./CustomCSV/DemoJFMP/DemoJFMPZoneWt.csv"
+jfmpMetricWtFile= "./CustomCSV/DemoJFMP/DemoJFMPMetricWt.csv"
+targetHaFilepath<-"./CustomCSV/DemoJFMP/DemoJFMPTargets.csv"
