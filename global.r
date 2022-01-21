@@ -8,10 +8,13 @@ source("installationCheck.R")
 
 # get version of FAMEFMR in use and set app version
 
-versionDate <- "  Version 3.0.11 November 26 2021"
+versionDate <- "  Version 3.0.12 disabled JFMP January 21 2021"
 
 versionFAMEFMR <- paste("  R", getRversion(), "FAMEFMR", packageVersion("FAMEFMR"))
 
+
+#next line enables or disables JFMP by hiding dialog to select JFMP - needs changes Gloabl,Server and UI
+enableJFMP = FALSE
 
 # file that disables buttons while processes are running to prevent multi-clicks
 # and lengthy operations running multiple times

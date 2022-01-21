@@ -11,7 +11,14 @@ server <- function(session, input, output) {
       dir.create(file.path(rv$resultsDir, "TFI_Rasters"))
     }
   })
-
+  # next 6 lines enables or disables JFMP by hiding dialog to select JFMP - needs changes Global,Server and UI ---
+    observe({ 
+      if (enableJFMP == FALSE)
+        {
+    shinyjs::hide(id="jfmpSettingsBox")
+        }
+      }
+    )
   # INPUT FILE SELECTION OBSERVERS  ----
   # Observer to get rawFH file to be run ----
   observe({

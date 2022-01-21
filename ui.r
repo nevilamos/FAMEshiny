@@ -2,35 +2,35 @@ ui <- dashboardPage(
   dashboardHeader(
     # formatting individual letters to different size and colour
     title = span("F",
-      style = "color: white; font-size: 40px",
-      span("ire",
-        style = "color: black; font-size: 30px"
-      ),
-      span("A",
-        style = "color: white; font-size: 40px"
-      ),
-      span("nalysis",
-        style = "color: black; font-size: 30px"
-      ),
-      span("M",
-        style = "color: white; font-size: 40px"
-      ),
-      span("odule for",
-        style = "color: Black; font-size: 30px"
-      ),
-      span("E",
-        style = "color: white; font-size: 40px"
-      ),
-      span("cological values",
-        style = "color: black; font-size: 30px"
-      )
+                 style = "color: white; font-size: 40px",
+                 span("ire",
+                      style = "color: black; font-size: 30px"
+                 ),
+                 span("A",
+                      style = "color: white; font-size: 40px"
+                 ),
+                 span("nalysis",
+                      style = "color: black; font-size: 30px"
+                 ),
+                 span("M",
+                      style = "color: white; font-size: 40px"
+                 ),
+                 span("odule for",
+                      style = "color: Black; font-size: 30px"
+                 ),
+                 span("E",
+                      style = "color: white; font-size: 40px"
+                 ),
+                 span("cological values",
+                      style = "color: black; font-size: 30px"
+                 )
     ), titleWidth = "100vw"
   ),
   dashboardSidebar(
     width = 300,
     sidebarMenu(
       sidebarMenuOutput("tabsmenu"),
-
+      
       # save and reload analysis  buttons ----
       withBusyIndicatorUI(
         shinyFilesButton(
@@ -137,7 +137,7 @@ ui <- dashboardPage(
             box(
               width = 12, background = "light-blue", title = "Create draft species lists",
               selectInput("spREGION_NO", "Choose an area for species list",
-                choices = as.list(c(REG_NO))
+                          choices = as.list(c(REG_NO))
               ),
               conditionalPanel(
                 condition = "input.spREGION_NO == '7'",
@@ -145,13 +145,13 @@ ui <- dashboardPage(
                   "spAdHocShape",
                   "Select AdHoc Area shapefile",
                   choice = c("", list.files("./AdHocPolygons/",
-                    pattern =
-                      ".shp$"
+                                            pattern =
+                                              ".shp$"
                   ))
                 )
               ),
               radioButtons("sppublic", "Restrict to Public Land", c("Yes" = TRUE, "No" = FALSE)),
-
+              
               # runscript button
               withBusyIndicatorUI(actionButton(style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", "runDSpList", label = "Run draft species list")),
               withBusyIndicatorUI(
@@ -196,9 +196,9 @@ ui <- dashboardPage(
           ),
         )
       ),
-
-
-
+      
+      
+      
       # fhAnalysis tab content----
       tabItem(
         tabName = "AnalysisSettings",
@@ -223,16 +223,16 @@ ui <- dashboardPage(
                 ),
                 textOutput("rawFHName")
               ),
-
-
+              
+              
               # select region or user defined area to run analysis on ----
               # shinyWidgets::pickerInput(inputId = "REGION_NO",
               #                           label = "Choose a Region",
               #                           choices = as.list(c(REG_NO)),
               #                           width = "fit",),
-
+              
               selectInput("REGION_NO", "Choose a Region",
-                choices = as.list(c(REG_NO)), width = "50%"
+                          choices = as.list(c(REG_NO)), width = "50%"
               ),
               conditionalPanel(
                 condition = "input.REGION_NO == '7'",
@@ -274,19 +274,22 @@ ui <- dashboardPage(
                 )
               ),
               numericInput("startTimespan",
-                "First season for analysis output",
-                1980, 1980,
-                width = "25%"
+                           "First season for analysis output",
+                           1980, 1980,
+                           width = "25%"
               ),
             ),
+            #next line enables or disables JFMP by hiding dialog to select JFMP - needs changes Global,Server and UI
+            box(id="jfmpSettingsBox",width = 0,
             box(
+              
               title = "JFMP Settings", width = 12, background = "light-blue",
               checkboxInput(
                 inputId = "usePUpolys",
                 label = "Include burn unit/planning unit shapefile for JFMP analysis",
                 value = FALSE
               ),
-
+              
               # select planning unit shapefile----
               conditionalPanel(
                 condition = "input.usePUpolys",
@@ -311,9 +314,10 @@ ui <- dashboardPage(
                 )
               )
             )
+            )
           ),
-
-
+          
+          
           # Fauna abundance headings conditional on whether JFMP or "standard" analysis is been run ----
           column(
             6,
@@ -341,10 +345,10 @@ ui <- dashboardPage(
                   ""
                 )
               ),
-
-
+              
+              
               # use standard or choose custom species responses----
-
+              
               fluidRow(
                 column(
                   2,
@@ -646,7 +650,7 @@ ui <- dashboardPage(
         ),
       ),
       # Tab  TFI charts ----
-
+      
       tabItem(
         tabName = "TFIplots",
         fluidPage(
