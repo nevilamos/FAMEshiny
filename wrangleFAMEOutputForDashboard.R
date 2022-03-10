@@ -7,11 +7,13 @@ library(qs)
 library(data.table)
 
 #this file needs to be manually edited to read the correct output list file for wrangling 
-rv <- qread("C:/Users/na03/Downloads/75mwith5sp.qs")
+inPath <- "./results/FIRE_HISTORY20210310_DemoAdHocPolygon_LF_DISTRICT_with_PU_fieldDemo_6__TAXON_LIST.qs"
+inName <- basename(inPath)
+rv <- qread(inPath)#qread("C:/Users/na03/Downloads/75mwith5sp.qs")
 
 # to allow setting of whether or not to include PU index value in tables
 PUcols <- ifelse("PU" %in% names(rv$allCombs$U_AllCombs_TFI), TRUE, FALSE)
-# check for whether any private land vegetation was included in calculations
+
 
 if (is.null(rv$puPath)){
   puLUT<-foreign::read.dbf("./ReferenceShapefiles/LF_DISTRICT_with_PU_field.dbf")[,c("PU","DISTRICT_N")]
@@ -20,7 +22,7 @@ if (is.null(rv$puPath)){
   }
 
 
-
+# check for whether any private land vegetation was included in calculations
 if (
   (
     sum(
@@ -87,5 +89,5 @@ if(exists("puLUT")){
   rv$TFI<-data.table(puLUT)[data.table(rv$TFI), on = "PU"]
   }
 myList <- list("TFI" = rv$TFI, "BBTFI" = rv$BBTFI$BBTFI_LONG, "RA" = RA, "TaxonList" = rv$TaxonList)
-qsave(myList, "./FH_Outputs/75mwith5spDashboardDemo.qs")
+qsave(myList, paste0("./FH_Outputs/Dashboard_",inName))
 
