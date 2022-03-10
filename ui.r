@@ -616,11 +616,11 @@ ui <- dashboardPage(
               ), box(
                 width = 6, background = "light-blue",
                 withBusyIndicatorUI(
-                  actionButton(style = "color: #fff; 
+                  actionButton(inputId = "prepareDashboard",
+                               style = "color: #fff; 
                                background-color: #337ab7;
                                border-color: #2e6da4",
-                               "prepareDashboard",
-                               label = "Prepare Dashbord Outputs")
+                               label = "Prepare Dashboard Outputs")
                 ),
               )
             )
