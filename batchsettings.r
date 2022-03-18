@@ -3,11 +3,11 @@
 # the batch will run through each of the raw fire history scenarios specified  by the shapefile paths in rawFHPath  in series putting the results in a separate subdirectory of the resultsDir.  All other inputs are constant throughout the batch
 
 #path(s) to your rawFH file ( output of the ARCGIS preprocessing tool) each given as a separate string of the full path or ./path relative to the working directory. 
-rawFHPaths = c("./rawFH/FireHistory_05-0pc_zones_2022to2050_r01_mergedFAMEStateRawFH.shp")
+rawFHPaths = c("./rawFH/FRAU_FH_2020_DemoAdHocPolygon.shp")
 #the root directory in which results directories should be created and outputs saved
 resultsDir = "./results"
 #the integer value of the region number 1-6 for FFR regions,7 for user supplied adHoc polygon, 99 for Statewide
-REGION_NO = "99"
+REGION_NO = "7"
 #path to the ad Hoc polygon if REGION_NO 			== 7 otherwise NULL
 AdHocPath = "./AdHocPolygons/DemoAdHocPolygon.shp"
 
