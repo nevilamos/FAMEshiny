@@ -40,18 +40,18 @@ for (myFH in rawFHPaths)try({
     rv$puPath <- puPath
     rv$puName <- basename(rv$puPath)
     
-    # zone wt File be run ----
-    rv$zoneWtFile <- zoneWtFile
-    rv$zoneWtFileName <- basename(rv$zoneWtFile)
-    
-    # jfmp metric wt File be run ----
-    rv$jfmpMetricWtFile <- jfmpMetricWtFile
-    rv$jfmpMetricWtFileName <- basename(rv$jfmpMetricWtFile)
-    
-    # JFMP Area Target file  ----
-    
-    rv$targetHaFilepath <- targetHaFilepath
-    rv$targetHaFileName <- basename(rv$targetHaFilepath)
+    # # zone wt File be run ----
+    # rv$zoneWtFile <- zoneWtFile
+    # rv$zoneWtFileName <- basename(rv$zoneWtFile)
+    # 
+    # # jfmp metric wt File be run ----
+    # rv$jfmpMetricWtFile <- jfmpMetricWtFile
+    # rv$jfmpMetricWtFileName <- basename(rv$jfmpMetricWtFile)
+    # 
+    # # JFMP Area Target file  ----
+    # 
+    # rv$targetHaFilepath <- targetHaFilepath
+    # rv$targetHaFileName <- basename(rv$targetHaFilepath)
   }
   
   
@@ -111,7 +111,7 @@ for (myFH in rawFHPaths)try({
   
   # Observer for jfmpSEASON0----
   
-  rv$JFMPSeason0 <- JFMPSeason0
+  #rv$JFMPSeason0 <- JFMPSeason0
   
   
   
@@ -139,7 +139,7 @@ for (myFH in rawFHPaths)try({
   
   #rv$yearsForRasters <- yearsForRasters
   
-  rv$runCompareJFMP<-runCompareJFMP
+  #rv$runCompareJFMP<-runCompareJFMP
   
   # Observer for choose a region  ----
   rv$REGION_NO <- REGION_NO
@@ -172,11 +172,7 @@ for (myFH in rawFHPaths)try({
   }
   
   
-  if (rv$usePUpolys == TRUE) {
-    rv$endSEASON <- rv$JFMPSeason0 + 4
-  } else {
-    rv$endSEASON <- NULL
-  }
+  
   
   
   
@@ -228,26 +224,26 @@ for (myFH in rawFHPaths)try({
     )
   print("made FHAnalysis$FH_IDr")
   
-  
-  FHAnalysis <- FHAnalysis
-  # check if pupoly is to be used
-  if (rv$usePUpolys) {
-    
-    myPuPoly <- rv$puPath
-    # update the FHAnalysis$OutDF  with noburn columns
-    FHAnalysis$OutDF <-
-      FHAnalysis$OutDF %>% bind_cols(make_JFMPNoBurnTab(
-        myFHAnalysis = FHAnalysis,
-        JFMPSeason0 = rv$JFMPSeason0
-      ))
-    FHAnalysis$YSFNames <- c(FHAnalysis$YSFNames, "YSFNoBurn")
-    FHAnalysis$LBYNames <- c(FHAnalysis$LBYNames, "LBYNoBurn")
-    FHAnalysis$LFTNames <- c(FHAnalysis$LFTNames, "LFTNoBurn")
-    
-    print("appended JFMPNoBurnCols")
-  } else {
-    myPuPoly <- NULL
-  }
+  ##following if is only needed for JFMP
+  # FHAnalysis <- FHAnalysis
+  # # check if pupoly is to be used
+  # if (rv$usePUpolys) {
+  #   
+  myPuPoly <- rv$puPath
+  #   # update the FHAnalysis$OutDF  with noburn columns
+  #   FHAnalysis$OutDF <-
+  #     FHAnalysis$OutDF %>% bind_cols(make_JFMPNoBurnTab(
+  #       myFHAnalysis = FHAnalysis,
+  #       JFMPSeason0 = rv$JFMPSeason0
+  #     ))
+  #   FHAnalysis$YSFNames <- c(FHAnalysis$YSFNames, "YSFNoBurn")
+  #   FHAnalysis$LBYNames <- c(FHAnalysis$LBYNames, "LBYNoBurn")
+  #   FHAnalysis$LFTNames <- c(FHAnalysis$LFTNames, "LFTNoBurn")
+  #   
+  #   print("appended JFMPNoBurnCols")
+  # } else {
+  #   myPuPoly <- NULL
+  # }
   
   rv$FHAnalysis <- FHAnalysis
   

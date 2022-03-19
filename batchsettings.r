@@ -3,11 +3,23 @@
 # the batch will run through each of the raw fire history scenarios specified  by the shapefile paths in rawFHPath  in series putting the results in a separate subdirectory of the resultsDir.  All other inputs are constant throughout the batch
 
 #path(s) to your rawFH file ( output of the ARCGIS preprocessing tool) each given as a separate string of the full path or ./path relative to the working directory. 
-rawFHPaths = c("./rawFH/FRAU_FH_2020_DemoAdHocPolygon.shp")
+rawFHPaths = c("fame-obm/rawFH/RaawFH_FireHistory_01-0pc_zones_2022to2050/RawFH_FireHistory_01-0pc_zones_2022to2050_r01_merged.shp", 
+               "fame-obm/rawFH/RaawFH_FireHistory_01-0pc_zones_2022to2050/RawFH_FireHistory_01-0pc_zones_2022to2050_r02_merged.shp", 
+               "fame-obm/rawFH/RaawFH_FireHistory_01-0pc_zones_2022to2050/RawFH_FireHistory_01-0pc_zones_2022to2050_r03_merged.shp", 
+               "fame-obm/rawFH/RaawFH_FireHistory_01-0pc_zones_2022to2050/RawFH_FireHistory_01-0pc_zones_2022to2050_r04_merged.shp", 
+               "fame-obm/rawFH/RawFH_FireHistory_03-0pc_zones_2022to2050/RawFH_FireHistory_03-0pc_zones_2022to2050_r01_merged.shp", 
+               "fame-obm/rawFH/RawFH_FireHistory_03-0pc_zones_2022to2050/RawFH_FireHistory_03-0pc_zones_2022to2050_r02_merged.shp", 
+               "fame-obm/rawFH/RawFH_FireHistory_03-0pc_zones_2022to2050/RawFH_FireHistory_03-0pc_zones_2022to2050_r03_merged.shp", 
+               "fame-obm/rawFH/RawFH_FireHistory_03-0pc_zones_2022to2050/RawFH_FireHistory_03-0pc_zones_2022to2050_r04_merged.shp", 
+               "fame-obm/rawFH/RawFH_FireHistory_04-0pc_zones_2022to2050/RawFH_FireHistory_04-0pc_zones_2022to2050_r01_FAME.shp", 
+               "fame-obm/rawFH/RawFH_FireHistory_04-0pc_zones_2022to2050/RawFH_FireHistory_04-0pc_zones_2022to2050_r02_FAME.shp", 
+               "fame-obm/rawFH/RawFH_FireHistory_04-0pc_zones_2022to2050/RawFH_FireHistory_04-0pc_zones_2022to2050_r03_FAME.shp", 
+               "fame-obm/rawFH/RawFH_FireHistory_04-0pc_zones_2022to2050/RawFH_FireHistory_04-0pc_zones_2022to2050_r04_FAME.shp"
+)
 #the root directory in which results directories should be created and outputs saved
 resultsDir = "./results"
 #the integer value of the region number 1-6 for FFR regions,7 for user supplied adHoc polygon, 99 for Statewide
-REGION_NO = "7"
+REGION_NO = "99"
 #path to the ad Hoc polygon if REGION_NO 			== 7 otherwise NULL
 AdHocPath = "./AdHocPolygons/DemoAdHocPolygon.shp"
 
@@ -15,14 +27,14 @@ doSpeciesCalculations= TRUE
 
 # whether or not custom species list is used ( TRUE for custom species list) otherwise FALSE
 spListChoice = TRUE #FALSE
-customSpList = "./CustomCSV/Demo_6__TAXON_LIST.csv"
+customSpList = "./CustomCSV/FAMEIn_OBRMSppListAllSpp_update.csv"
 
 #whether the species response file contains abundance data by 4 growth stages ( TRUE) or YSF (FALSE) 0-400
-abundByGS = TRUE # FALSE
+abundByGS =FALSE#TRUE
 # whether the defualt or custom response file is used for abundance responses
 spResponseChoice = TRUE
 #path of cstum response abundance file if spResponseChoice==TRUE
-customResponseFile = "./ReferenceTables/OrdinalExpertLong.csv" 
+customResponseFile = "./CustomCSV/FAMEIn_OBRMSppLutAllSpp_update.csv" 
 
 #value to use for cases where fire type is "OTHER" or "UNKNOWN",1 ="BURN",2="BUSHFIRE",NA = Fire excluded from analysis default is 2 ("BUSHFIRE")
 otherUnknown = 2
@@ -32,7 +44,7 @@ public = FALSE
 RasterRes = 225
 
 #"first season for which output is wanted ( four digit year as integer)
-startTimespan = 1990
+startTimespan = 1980
 
 #start and end baseline years if single year then the two values should be equal
 startBaseline = 1990
@@ -41,9 +53,9 @@ endSEASON = NULL
 
 
 #whether to write TFI rasters
-makeTFIrasters = TRUE
+makeTFIrasters = FALSE
 #whether to write BBTFI rasters
-makeBBTFIrasters =TRUE
+makeBBTFIrasters =FALSE
 
 #whether to write Species Relative Abundance rasters
 makeRArasters = FALSE
@@ -56,14 +68,6 @@ puPath = "./ReferenceShapefiles/LF_DISTRICT_with_PU_field.dbf"
 
 
 runJFMP = FALSE
-JFMPSeason0 = 2018
 
-runCompareJFMP =FALSE
-
-zoneWtFile = "./CustomCSV/DemoJFMP/DemoJFMPZoneWt.csv"
-jfmpMetricWtFile= "./CustomCSV/DemoJFMP/DemoJFMPMetricWt.csv"
-targetHaFilepath<-"./CustomCSV/DemoJFMP/DemoJFMPTargets.csv"
-
-
-
+# Nev took out a heap JFMP related stuff here because there was a problem with having JFMPseason impacting on endseason in the batch process
 
