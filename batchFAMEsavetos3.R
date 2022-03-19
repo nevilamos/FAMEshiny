@@ -1,7 +1,8 @@
 source("global.r")
 unlink(resultsDir,recursive = TRUE)
 source("batchsettings.r")
-
+#this mounts the s3 fame-obs bucket to ec2 instance that has been setup following this process https://cloudkul.com/blog/mounting-s3-bucket-linux-ec2-instance/
+system("s3fs fame-obm -o use_cache=/tmp -o allow_other -o uid=1001 -o mp_umask=002 -o multireq_max=5 /home/rstudio/ShinyApps/FAME/fame-obm")
 
 #(rv name in kept for consistency with rv <- reactiveValues in shiny app)
 rv<-list()
@@ -267,8 +268,9 @@ for (myFH in rawFHPaths)try({
   #save completed FHanalysis rv with 
   FHanalysisPath<-file.path(resultsDir ,paste0(gsub(".shp","",rv$outputFH),"FHanalysis",".qs"))
   qsave(rv, FHanalysisPath)
-  system(paste("aws s3 cp ",FHanalysisPath," s3://fame-obm/"))
-  checkSaved<-system(paste0("aws s3 ls "," s3://fame-obm/",basename(FHanalysisPath)))
+  #system(paste("aws s3 cp ",FHanalysisPath," s3://fame-obm/results"))
+  system("aws s3 sync ~/ShinyApps/FAME/results s3://fame-obm/results")
+  checkSaved<-system(paste0("aws s3 ls "," s3://fame-obm/results/",basename(FHanalysisPath)))
   if(checkSaved == 0){file.remove(FHanalysisPath)}
   
   #end of fhAnalysis block-------
@@ -394,9 +396,9 @@ for (myFH in rawFHPaths)try({
     TFIanalysisPath<-file.path(resultsDir ,
                                paste0(gsub(".shp","",rv$outputFH),"_TFI_GS",".qs"))
     qsave(rv, TFIanalysisPath)
-    system(paste("aws s3 cp ",TFIanalysisPath," s3://fame-obm/"))
-    
-    checkSaved<-system(paste0("aws s3 ls "," s3://fame-obm/",basename(TFIanalysisPath)))
+    #system(paste("aws s3 cp ",TFIanalysisPath," s3://fame-obm/results"))
+    system("aws s3 sync ~/ShinyApps/FAME/results s3://fame-obm/results")
+    checkSaved<-system(paste0("aws s3 ls "," s3://fame-obm/results/",basename(TFIanalysisPath)))
     if(checkSaved == 0){file.remove(TFIanalysisPath)}
   })
   
@@ -588,11 +590,17 @@ for (myFH in rawFHPaths)try({
                                             gsub(".csv","",rv$customSpListName)),
                                      ".qs"))
       qsave(rv, analysisPath)
-      system(paste("aws s3 cp ",analysisPath," s3://fame-obm/"))
-      checkSaved<-system(paste0("aws s3 ls "," s3://fame-obm/",basename(analysisPath)))
+      #system(paste("aws s3 cp ",analysisPath," s3://fame-obm/results"))
+      system("aws s3 sync ~/ShinyApps/FAME/results s3://fame-obm/results")
+      checkSaved<-system(paste0("aws s3 ls "," s3://fame-obm/results/",basename(analysisPath)))
+      
       if(checkSaved == 0){file.remove(analysisPath)}
     })
   }
+  #system("aws s3 cp ~/ShinyApps/FAME/results s3://fame-obm/results --recursive")
+  system("aws s3 sync ~/ShinyApps/FAME/results s3://fame-obm/results")
+  checkSaved<-system(paste0("aws s3 ls "," s3://fame-obm/results/",basename(rv$resultsDir)))
+  if(checkSaved == 0){unlink(rv$resultsDir,recursive = TRUE)}
   print(paste("Saved all results for ",rv$outputFH))
 })
 
