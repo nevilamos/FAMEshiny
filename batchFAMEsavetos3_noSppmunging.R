@@ -159,6 +159,16 @@ for (myFH in rawFHPaths)try({
   for (i in c("RA_Rasters","TFI_Rasters","BBTFI_Rasters")){
     dir.create(file.path(rv$resultsDir,i),recursive = TRUE)
   }
+  #log.file
+  my_log <- file(file.path(rv$resultsDir,"my_log.txt")) # File name of output log
+#using the sink function to store the console output:
+    
+    
+  sink(my_log, append = TRUE, type = "output") # Writing console output to log file
+  sink(my_log, append = TRUE, type = "message")
+  
+  
+  
   myREG_NO <- as.integer(rv$REGION_NO)
   RasterRes <- as.integer(rv$RasterRes)
   print(paste("RasterRes =", RasterRes))
@@ -372,6 +382,15 @@ for (myFH in rawFHPaths)try({
     
     rv$GS_Summary <- GS_Summary
     
+    rv$GS_Summary_PU_LONG <-rv$GS_Summary$GS_Summary_wide%>% dplyr::select(-c(MIN_LO_TFI, 
+                                    MIN_HI_TFI, MAX_TFI, Index, FH_ID, FIRE_REG, FIREFMZ, 
+                                    DELWP)) %>% tidyr::pivot_longer(tidyselect::all_of(TimeNames), 
+                                                                    names_to = "SEASON", values_to = "GS") %>% 
+      dplyr::group_by(EFG, EFG_NAME, PLM, FIRE_FMZ_NAME, FIRE_FMZ_SHORT_NAME, 
+                      FIRE_REGION_NAME,PU, DELWP_REGION, SEASON, GS) %>% dplyr::summarise(Pixels = sum(nPixel), 
+                                                                                       Hectares = sum(Hectares))
+    GS_Summary_Long <- dplyr::left_join(GS_Summary_Long, GS_LUT)
+    
     readr::write_csv(rv$GS_Summary$GS_Summary_Long,
                      file = file.path(
                        rv$resultsDir,
@@ -388,14 +407,7 @@ for (myFH in rawFHPaths)try({
     print("finished GS calcs")
     
     
-    # save output so far----   
-    TFIanalysisPath<-file.path(resultsDir ,
-                               paste0(gsub(".shp","",rv$outputFH),"_TFI_GS",".qs"))
-    qsave(rv, TFIanalysisPath)
-    #system(paste("aws s3 cp ",TFIanalysisPath," s3://fame-obm/results"))
-    system("aws s3 sync ~/ShinyApps/FAME/results s3://fame-obm/results")
-    checkSaved<-system(paste0("aws s3 ls "," s3://fame-obm/results/",basename(TFIanalysisPath)))
-    if(checkSaved == 0){file.remove(TFIanalysisPath)}
+
   })
   
   # species calculations ------
@@ -506,7 +518,7 @@ for (myFH in rawFHPaths)try({
                                      "preWrangleData",
                                      ".qs"))
       qsave(rv, analysisPath)
-
+      
       system("aws s3 sync ~/ShinyApps/FAME/results s3://fame-obm/results")
       checkSaved<-system(paste0("aws s3 ls "," s3://fame-obm/results/",basename(analysisPath)))
       
@@ -518,6 +530,9 @@ for (myFH in rawFHPaths)try({
   checkSaved<-system(paste0("aws s3 ls "," s3://fame-obm/results/",basename(rv$resultsDir)))
   if(checkSaved == 0){unlink(rv$resultsDir,recursive = TRUE)}
   print(paste("Saved all results for ",rv$outputFH))
+  close.connection(my_log)
+  rm(rv)
+  gc()
 })
 
 
