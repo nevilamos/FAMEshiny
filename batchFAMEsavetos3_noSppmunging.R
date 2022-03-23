@@ -531,8 +531,10 @@ for (myFH in rawFHPaths)try({
   if(checkSaved == 0){unlink(rv$resultsDir,recursive = TRUE)}
   print(paste("Saved all results for ",rv$outputFH))
   close.connection(my_log)
+  file.create(file.path(rv$resultsDir,"finished",Sys.time()))
   rm(rv)
   gc()
+  
 })
 
 
