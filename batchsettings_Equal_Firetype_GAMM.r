@@ -3,26 +3,27 @@
 # the batch will run through each of the raw fire history scenarios specified  by the shapefile paths in rawFHPath  in series putting the results in a separate subdirectory of the resultsDir.  All other inputs are constant throughout the batch
 
 #path(s) to your rawFH file ( output of the ARCGIS preprocessing tool) each given as a separate string of the full path or ./path relative to the working directory. 
-rawFHPaths = c("rawFH/FRAU_FH_2020_DemoAdHocPolygon.shp","rawFH/test2.shp")
+rawFHPaths = c("fame-obm/rawFH/RaawFH_FireHistory_01-0pc_zones_2022to2050/RawFH_FireHistory_01-0pc_zones_2022to2050_r01_merged.shp", 
+               "fame-obm/rawFH/RaawFH_FireHistory_01-0pc_zones_2022to2050/RawFH_FireHistory_01-0pc_zones_2022to2050_r02_merged.shp")
 #the root directory in which results directories should be created and outputs saved
 resultsDir = "./results/Equal_Firetype_GAMM"
 #the integer value of the region number 1-6 for FFR regions,7 for user supplied adHoc polygon, 99 for Statewide
-REGION_NO = "7"
+REGION_NO = "99"
 #path to the ad Hoc polygon if REGION_NO 			== 7 otherwise NULL
 AdHocPath = "./AdHocPolygons/DemoAdHocPolygon.shp"
 
 doSpeciesCalculations= TRUE
 
 # whether or not custom species list is used ( TRUE for custom species list) otherwise FALSE
-spListChoice = TRUE #FALSE
-customSpList = "CustomCSV/FAMEIn_OBRMSppList4Spp_update.csv"#"./CustomCSV/FAMEIn_OBRMSppListAllSpp_update.csv"
+spListChoice = FALSE
+customSpList = "./CustomCSV/FAMEIn_OBRMSppListAllSpp_update.csv"
 
 #whether the species response file contains abundance data by 4 growth stages ( TRUE) or YSF (FALSE) 0-400
 abundByGS =FALSE#TRUE
 # whether the defualt or custom response file is used for abundance responses
 spResponseChoice = TRUE
 #path of cstum response abundance file if spResponseChoice==TRUE
-customResponseFile = "CustomCSV/FAMEIn_OBRMSppLutAllSpp_update_cutOff.3.csv" 
+customResponseFile = "CustomCSV/EO_cutOff.3.csv" 
 
 #value to use for cases where fire type is "OTHER" or "UNKNOWN",1 ="BURN",2="BUSHFIRE",NA = Fire excluded from analysis default is 2 ("BUSHFIRE")
 otherUnknown = 2

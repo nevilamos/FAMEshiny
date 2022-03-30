@@ -2,7 +2,7 @@
 try({
   source("global.r")
   unlink(resultsDir, recursive = TRUE)
-  source("batchsettings_Equal_Firetype_GAMM.r")
+  source("batchsettings_EO.r")
   #this mounts the s3 fame-obs bucket to ec2 instance that has been setup following this process https://cloudkul.com/blog/mounting-s3-bucket-linux-ec2-instance/
   system(
     "s3fs fame-obm -o use_cache=/tmp -o allow_other -o uid=1001 -o mp_umask=002 -o multireq_max=5 /home/rstudio/ShinyApps/FAME/fame-obm"
@@ -562,10 +562,17 @@ try({
       print(paste("Saved all results for ", rv$outputFH))
       closeAllConnections()
       file.create(file.path(rv$resultsDir, "finished", Sys.time()))
+      if (checkSaved == 0) {
+
       rm(rv)
       gc()
+      }
+      
       
     })
   closeAllConnections()
   gc()
 })
+system("wget http://169.254.169.254/latest/meta-data/instance-id/")
+myID<-readLines("index.html")[1]
+system(paste("aws ec2 stop-instances --region ap-southeast-2 --instance-ids",myID))
