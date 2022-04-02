@@ -7,7 +7,7 @@ library(broom)
 system(
   "s3fs fame-obm -o use_cache=/tmp -o allow_other -o uid=1001 -o mp_umask=002 -o multireq_max=5 /home/rstudio/ShinyApps/FAME/fame-obm"
 )
-AllSppSumTabNoZero<-fread("fame-obm/results/SppSumTables/AllSppSumTabNoZero.csv")
+
 #reference tables for names
 taxonList<-fread("CustomCSV/FAME_TAXON_LIST_FFG_update2.csv")
 
@@ -16,32 +16,32 @@ districtTab<-foreign::read.dbf("ReferenceShapefiles/LF_DISTRICT_with_PU_field.db
 names(districtTab)<-c("FIRE_DISTRICT","FIRE_REGION","DISTRICT_NO")
 efgTab<-read_csv("ReferenceTables/EFG_EVD_TFI.csv")%>% select(2,3)
 names(efgTab)[1]<-"EFG"
+#DISRTICT GROUPING --------
+AllSppSumTabNoZero<-qread("fame-obm/results/AllSppSumTabNoZero.qs")
 
-
-district_RA<- AllSppSumTabNoZero%>% 
-  group_by(TAXON_ID,DISTRICT_NO,SEASON,AbundType,Percent,Replicate) %>% 
-  summarise(sumRA = sum(sumRA))%>% 
+DISTRICT_RA <-AllSppSumTabNoZero[,list(sumRA = sum(sumRA)),by=list(TAXON_ID,DISTRICT_NO,SEASON,AbundType,Percent,Replicate)]
+DISTRICT_RA<-DISTRICT_RA %>% 
   left_join(districtTab) %>% 
   left_join(taxonList %>% select(TAXON_ID,COMMON_NAME))
-fwrite(district_RA,"fame-obm/results/district_RA.csv")
+fwrite(DISTRICT_RA,"fame-obm/results/DISTRICT_RA.csv")
 
 
-district_LM<-district_RA%>% 
+DISTRICT_LM<-DISTRICT_RA%>% 
   group_by(COMMON_NAME,FIRE_DISTRICT,AbundType,Percent,Replicate) %>% 
   do(tidy(lm(sumRA ~ SEASON,.))) 
-fwrite(district_LM,"fame-obm/results/District_LM.csv")
+fwrite(DISTRICT_LM,"fame-obm/results/DISTRICT_LM.csv")
 
-district_Trends<-district_LM %>% 
+DISTRICT_Trends<-DISTRICT_LM %>% 
   filter(term == "SEASON") %>% 
   mutate(Trend = ifelse(p.value>=0.05,"N.S.",ifelse(estimate>0,"Increase","Decrease")))
 
-district_Trends_Summ<-district_Trends %>% 
+DISTRICT_Trends_Summ<-DISTRICT_Trends %>% 
   group_by(AbundType,FIRE_DISTRICT,Percent,Replicate,Trend) %>%
   tally() %>% 
   mutate(Freq = n/sum(n))
-write.csv(district_Trends_Summ,"district_Trends_Summ.csv")
+write.csv(DISTRICT_Trends_Summ,"DISTRICT_Trends_Summ.csv")
 
-districtTrendPlot<-district_Trends_Summ %>% 
+districtTrendPlot<-DISTRICT_Trends_Summ %>% 
   filter(Trend == "Decrease") %>% 
   group_by(AbundType,FIRE_DISTRICT,Percent) %>% 
   ggplot2::ggplot(aes(x=Percent,y=Freq,col=AbundType)) +
@@ -51,24 +51,24 @@ districtTrendPlot<-district_Trends_Summ %>%
   ylab("Proportion Species Declining")
 
 
-district_LM_2022_2050<-district_RA %>% 
+DISTRICT_LM_2022_2050<-DISTRICT_RA %>% 
   filter(SEASON > 2021) %>% 
   group_by(COMMON_NAME,FIRE_DISTRICT,AbundType,Percent,Replicate) %>%
   do(tidy(lm(sumRA ~ SEASON,.)))
-write_csv(district_LM_2022_2050,"fame-obm/results/district_LM_2022_2050.csv")
+write_csv(DISTRICT_LM_2022_2050,"fame-obm/results/DISTRICT_LM_2022_2050.csv")
 
 
-district_Trends_2022_2050<-district_LM_2022_2050 %>% 
+DISTRICT_Trends_2022_2050<-DISTRICT_LM_2022_2050 %>% 
   filter(term == "SEASON") %>% 
   mutate(Trend = ifelse(p.value>=0.05,"N.S.",ifelse(estimate>0,"Increase","Decrease")))
 
-district_Trends_Summ_2022_2050<-district_Trends_2022_2050 %>% 
+DISTRICT_Trends_Summ_2022_2050<-DISTRICT_Trends_2022_2050 %>% 
   group_by(AbundType,FIRE_DISTRICT,Percent,Replicate,Trend) %>%
   tally() %>% 
   mutate(Freq = n/sum(n))
-write.csv(district_Trends_Summ_2022_2050,"district_Trends_Summ_2022_2050.csv")
+write.csv(DISTRICT_Trends_Summ_2022_2050,"DISTRICT_Trends_Summ_2022_2050.csv")
 
-districtTrendPlot_2022_2050<-district_Trends_Summ_2022_2050 %>% 
+districtTrendPlot_2022_2050<-DISTRICT_Trends_Summ_2022_2050 %>% 
   filter(Trend == "Decrease") %>% 
   group_by(AbundType,FIRE_DISTRICT,Percent) %>% 
   ggplot2::ggplot(aes(x=Percent,y=Freq,col=AbundType)) +
@@ -79,25 +79,25 @@ districtTrendPlot_2022_2050<-district_Trends_Summ_2022_2050 %>%
 
 
 
-district_LM_1980_2021<-district_RA %>% 
+DISTRICT_LM_1980_2021<-DISTRICT_RA %>% 
   filter(SEASON < 2022) %>% 
   group_by(COMMON_NAME,FIRE_DISTRICT,AbundType) %>%
   distinct()
 do(tidy(lm(sumRA ~ SEASON,.)))
-write_csv(district_LM_1980_2021,"fame-obm/results/district_LM_1980_2021.csv")
+write_csv(DISTRICT_LM_1980_2021,"fame-obm/results/DISTRICT_LM_1980_2021.csv")
 
 
-district_Trends_1980_2021<-district_LM_1980_2021 %>% 
+DISTRICT_Trends_1980_2021<-DISTRICT_LM_1980_2021 %>% 
   filter(term == "SEASON") %>% 
   mutate(Trend = ifelse(p.value>=0.05,"N.S.",ifelse(estimate>0,"Increase","Decrease")))
 
-district_Trends_Summ_1980_2021<-district_Trends_1980_2021 %>% 
+DISTRICT_Trends_Summ_1980_2021<-DISTRICT_Trends_1980_2021 %>% 
   group_by(AbundType,FIRE_DISTRICT,Percent,Replicate,Trend) %>%
   tally() %>% 
   mutate(Freq = n/sum(n))
-write.csv(district_Trends_Summ_1980_2021,"district_Trends_Summ_1980_2021.csv")
+write.csv(DISTRICT_Trends_Summ_1980_2021,"DISTRICT_Trends_Summ_1980_2021.csv")
 
-districtTrendPlot_1980_2021<-district_Trends_Summ_1980_2021 %>% 
+districtTrendPlot_1980_2021<-DISTRICT_Trends_Summ_1980_2021 %>% 
   filter(Trend == "Decrease") %>% 
   group_by(AbundType,FIRE_DISTRICT,Percent) %>% 
   ggplot2::ggplot(aes(x=Percent,y=Freq,col=AbundType)) +
@@ -108,30 +108,49 @@ districtTrendPlot_1980_2021<-district_Trends_Summ_1980_2021 %>%
 
 gridExtra::grid.arrange(districtTrendPlot_1980_2021,districtTrendPlot_2022_2050,nrow=2)
 
-
+DISTRICT_RAChange<-DISTRICT_RA %>%
+  left_join((taxonList %>% select(COMMON_NAME,OBRM_CombThreshold))) %>% 
+  group_by(COMMON_NAME,FIRE_DISTRICT,AbundType,Percent,Replicate,OBRM_CombThreshold) %>% 
+  mutate(sumRA_lag1= lag(sumRA ,n= 1),
+         sumRA_lag5= lag(sumRA,n = 5),
+         Prop1980 = sumRA/first(sumRA), 
+         YearOnYear = sumRA/sumRA_lag1,
+         YearOn5yearBefore = sumRA/sumRA_lag5
+  ) %>%
+  mutate(Baseline = mean(sumRA[SEASON%in%1980:1999]),#change years for baseline here------,
+         YearOnBaseline = sumRA/Baseline) %>%   mutate(YearOnBaseline_Threshold_Decline = ifelse(YearOn5yearBefore < OBRM_CombThreshold, 1,0)) %>% 
+  # mutate(meanRA_5yrs = zoo::rollapply(data =sumRA_lag1,
+  #                                     width = 5, 
+  #                                     FUN = mean, 
+  #                                     align = "right", 
+  #                                     fill = NA, 
+  #                                     na.rm = T)) %>% 
+  # mutate(Year_mean_Prev_5 = sumRA/lag(meanRA_5yrs)) %>% 
+  mutate(YearOnYear15pcDecline = ifelse(YearOnYear < 0.85 , 1 , 0 )) %>% 
+  mutate(YearOn5yearBefore_Threshold_Decline = ifelse(YearOn5yearBefore < OBRM_CombThreshold, 1,0))
+write_csv(DISTRICT_RAChange,"fame-obm/results/DISTRICT_RAChange.csv")
 #REGION GROUPING --------
 
-Region_RA<-district_RA%>% 
-  group_by(COMMON_NAME,FIRE_REGION,AbundType,Percent,Replicate,SEASON) %>% 
-  summarise(sumRA = sum(sumRA))
-write_csv(Region_RA,"fame-obm/results/Region_RA.csv")
+REGION_RA<-DISTRICT_RA[,list(sumRA = sum(sumRA)),by=list(COMMON_NAME,FIRE_REGION,AbundType,Percent,Replicate,SEASON)] 
+  
+write_csv(REGION_RA,"fame-obm/results/REGION_RA.csv")
 
-Region_LM<-Region_RA %>% 
+REGION_LM<-REGION_RA %>% 
   group_by(COMMON_NAME,FIRE_REGION,AbundType,Percent,Replicate) %>%
   do(tidy(lm(sumRA ~ SEASON,.)))
-write_csv(Region_LM,"fame-obm/results/Region_LM.csv")
+write_csv(REGION_LM,"fame-obm/results/REGION_LM.csv")
 
-Region_Trends<-Region_LM %>% 
+REGION_Trends<-REGION_LM %>% 
   filter(term == "SEASON") %>% 
   mutate(Trend = ifelse(p.value>=0.05,"N.S.",ifelse(estimate>0,"Increase","Decrease")))
 
-Region_Trends_Summ<-Region_Trends %>% 
+REGION_Trends_Summ<-REGION_Trends %>% 
   group_by(AbundType,FIRE_REGION,Percent,Replicate,Trend) %>%
   tally() %>% 
   mutate(Freq = n/sum(n))
-write.csv(Region_Trends_Summ,"Region_Trends_Summ.csv")
+write.csv(REGION_Trends_Summ,"REGION_Trends_Summ.csv")
 
-RegionTrendPlot<-Region_Trends_Summ %>% 
+RegionTrendPlot<-REGION_Trends_Summ %>% 
   filter(Trend == "Decrease") %>% 
   group_by(AbundType,FIRE_REGION,Percent) %>% 
   ggplot2::ggplot(aes(x=Percent,y=Freq,col=AbundType)) +
@@ -141,24 +160,24 @@ RegionTrendPlot<-Region_Trends_Summ %>%
   ylab("Proportion Species Declining")
 # 2022-2050----
 
-Region_LM_2022_2050<-Region_RA %>% 
+REGION_LM_2022_2050<-REGION_RA %>% 
   filter(SEASON > 2021) %>% 
   group_by(COMMON_NAME,FIRE_REGION,AbundType,Percent,Replicate) %>%
   do(tidy(lm(sumRA ~ SEASON,.)))
-write_csv(Region_LM_2022_2050,"fame-obm/results/Region_LM_2022_2050.csv")
+write_csv(REGION_LM_2022_2050,"fame-obm/results/REGION_LM_2022_2050.csv")
 
 
-Region_Trends_2022_2050<-Region_LM_2022_2050 %>% 
+REGION_Trends_2022_2050<-REGION_LM_2022_2050 %>% 
   filter(term == "SEASON") %>% 
   mutate(Trend = ifelse(p.value>=0.05,"N.S.",ifelse(estimate>0,"Increase","Decrease")))
 
-Region_Trends_Summ_2022_2050<-Region_Trends_2022_2050 %>% 
+REGION_Trends_Summ_2022_2050<-REGION_Trends_2022_2050 %>% 
   group_by(AbundType,FIRE_REGION,Percent,Replicate,Trend) %>%
   tally() %>% 
   mutate(Freq = n/sum(n))
-write.csv(Region_Trends_Summ_2022_2050,"Region_Trends_Summ_2022_2050.csv")
+write.csv(REGION_Trends_Summ_2022_2050,"REGION_Trends_Summ_2022_2050.csv")
 
-RegionTrendPlot_2022_2050<-Region_Trends_Summ_2022_2050 %>% 
+RegionTrendPlot_2022_2050<-REGION_Trends_Summ_2022_2050 %>% 
   filter(Trend == "Decrease") %>% 
   group_by(AbundType,FIRE_REGION,Percent) %>% 
   ggplot2::ggplot(aes(x=Percent,y=Freq,col=AbundType)) +
@@ -169,25 +188,25 @@ RegionTrendPlot_2022_2050<-Region_Trends_Summ_2022_2050 %>%
 
 #1980-2021-------------
 
-Region_LM_1980_2021<-Region_RA %>% 
+REGION_LM_1980_2021<-REGION_RA %>% 
   filter(SEASON < 2022) %>% 
   group_by(COMMON_NAME,FIRE_REGION,AbundType) %>%
   distinct()
 do(tidy(lm(sumRA ~ SEASON,.)))
-write_csv(Region_LM_1980_2021,"fame-obm/results/Region_LM_1980_2021.csv")
+write_csv(REGION_LM_1980_2021,"fame-obm/results/REGION_LM_1980_2021.csv")
 
 
-Region_Trends_1980_2021<-Region_LM_1980_2021 %>% 
+REGION_Trends_1980_2021<-REGION_LM_1980_2021 %>% 
   filter(term == "SEASON") %>% 
   mutate(Trend = ifelse(p.value>=0.05,"N.S.",ifelse(estimate>0,"Increase","Decrease")))
 
-Region_Trends_Summ_1980_2021<-Region_Trends_1980_2021 %>% 
+REGION_Trends_Summ_1980_2021<-REGION_Trends_1980_2021 %>% 
   group_by(AbundType,FIRE_REGION,Percent,Replicate,Trend) %>%
   tally() %>% 
   mutate(Freq = n/sum(n))
-write.csv(Region_Trends_Summ_1980_2021,"Region_Trends_Summ_1980_2021.csv")
+write.csv(REGION_Trends_Summ_1980_2021,"REGION_Trends_Summ_1980_2021.csv")
 
-RegionTrendPlot_1980_2021<-Region_Trends_Summ_1980_2021 %>% 
+RegionTrendPlot_1980_2021<-REGION_Trends_Summ_1980_2021 %>% 
   filter(Trend == "Decrease") %>% 
   group_by(AbundType,FIRE_REGION,Percent) %>% 
   ggplot2::ggplot(aes(x=Percent,y=Freq,col=AbundType)) +
@@ -200,7 +219,7 @@ gridExtra::grid.arrange(RegionTrendPlot_1980_2021,RegionTrendPlot_2022_2050,nrow
 
 
 
-Region_RAChange<-Region_RA %>%
+REGION_RAChange<-REGION_RA %>%
   left_join((taxonList %>% select(COMMON_NAME,OBRM_CombThreshold))) %>% 
   group_by(COMMON_NAME,FIRE_REGION,AbundType,Percent,Replicate,OBRM_CombThreshold) %>% 
   mutate(sumRA_lag1= lag(sumRA ,n= 1),
@@ -209,7 +228,7 @@ Region_RAChange<-Region_RA %>%
          YearOnYear = sumRA/sumRA_lag1,
          YearOn5yearBefore = sumRA/sumRA_lag5
   ) %>%
-  mutate(Baseline = mean(sumRA[SEASON%in%1980:1999]),
+ mutate(Baseline = mean(sumRA[SEASON%in%1980:1999]),#change years for baseline here------,
          YearOnBaseline = sumRA/Baseline) %>%   mutate(YearOnBaseline_Threshold_Decline = ifelse(YearOn5yearBefore < OBRM_CombThreshold, 1,0)) %>% 
   # mutate(meanRA_5yrs = zoo::rollapply(data =sumRA_lag1,
   #                                     width = 5, 
@@ -220,14 +239,13 @@ Region_RAChange<-Region_RA %>%
   # mutate(Year_mean_Prev_5 = sumRA/lag(meanRA_5yrs)) %>% 
   mutate(YearOnYear15pcDecline = ifelse(YearOnYear < 0.85 , 1 , 0 )) %>% 
   mutate(YearOn5yearBefore_Threshold_Decline = ifelse(YearOn5yearBefore < OBRM_CombThreshold, 1,0))
-write_csv(Region_RAChange,"fame-obm/results/Region_RAChange.csv")
+write_csv(REGION_RAChange,"fame-obm/results/REGION_RAChange.csv")
 
 
 # STATEWIDE GROUPING --------------------
 
-State_RA<-district_RA%>% 
-  group_by(COMMON_NAME,AbundType,Percent,Replicate,SEASON) %>% 
-  summarise(sumRA = sum(sumRA))
+State_RA<-DISTRICT_RA[,list(sumRA = sum(sumRA)),by=list(COMMON_NAME,AbundType,Percent,Replicate,SEASON)] 
+  
 fwrite(State_RA,"fame-obm/results/State_RA.csv")
 
 State_LM<-State_RA %>% 
@@ -285,8 +303,7 @@ StateTrendPlot_2022_2050<-State_Trends_Summ_2022_2050 %>%
 
 State_LM_1980_2021<-State_RA %>% 
   filter(SEASON < 2022) %>% 
-  group_by(COMMON_NAME,AbundType) %>%
-  distinct()
+  group_by(COMMON_NAME,AbundType,Percent,Replicate) %>%
   do(tidy(lm(sumRA ~ SEASON,.)))
 write_csv(State_LM_1980_2021,"fame-obm/results/State_LM_1980_2021.csv")
 
@@ -322,7 +339,7 @@ State_RAChange<-State_RA %>%
          YearOnYear = sumRA/sumRA_lag1,
          YearOn5yearBefore = sumRA/sumRA_lag5
          ) %>%
-  mutate(Baseline = mean(sumRA[SEASON%in%1980:1999]),
+  mutate(Baseline = mean(sumRA[SEASON%in%1980:1999]),#change years for baseline here------
          YearOnBaseline = sumRA/Baseline) %>%   mutate(YearOnBaseline_Threshold_Decline = ifelse(YearOn5yearBefore < OBRM_CombThreshold, 1,0)) %>% 
   # mutate(meanRA_5yrs = zoo::rollapply(data =sumRA_lag1,
   #                                     width = 5, 
