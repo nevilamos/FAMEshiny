@@ -2,9 +2,9 @@ library(tidyverse)
 library(stringr)
 library(qs)
 library(data.table)
-#library(parallel)
+library(parallel)
 library(foreach)
-#library(doParallel)
+library(doParallel)
 system(
   "s3fs fame-obm -o use_cache=/tmp -o allow_other -o uid=1001 -o mp_umask=002 -o multireq_max=5 /home/rstudio/ShinyApps/FAME/fame-obm"
 )
@@ -25,7 +25,7 @@ myqs1<-myqs %>%
   mutate(SppFileExists = file.exists(SppSumFile))
 
 write_csv(myqs1,"Finished.csv")
-myqs1<-myqs1 %>% filter(SppFileExists==FALSE)
+myqs2<-myqs1 %>% filter(SppFileExists==FALSE)
 
 
 
@@ -140,12 +140,14 @@ out = rbindlist(lapply(mySppFiles$SppSumFile, function(file) {
   dt = fread(file)
   # further processing/filtering
 }))
-qsave(out,"fame-obm/results/SppSumTables/AllSppSumTab.qs")
+fwrite(out,"fame-obm/results/AllSppSumTabNew.csv")
 gc()
 #drop rows with 0 sumRA
 myTabNoZero<-out[sumRA>0]
-qsave(myTabNoZero,"fame-obm/results/SppSumTables/AllSppSumTabNoZero.qs")
-unlink("index.html")
-system("wget http://169.254.169.254/latest/meta-data/instance-id/")
-myID<-readLines("index.html")[1]
-system(paste("aws ec2 stop-instances --region ap-southeast-2 --instance-ids",myID))
+fwrite(myTabNoZero,"fame-obm/results/AllSppSumTabNoZeroNew.csv")
+
+#disable four lines below if you do not want server to stop 
+# unlink("index.html")
+# system("wget http://169.254.169.254/latest/meta-data/instance-id/")
+# myID<-readLines("index.html")[1]
+# system(paste("aws ec2 stop-instances --region ap-southeast-2 --instance-ids",myID))
