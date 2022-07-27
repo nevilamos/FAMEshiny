@@ -174,7 +174,7 @@ for (myFH in rawFHPaths)try({
   if (rv$usePUpolys == TRUE) {
     rv$endSEASON <- rv$JFMPSeason0 + 4
   } else {
-    rv$endSEASON <- NULL
+    rv$endSEASON <- endTimeSpan
   }
   
   
