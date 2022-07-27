@@ -56,6 +56,7 @@ puPath = "./ReferenceShapefiles/LF_DISTRICT_with_PU_field.dbf"
 
 
 runJFMP = FALSE
-
+JFMPSeason0 = NULL
+runCompareJFMP = FALSE
 # Nev took out a heap JFMP related stuff here because there was a problem with having JFMPseason impacting on endseason in the batch process
 
