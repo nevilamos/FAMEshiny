@@ -1,0 +1,20 @@
+
+cff-version: 1.2.0
+title: >-
+  FAMEShiny A shiny GUI and associated datasets for Victoria, Australia for use with the FAMEFMR an R package 
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file. Please incude the version
+  ( release number ) used.
+type: software
+authors:
+  - given-names: Nevil
+    family-names: Amos
+    orcid: 'https://orcid.org/0000-0003-1271-4767'
+    affiliation: >-
+      Department of Environment, Land,Water and      
+      Planning. Victoria, Australia.
+repository-artifact: 'https://github.com/nevilamos/FAMEshiny/tree/v2.0.5'
+commit: 
+version: 2.0.5
+date-released: '2021-08-05'
