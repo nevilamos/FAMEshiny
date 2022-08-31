@@ -14,7 +14,7 @@ authors:
     affiliation: >-
       Department of Environment, Land,Water and      
       Planning. Victoria, Australia.
-repository-artifact: 'https://github.com/nevilamos/FAMEshiny/tree/v2.0.5'
+url: 'https://github.com/nevilamos/FAMEshiny/tree/v2.0.5'
 commit: 6626adb7575c85af8b612e397b984e575e5ec493
 version: 2.0.5
 date-released: '2021-08-05'
