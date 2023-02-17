@@ -8,10 +8,12 @@ source("installationCheck.R")
 
 # get version of FAMEFMR in use and set app version
 
-versionDate <- "  Version 3.0.11 November 26 2021"
+versionDate <- "  dev Version 3.1 Feb 2023"
 
 versionFAMEFMR <- paste("  R", getRversion(), "FAMEFMR", packageVersion("FAMEFMR"))
 
+#set option so that readr does not print column types 
+options(readr.show_col_types = FALSE)
 
 # file that disables buttons while processes are running to prevent multi-clicks
 # and lengthy operations running multiple times
