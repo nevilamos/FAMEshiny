@@ -1,14 +1,17 @@
 rm(list = ls(all = TRUE))
-# options(shiny.reactlog = TRUE)
-# options(shiny.error = browser)
+
 
 options(stringsAsFactors = F)
 source("installationCheck.R")
-
+library(reactlog)
+#options(shiny.reactlog = TRUE)
+#options(shiny.error = browser)
+# tell shiny to log all reactivity
+reactlog_enable()
 
 # get version of FAMEFMR in use and set app version
 
-versionDate <- "  dev Version 3.1 Feb 2023"
+versionDate <- "  dev Version 3.2 March 2023"
 
 versionFAMEFMR <- paste("  R", getRversion(), "FAMEFMR", packageVersion("FAMEFMR"))
 
@@ -58,7 +61,7 @@ dir.create(file.path(resultsDir, "TFI_Rasters"))
 # make lookup tables used in app
 source("makeLUTS.R")
 
-cellSizes <- c(225, 75)
+cellSizes <- c("225" = 225, "75" = 75)
 HDMVals225 <- "./HDMS/HDMVals225.rdata"
 writeSpRasters <- FALSE # TRUE if rasters are to be output ( large number of files and considerable disk space)
 

@@ -332,7 +332,7 @@ server <- function(session, input, output) {
   # OBSERVERS of NUMERIC SETTINGS  ----
   # Observer for RasterRes----
   observeEvent(input$RasterRes, {
-    rv$RasterRes <- input$RasterRes
+    rv$RasterRes <- as.integer(input$RasterRes)
   })
   observeEvent(rv$RasterRes, {
     updateRadioButtons(
@@ -455,7 +455,7 @@ server <- function(session, input, output) {
   # Observer for choose a region  ----
 
   observeEvent(input$REGION_NO, {
-    rv$REGION_NO <- input$REGION_NO
+    rv$REGION_NO <- as.integer(input$REGION_NO)
   })
   observeEvent(rv$REGION_NO, {
     updateSelectInput(
@@ -475,16 +475,16 @@ server <- function(session, input, output) {
       if (input$usePUpolys == 1) {
         rv$outputFH <- paste(rv$outputFH, rv$puName, sep = "_")
       }
-      myREG_NO <- as.integer(input$REGION_NO)
-      RasterRes <- as.integer(rv$RasterRes)
-      print(paste("RasterRes =", RasterRes))
+      
+      
+      print(paste("RasterRes =", rv$RasterRes))
       HDM_RASTER_PATH <-
-        paste0("./HDMS/", input$RasterRes, "m/BinaryThresholded")
+        paste0("./HDMS/", rv$RasterRes, "m/BinaryThresholded")
 
-      if (myREG_NO == 7) {
-        clipShape <- rv$AdHocPath
+      if (rv$REGION_NO == 7) {
+        rv$clipShape <- rv$AdHocPath
       } else {
-        clipShape <- "./ReferenceShapefiles/LF_DISTRICT.shp"
+        rv$clipShape <- "./ReferenceShapefiles/LF_DISTRICT.shp"
       }
 
 
@@ -495,57 +495,49 @@ server <- function(session, input, output) {
       }
 
 
+      source("../FAMEFMR/R/cropNAborder.R")
+      rv$cropRasters <- cropNAborder(
+        REG_NO = rv$REGION_NO,
+        myRasterRes = rv$RasterRes,
+        PUBLIC_LAND_ONLY = rv$public,
+        myPoly = rv$clipShape,
+        generalRasterDir = "./InputGeneralRasters")
 
-      cropRasters <- cropNAborder(
-        REG_NO = myREG_NO,
-        myRasterRes = RasterRes,
-        PUBLIC_LAND_ONLY = input$public,
-        myPoly = file.path(clipShape),
-        generalRasterDir = "./InputGeneralRasters"
-      )
-
-      cropRasters$HDM_RASTER_PATH <- HDM_RASTER_PATH
-      rv$cropRasters <- cropRasters
-
-
-
-
-
-      FHAnalysis <- fhProcess(
+      rv$FHAnalysis <- fhProcess(
         rawFH = rv$rawFHPath,
-        start.SEASON = input$startTimespan,
+        start.SEASON = rv$startTimespan,
         end.SEASON = rv$endSEASON,
-        OtherAndUnknown = input$otherUnknown,
+        OtherAndUnknown = rv$otherUnknown,
         validFIRETYPE = c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER")
       )
       # Save input settings to a list and then append into FH analysis object
       # FHAnalysis$AnalysisInputs<-list(
-      FHAnalysis$FireScenario <- input$unionedFH
-      FHAnalysis$RasterRes <- input$RasterRes
-      FHAnalysis$ClipPolygonFile <- clipShape
-      FHAnalysis$Region_No <- myREG_NO
-      FHAnalysis$PUBLIC_ONLY <- input$public
-      FHAnalysis$Start_Season <- NULL
+      rv$FHAnalysis$FireScenario <- rv$rawFHPath
+      rv$FHAnalysis$RasterRes <- rv$RasterRes
+      rv$FHAnalysis$ClipPolygonFile <- rv$clipShape
+      rv$FHAnalysis$Region_No <- rv$REGION_NO
+      rv$FHAnalysis$PUBLIC_ONLY <- rv$public
+      rv$FHAnalysis$Start_Season <- NULL
 
-      FHAnalysis$name <- paste0("FH_Analysis_", rv$outputFH)
+      rv$FHAnalysis$name <- paste0("FH_Analysis_", rv$outputFH)
 
-      st_write(FHAnalysis$OutDF,
-        file.path(rv$resultsDir, paste0(FHAnalysis$name, ".shp")),
+      st_write(rv$FHAnalysis$OutDF,
+        file.path(rv$resultsDir, paste0(rv$FHAnalysis$name, ".shp")),
         append = FALSE
       )
-      # )
-      print("Save input settings to a list and then append into FH analysis object")
-      FHAnalysis$FH_IDr <-
-        fasterize(
-          sf = FHAnalysis$OutDF,
-          raster = cropRasters$Raster,
-          field = "ID",
-          fun = "first"
+
+
+      rv$FHAnalysis$FH_IDr <-
+        rasterize(
+          x = terra::vect(rv$FHAnalysis$OutDF),
+          y= eval(rv$cropRasters$rasterDef),#rv$cropRasters$Raster
+          field = "ID"
         )
+      rv$cropRasters$FH_ID<-values(rv$FHAnalysis$FH_IDr)
       print("made FHAnalysis$FH_IDr")
 
 
-      FHAnalysis <- FHAnalysis
+      
       # check if pupoly is to be used
       if (input$usePUpolys) {
         validate(
@@ -554,32 +546,32 @@ server <- function(session, input, output) {
             "You  have selected to require a PU/BU polygon file but have not selected one"
           )
         )
-        myPuPoly <- rv$puPath
+        # <- rv$puPath
         # update the FHAnalysis$OutDF  with noburn columns
-        FHAnalysis$OutDF <-
-          FHAnalysis$OutDF %>% bind_cols(make_JFMPNoBurnTab(
-            myFHAnalysis = FHAnalysis,
+        rv$FHAnalysis$OutDF <-
+          rv$FHAnalysis$OutDF %>% bind_cols(make_JFMPNoBurnTab(
+            myFHAnalysis = rv$FHAnalysis,
             JFMPSeason0 = rv$JFMPSeason0
           ))
-        FHAnalysis$YSFNames <- c(FHAnalysis$YSFNames, "YSFNoBurn")
-        FHAnalysis$LBYNames <- c(FHAnalysis$LBYNames, "LBYNoBurn")
-        FHAnalysis$LFTNames <- c(FHAnalysis$LFTNames, "LFTNoBurn")
+        rv$FHAnalysis$YSFNames <- c(rv$FHAnalysis$YSFNames, "YSFNoBurn")
+        rv$FHAnalysis$LBYNames <- c(rv$FHAnalysis$LBYNames, "LBYNoBurn")
+        rv$FHAnalysis$LFTNames <- c(rv$FHAnalysis$LFTNames, "LFTNoBurn")
 
         print("appended JFMPNoBurnCols")
       } else {
-        myPuPoly <- NULL
+        rv$puPath <- NULL
       }
 
-      rv$FHAnalysis <- FHAnalysis
+      
 
 
-      allCombs <- calcU_All_Combs(
+      rv$allCombs <- calcU_All_Combs(
         myFHAnalysis = rv$FHAnalysis,
         myCropRasters = rv$cropRasters,
-        myRasterRes = RasterRes,
-        puPoly = myPuPoly
+        myRasterRes = rv$RasterRes,
+        puPoly = rv$puPath
       )
-      rv$allCombs <- allCombs
+      
       print("made allcombs")
     })
 
@@ -624,21 +616,21 @@ server <- function(session, input, output) {
 
 
 
-          HDMSpp_NO <-
+          rv$HDMSpp_NO <-
             rv$TaxonList$TAXON_ID[rv$TaxonList$Include == "Yes"]
           writeSp <-
             rv$TaxonList$TAXON_ID[rv$TaxonList$WriteSpeciesRaster == "Yes"]
-          writeSp <- writeSp[writeSp %in% HDMSpp_NO]
+          writeSp <- writeSp[writeSp %in% rv$HDMSpp_NO]
 
-
-          print("getting HDMvals")
-          HDMVals <- qread(paste0(
-            "./HDMS/HDMVals",
-            rv$FHAnalysis$RasterRes,
-            "list.qs"
-          ))
-
-          print("Loaded HDMVals")
+# 
+#           print("getting HDMvals")
+#           HDMVals <- qread(paste0(
+#             "./HDMS/HDMVals",
+#             rv$FHAnalysis$RasterRes,
+#             "list.qs"
+#           ))
+# 
+#           print("Loaded HDMVals")
 
           if (rv$spResponseChoice == FALSE) {
             mySpGSResponses <- "./ReferenceTables/OrdinalExpertLong.csv"
@@ -657,21 +649,21 @@ server <- function(session, input, output) {
             )]
 
             # If abundance data is provide by growth stage rather than time since fire expand it to the full time since fire long format ----
-            AbundDataLong <- AbundDataByGS %>%
+            rv$AbundDataLong <- AbundDataByGS %>%
               dplyr::mutate(FireTypeNo = if_else(FireType == "High", 2, if_else(FireType == "Low", 1, 0))) %>%
-              dplyr::left_join(EFG_TSF_4GS, by = c("EFG_NO", "GS4_NO")) %>%
+              dplyr::left_join(EFG_TSF_4GS, by = c("EFG_NO", "GS4_NO"),multiple = "all") %>%
               dplyr::arrange(TAXON_ID)
           } else {
             # Read abundance data already in full long format  ----
-            AbundDataLong <- read_csv(mySpGSResponses) %>%
+            rv$AbundDataLong <- read_csv(mySpGSResponses) %>%
               dplyr::arrange(TAXON_ID)
           }
 
           # Make the lookup list of arrays for fast calculation of cell by cell species abundance ----
           print("making Spp abund LU List")
-          LU_List <- make_Spp_LU_list(
-            myHDMSpp_NO = HDMSpp_NO,
-            myAbundDataLong = AbundDataLong
+          rv$LU_List <- make_Spp_LU_list(
+            myHDMSpp_NO = rv$HDMSpp_NO,
+            myAbundDataLong = rv$AbundDataLong
           )
 
           print("finished  Spp abund LU List")
@@ -683,15 +675,16 @@ server <- function(session, input, output) {
           rv$SpYearSumm <- calc_SpeciesRA(
             myFHAnalysis = rv$FHAnalysis,
             myAllCombs <- rv$allCombs,
-            myHDMSpp_NO = HDMSpp_NO,
+            myHDMSpp_NO = rv$HDMSpp_NO,
             myWriteSpRasters = rv$makeRArasters,
             myResultsDir = rv$resultsDir,
-            myLU_List = LU_List,
-            myHDMVals = HDMVals,
+            myLU_List = rv$LU_List,
+            #myHDMVals = HDMVals,
             myTaxonList = rv$TaxonList,
             writeYears = rv$writeYears,
             myWriteSp = writeSp,
-            myIDX = rv$cropRasters$IDX
+            myCropRasters = rv$cropRasters
+            #myIDX = rv$cropRasters$IDX
           )
           gc()
           # Save abundance summary outputs to csv files ----
@@ -823,14 +816,17 @@ server <- function(session, input, output) {
             "You need to select a FH analysis to use"
           ))
           print("running TFI calc")
+          
 
           rv$TFI <- calc_TFI_2(
             myFHAnalysis = rv$FHAnalysis,
             myAllCombs = rv$allCombs,
             myTFI_LUT = TFI_LUT,
             OutputRasters = rv$makeTFIrasters,
-            myResultsDir = rv$resultsDir
-          )
+            myResultsDir = rv$resultsDir,
+            myCropRasters = rv$cropRasters
+            )
+          
 
 
 
@@ -847,7 +843,7 @@ server <- function(session, input, output) {
               )
             )
 
-
+          
 
           # write results out to csv files
           readr::write_csv(rv$TFI,
@@ -864,6 +860,7 @@ server <- function(session, input, output) {
               ),
             file = file.path(rv$resultsDir, "TFI_EFG_SUMMARY.csv")
           )
+          
 
           print("Finished TFI calculations")
         })
@@ -891,6 +888,7 @@ server <- function(session, input, output) {
           rv$BBTFI <- calcBBTFI_2(
             myFHAnalysis = rv$FHAnalysis,
             myAllCombs = rv$allCombs,
+            myCropRasters = rv$cropRasters,
             makeBBTFIrasters = rv$makeBBTFIrasters,
             myResultsDir = rv$resultsDir
           )
@@ -1626,7 +1624,7 @@ server <- function(session, input, output) {
 
         file.copy(
           myInput$datapath,
-          file.path(rawFHPath)
+          file.path(rv$rawFHPath)
         )
         # updateSelectInput(
         #   session,
