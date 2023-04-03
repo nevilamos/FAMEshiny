@@ -12,168 +12,78 @@ server <- function(session, input, output) {
     }
   })
   
-  # INPUT FILE SELECTION OBSERVERS  ----
-  # Observer to get rawFH file to be run ----
-  observe({
-    roots <- c(wd = "./rawFH")
-    shinyFileChoose(input,
-                    id = "selectRawFH",
-                    roots = roots,
-                    filetypes = "shp"
-    )
-    fileinfo <- parseFilePaths(roots, input$selectRawFH)
-    if (nrow(fileinfo) > 0) {
-      rv$rawFHPath <- as.character(fileinfo$datapath)
-      rv$rawFHName <- basename(rv$rawFHPath)
-    }
-  })
-  # Observer to display selected rawFH Shapefile in UI
-  observeEvent(rv$rawFHName, {
-    output$rawFHName <- renderText(basename(rv$rawFHName))
-  })
+
+  
+    rawFHpath<-selectFileServer(
+      id = "rawFHPath",
+      root_dirs = c(root ="./rawFH",filetypes = c(".gpkg",".shp"))
+      )
+  observe(rv$rawFHPath<-rawFHpath$rawFHPath)
+  
   
   
   # Observer to get AdHoc shapefile file to be run ----
-  observeEvent(input$selectAdHoc, {
-    roots <- c(wd = "./AdHocPolygons")
-    shinyFileChoose(input,
-                    id = "selectAdHoc",
-                    roots = roots,
-                    filetypes = "shp"
-    )
-    fileinfo <- parseFilePaths(roots, input$selectAdHoc)
-    if (nrow(fileinfo) > 0) {
-      rv$AdHocPath <- as.character(fileinfo$datapath)
-      rv$AdHocName <- basename(rv$AdHocPath)
-    }
-  })
-  # Observer to display selected Ad Hoc Shapefile in UI
-  observeEvent(rv$AdHocName, {
-    output$AdHocName <- renderText(basename(rv$AdHocName))
-  })
+  AdHocPath<-selectFileServer(
+    id = "AdHocPath",
+    root_dirs = c(AdHocPolygons ="./AdHocPolygons",filetypes = c(".gpkg",".shp"))
+  )
+  observe(rv$AdHocPath<-AdHocPath$AdHocPath)
+
   
   # Observer to get PU shapefile file to be run ----
-  observeEvent(input$selectPU, {
-    roots <- c(wd = "./PUPolygons")
-    shinyFileChoose(input,
-                    id = "selectPU",
-                    roots = roots,
-                    filetypes = "shp"
-    )
-    fileinfo <- parseFilePaths(roots, input$selectPU)
-    if (nrow(fileinfo) > 0) {
-      rv$puPath <- as.character(fileinfo$datapath)
-      rv$puName <- basename(rv$puPath)
-    }
-  })
-  # Observer to display selected PU Shapefile in UI
-  observe({
-    if (is.null(rv$puName)) {
-      myPuName <- ""
-    } else {
-      myPuName <- rv$puName
-    }
-    output$puName <- renderText(myPuName)
-  })
+  puPath<-selectFileServer(
+    id = "puPath",
+    root_dirs = c(PUPolygons = "./PUPolygons",filetypes = c(".gpkg",".shp"))
+  )
+  observe(rv$puPath<-puPath$puPath)
   
   
   # Observer to get customSpList be run ----
-  observe({
-    roots <- c(wd = "./CustomCSV")
-    shinyFileChoose(input,
-                    id = "customSpList",
-                    roots = roots,
-                    filetypes = "csv"
-    )
-    fileinfo <- parseFilePaths(roots, input$customSpList)
-    if (nrow(fileinfo) > 0) {
-      rv$customSpList <- as.character(fileinfo$datapath)
-      rv$customSpListName <- basename(rv$customSpList)
-    }
-  })
+  customSpList<-selectFileServer(
+    id = "customSpList",
+    root_dirs = c(CustomCSV = "./CustomCSV",filetypes = c("csv"))
+  )
+  observe(rv$customSpList<-customSpList$customSpList)
   
-  # Observer to display selected customSpListName in UI
-  observeEvent(rv$customSpListName, {
-    output$customSpListName <- renderText(rv$customSpListName)
-  })
+  
+  
   
   # Observer to get customResponseFile be run ----
-  observe({
-    roots <- c(wd = "./CustomCSV")
-    shinyFileChoose(input,
-                    id = "customResponseFile",
-                    roots = roots,
-                    filetypes = "csv"
-    )
-    fileinfo <- parseFilePaths(roots, input$customResponseFile)
-    if (nrow(fileinfo) > 0) {
-      rv$customResponseFile <- as.character(fileinfo$datapath)
-      rv$customResponseName <- basename(rv$customResponseFile)
-    }
-  })
-  # Observer to display selected customResponseName in UI
-  observeEvent(rv$customResponseName, {
-    output$customResponseName <- renderText(rv$customResponseName)
-  })
+  customResponseFile<-selectFileServer(
+    id = "customResponseFile",
+    root_dirs = c(CustomCSV = "./CustomCSV",filetypes = c("csv"))
+  )
+  observe(rv$customResponseFile<-customResponseFile$customResponseFile)
+  
+  
   
   # Observer to get zone wt File be run ----
-  observe({
-    roots <- c(wd = "./CustomCSV")
-    shinyFileChoose(input,
-                    id = "zoneWtFile",
-                    roots = roots,
-                    filetypes = "csv"
-    )
-    fileinfo <- parseFilePaths(roots, input$zoneWtFile)
-    if (nrow(fileinfo) > 0) {
-      rv$zoneWtFile <- as.character(fileinfo$datapath)
-      rv$zoneWtFileName <- basename(rv$zoneWtFile)
-    }
-  })
-  # Observer to display selected jfmpMetricWtFileName in UI
-  observeEvent(rv$zoneWtFileName, {
-    output$zoneWtFileName <- renderText(rv$zoneWtFileName)
-  })
   
-  # Observer to get jfmp metric wt File be run ----
-  observe({
-    roots <- c(wd = "./CustomCSV")
-    shinyFileChoose(input,
-                    id = "jfmpMetricWtFile",
-                    roots = roots,
-                    filetypes = "csv"
-    )
-    fileinfo <- parseFilePaths(roots, input$jfmpMetricWtFile)
-    if (nrow(fileinfo) > 0) {
-      rv$jfmpMetricWtFile <- as.character(fileinfo$datapath)
-      rv$jfmpMetricWtFileName <- basename(rv$jfmpMetricWtFile)
-    }
-  })
-  # Observer to display selected zoneWtFileName in UI
-  observeEvent(rv$jfmpMetricWtFileName, {
-    output$jfmpMetricWtFileName <- renderText(rv$jfmpMetricWtFileName)
-  })
+  zoneWtFile<-selectFileServer(
+    id = "zoneWtFile",
+    root_dirs = c(CustomCSV = "./CustomCSV",filetypes = c("csv"))
+  )
+  observe(rv$zoneWtFile<-zoneWtFile$zoneWtFile)
+  
+  
+  # Observer to get jfmp Metric Wt File be run ----
+  
+  jfmpMetricWtFile<-selectFileServer(
+    id = "jfmpMetricWtFile",
+    root_dirs = c(CustomCSV = "./CustomCSV",filetypes = c("csv"))
+  )
+  observe(rv$jfmpMetricWtFile<-jfmpMetricWtFile$jfmpMetricWtFile)
+  
   
   # Observer to get  draft jfmp input file be run ----
-  observe({
-    roots <- c(wd = "./CustomCSV")
-    shinyFileChoose(input,
-                    id = "draftJFMPFile",
-                    roots = roots,
-                    filetypes = "csv"
-    )
-    fileinfo <- parseFilePaths(roots, input$draftJFMPFile)
-    if (nrow(fileinfo) > 0) {
-      rv$draftJFMPFile <- as.character(fileinfo$datapath)
-      rv$draftJFMPName <- basename(rv$draftJFMPFile)
-    }
-  })
-  # Observer to display selected draft jfmpName in UI
-  observeEvent(rv$draftJFMPName, {
-    output$draftJFMPName <- renderText(rv$draftJFMPName)
-  })
   
+  draftJFMPFile<-selectFileServer(
+    id = "draftJFMPFile",
+    root_dirs = c(CustomCSV = "./CustomCSV",filetypes = c("csv"))
+  )
+  observe(rv$draftJFMPFile<-draftJFMPFile$draftJFMPFile)
   
+
   
   # OBSERVERS of CHECKBOXES ----
   # Observer of choice for PU polys----

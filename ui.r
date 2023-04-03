@@ -210,18 +210,11 @@ ui <- dashboardPage(
               width = 12,
               background = "light-blue",
               splitLayout(
-                shinyFilesButton(
-                  id = "selectRawFH",
-                  label = "select raw FH",
-                  title = "select raw Fire history shapefile to run",
-                  multiple = FALSE,
-                  buttonType = "default",
-                  class = NULL,
-                  icon = NULL,
-                  style = NULL,
-                  viewtype = "detail",
-                ),
-                textOutput("rawFHName")
+                selectFileUI(
+                  id = "rawFHPath",
+                  label ="Select rawFH path"
+                )
+
               ),
 
 
@@ -237,18 +230,11 @@ ui <- dashboardPage(
               conditionalPanel(
                 condition = "input.REGION_NO == '7'",
                 splitLayout(
-                  shinyFilesButton(
-                    id = "selectAdHoc",
-                    label = "select user defined shapefile",
-                    title = "select user defined shapefile for analysis area",
-                    multiple = FALSE,
-                    buttonType = "default",
-                    class = NULL,
-                    icon = NULL,
-                    style = NULL,
-                    viewtype = "detail",
-                  ),
-                  textOutput("AdHocName")
+                  selectFileUI(
+                    id = "AdHocPath",
+                    label ="Select AdHoc path"
+                  )
+
                 ),
               ),
               fluidRow(
@@ -291,18 +277,10 @@ ui <- dashboardPage(
               conditionalPanel(
                 condition = "input.usePUpolys",
                 splitLayout(
-                  shinyFilesButton(
-                    id = "selectPU",
-                    label = "select planning unit shapefile",
-                    title = "select planning unit shapefile for analysis area",
-                    multiple = FALSE,
-                    buttonType = "default",
-                    class = NULL,
-                    icon = NULL,
-                    style = NULL,
-                    viewtype = "detail",
-                  ),
-                  textOutput("puName")
+                  selectFileUI(
+                      id = "puPath",
+                      label ="Select planning unit path"
+                    )
                 ),
                 numericInput(
                   "JFMPSeason0",
@@ -357,24 +335,30 @@ ui <- dashboardPage(
                 ),
                 conditionalPanel(
                   condition = "input.spListChoice",
-                  column(
-                    3,
-                    shinyFilesButton(
-                      id = "customSpList",
-                      label = "select custom species list",
-                      title = "select custom species list csv file",
-                      multiple = FALSE,
-                      buttonType = "default",
-                      class = NULL,
-                      icon = NULL,
-                      style = NULL,
-                      viewtype = "detail"
-                    )
-                  ),
-                  column(
-                    7,
-                    textOutput("customSpListName")
+                  selectFileUI(
+                    id = "customSpList",
+                    label ="select custom species list"
                   )
+                  
+                  
+                  # column(
+                  #   3,
+                  #   shinyFilesButton(
+                  #     id = "customSpList",
+                  #     label = "select custom species list",
+                  #     title = "select custom species list csv file",
+                  #     multiple = FALSE,
+                  #     buttonType = "default",
+                  #     class = NULL,
+                  #     icon = NULL,
+                  #     style = NULL,
+                  #     viewtype = "detail"
+                  #   )
+                  # ),
+                  # column(
+                  #   7,
+                  #   textOutput("customSpListName")
+                  # )
                 ),
               ),
               splitLayout(
@@ -396,25 +380,12 @@ ui <- dashboardPage(
               ),
               conditionalPanel(
                 condition = "input.spResponseChoice",
-                fluidRow(
-                  column(
-                    5,
-                    shinyFilesButton(
-                      id = "customResponseFile",
-                      label = "Select user defined species response file",
-                      title = "Select user defined species response file",
-                      multiple = FALSE,
-                      buttonType = "default",
-                      class = NULL,
-                      icon = NULL,
-                      style = NULL,
-                      viewtype = "detail",
-                    )
-                  ),
-                  column(
-                    7,
-                    textOutput("customResponseName")
-                  )
+                 fluidRow(
+                   selectFileUI(
+                     id = "customResponseFile",
+                     label ="Select user defined species response file"
+                   )
+                
                 ),
               ),
               # inputs conditional on whether JFMP or "standard" analysis is been run ----
@@ -460,46 +431,19 @@ ui <- dashboardPage(
               conditionalPanel(
                 condition = "input.usePUpolys == 1",
                 splitLayout(
-                  shinyFilesButton(
+                  selectFileUI(
                     id = "targetHaFile",
-                    label = "select area target file for JFMP",
-                    title = "select area target file for JFMP csv file",
-                    multiple = FALSE,
-                    buttonType = "default",
-                    class = NULL,
-                    icon = NULL,
-                    style = NULL,
-                    viewtype = "detail",
-                  ),
-                  textOutput("targetHaFileName")
+                    label = "select area target file for JFMP")
                 ),
                 splitLayout(
-                  shinyFilesButton(
+                  selectFileUI(
                     id = "jfmpMetricWtFile",
-                    label = "select file containing JFMP metric weights",
-                    title = "JFMP metric weights csv file",
-                    multiple = FALSE,
-                    buttonType = "default",
-                    class = NULL,
-                    icon = NULL,
-                    style = NULL,
-                    viewtype = "detail",
-                  ),
-                  textOutput("jfmpMetricWtFileName")
+                    label = "select file containing JFMP metric weights")
                 ),
                 splitLayout(
-                  shinyFilesButton(
+                  selectFileUI(
                     id = "zoneWtFile",
-                    label = "select file containing JFMP zone weights",
-                    title = "JFMP FMZ weights csv file",
-                    multiple = FALSE,
-                    buttonType = "default",
-                    class = NULL,
-                    icon = NULL,
-                    style = NULL,
-                    viewtype = "detail",
-                  ),
-                  textOutput("zoneWtFileName")
+                    label = "select file containing JFMP zone weights")
                 ),
                 withBusyIndicatorUI(
                   actionButton(
@@ -520,18 +464,9 @@ ui <- dashboardPage(
                 background = "light-blue",
                 title = "Compare alternative JFMPs",
                 splitLayout(
-                  shinyFilesButton(
+                  selectFileUI(
                     id = "draftJFMPFile",
-                    label = "select draft JFMP input",
-                    title = "select draft JFMP input csv file",
-                    multiple = FALSE,
-                    buttonType = "default",
-                    class = NULL,
-                    icon = NULL,
-                    style = NULL,
-                    viewtype = "detail",
-                  ),
-                  textOutput("draftJFMPName")
+                    label = "select draft JFMP input")
                 ),
                 withBusyIndicatorUI(
                   actionButton(
