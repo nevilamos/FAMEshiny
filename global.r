@@ -11,7 +11,7 @@ reactlog_enable()
 
 # get version of FAMEFMR in use and set app version
 
-versionDate <- "  dev Version 3.2 March 2023"
+versionDate <- "  dev Version 3.3 April 4 2023"
 
 versionFAMEFMR <- paste("  R", getRversion(), "FAMEFMR", packageVersion("FAMEFMR"))
 
