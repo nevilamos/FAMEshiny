@@ -7,13 +7,13 @@ library(reactlog)
 #options(shiny.reactlog = TRUE)
 #options(shiny.error = browser)
 # tell shiny to log all reactivity
-reactlog_enable()
+#reactlog_enable()
 
 # get version of FAMEFMR in use and set app version
 
-versionDate <- "  dev Version 3.3 April 4 2023"
+FAMEGUIVersion <- "  dev Version 3.4 April 20 2023"
 
-versionFAMEFMR <- paste("  R", getRversion(), "FAMEFMR", packageVersion("FAMEFMR"))
+FAMEFMRVersion <- paste("  R", getRversion(), "FAMEFMR", packageVersion("FAMEFMR"))
 
 #set option so that readr does not print column types 
 options(readr.show_col_types = FALSE)

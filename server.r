@@ -1,5 +1,9 @@
 server <- function(session, input, output) {
   rv <- reactiveValues()
+  rv$FAMEFMRVersion<-FAMEFMRVersion
+  rv$FAMEGUIVersion<-FAMEGUIVersion
+  
+  
   observe({
     rv$resultsDir <- resultsDir
     output$resultsDir <- renderText(rv$resultsDir)
@@ -16,34 +20,42 @@ server <- function(session, input, output) {
   
     rawFHpath<-selectFileServer(
       id = "rawFHPath",
-      root_dirs = c(root ="./rawFH",filetypes = c(".gpkg",".shp"))
+      root_dirs = c(rawFH ="./rawFH",
+      filetypes = c(".gpkg",".shp"))
       )
-  observe(rv$rawFHPath<-rawFHpath$rawFHPath)
+  observe(rv$rawFHPath<-rawFHpath$datapath)
+  observe(output$rawFHPath<-renderText(rv$rawFHPath))
   
   
   
   # Observer to get AdHoc shapefile file to be run ----
   AdHocPath<-selectFileServer(
     id = "AdHocPath",
-    root_dirs = c(AdHocPolygons ="./AdHocPolygons",filetypes = c(".gpkg",".shp"))
+    root_dirs = c(AdHocPolygons ="./AdHocPolygons",
+                  filetypes = c(".gpkg",".shp"))
   )
-  observe(rv$AdHocPath<-AdHocPath$AdHocPath)
+  observe(rv$AdHocPath<-AdHocPath$datapath)
+  observe(output$AdHocPath<-renderText(rv$AdHocPath))
 
   
   # Observer to get PU shapefile file to be run ----
   puPath<-selectFileServer(
     id = "puPath",
-    root_dirs = c(PUPolygons = "./PUPolygons",filetypes = c(".gpkg",".shp"))
+    root_dirs = c(PUPolygons = "./PUPolygons",
+    filetypes = c(".gpkg",".shp"))
   )
-  observe(rv$puPath<-puPath$puPath)
-  
+  observe(rv$puPath<-puPath$datapath)
+  observe(output$puPath<-renderText(rv$puPath))
   
   # Observer to get customSpList be run ----
   customSpList<-selectFileServer(
     id = "customSpList",
-    root_dirs = c(CustomCSV = "./CustomCSV",filetypes = c("csv"))
+    root_dirs = c(CustomCSV = "./CustomCSV",
+                  filetypes = c("csv"))
   )
-  observe(rv$customSpList<-customSpList$customSpList)
+  observe(rv$customSpList<-customSpList$datapath)
+  observe(output$customSpList<-renderText(rv$customSpList))
+  
   
   
   
@@ -53,7 +65,8 @@ server <- function(session, input, output) {
     id = "customResponseFile",
     root_dirs = c(CustomCSV = "./CustomCSV",filetypes = c("csv"))
   )
-  observe(rv$customResponseFile<-customResponseFile$customResponseFile)
+  observe(rv$customResponseFile<-customResponseFile$datapath)
+  observe(output$customResponseFile<-renderText(rv$customResponseFile))
   
   
   
@@ -63,16 +76,18 @@ server <- function(session, input, output) {
     id = "zoneWtFile",
     root_dirs = c(CustomCSV = "./CustomCSV",filetypes = c("csv"))
   )
-  observe(rv$zoneWtFile<-zoneWtFile$zoneWtFile)
+  observe(rv$zoneWtFile<-zoneWtFile$datapath)
+  observe(output$zoneWtFile<-renderText(rv$zoneWtFile))
   
   
   # Observer to get jfmp Metric Wt File be run ----
   
-  jfmpMetricWtFile<-selectFileServer(
-    id = "jfmpMetricWtFile",
+  jfmpMetricWtFilePath<-selectFileServer(
+    id = "jfmpMetricWtFilePath",
     root_dirs = c(CustomCSV = "./CustomCSV",filetypes = c("csv"))
   )
-  observe(rv$jfmpMetricWtFile<-jfmpMetricWtFile$jfmpMetricWtFile)
+  observe(rv$jfmpMetricWtFilePath<-jfmpMetricWtFilePath$datapath)
+  observe(output$jfmpMetricWtFilePath<-renderText(rv$jfmpMetricWtFilePath))
   
   
   # Observer to get  draft jfmp input file be run ----
@@ -81,7 +96,8 @@ server <- function(session, input, output) {
     id = "draftJFMPFile",
     root_dirs = c(CustomCSV = "./CustomCSV",filetypes = c("csv"))
   )
-  observe(rv$draftJFMPFile<-draftJFMPFile$draftJFMPFile)
+  observe(rv$draftJFMPFile<-draftJFMPFile$datapath)
+  observe(output$draftJFMPFile<-renderText(rv$draftJFMPFile))
   
 
   
@@ -111,20 +127,13 @@ server <- function(session, input, output) {
   })
   
   # Observer of JFMP Area Target  ----
+  targetHaFilepath <- selectFileServer(
+    id = "targetHaFilepath",
+    root_dirs = c(customCSV ="customCSV",filetypes = ".csv"))
+  observe(rv$targetHaFilepath<-targetHaFilepath$datapath)
+  observe(output$targetHaFilepath<-renderText(rv$targetHaFilepath))
   
-  observe({
-    roots <- c(wd = "./CustomCSV")
-    shinyFileChoose(input,
-                    id = "targetHaFile",
-                    roots = roots,
-                    filetypes = "csv"
-    )
-    fileinfo <- parseFilePaths(roots, input$targetHaFile)
-    if (nrow(fileinfo) > 0) {
-      rv$targetHaFilepath <- as.character(fileinfo$datapath)
-      rv$targetHaFileName <- basename(rv$targetHaFilepath)
-    }
-  })
+  
   # Observer for makeTFIrasters----
   observeEvent(input$makeTFIrasters, {
     rv$makeTFIrasters <- input$makeTFIrasters
@@ -133,31 +142,14 @@ server <- function(session, input, output) {
   observeEvent(input$makeBBTFIrasters, {
     rv$makeBBTFIrasters <- input$makeBBTFIrasters
   })
-  
-  # Observer to display selected customSpListName in UI
-  observeEvent(rv$targetHaFileName, {
-    output$targetHaFileName <- renderText(rv$targetHaFileName)
-  })
+
   # Observer to get customResponseFile be run ----
-  observe({
-    roots <- c(wd = "./CustomCSV")
-    shinyFileChoose(input,
-                    id = "customResponseFile",
-                    roots = roots,
-                    filetypes = "csv"
-    )
-    fileinfo <- parseFilePaths(roots, input$customResponseFile)
-    if (nrow(fileinfo) > 0) {
-      rv$customResponseFile <- as.character(fileinfo$datapath)
-      rv$customResponseName <- basename(rv$customResponseFile)
-    }
-  })
-  # Observer to display selected customSpListName in UI
-  observeEvent(rv$customResponseName, {
-    output$customResponseName <- renderText(rv$customResponseName)
-  })
-  
-  
+    selectFileServer(id = "customResponseFile",
+                     root_dirs = c(CustomCSV = "./CustomCSV"),
+                     filetypes = ".csv")
+    observe(rv$customResponseFile<-customResponseFile$datapath)
+    observe(output$customResponseFile<-renderText(rv$customResponseFile))
+ 
   # Observer of custom species list choice  ----
   observeEvent(input$spListChoice, {
     rv$spListChoice <- input$spListChoice
@@ -383,7 +375,8 @@ server <- function(session, input, output) {
     withBusyIndicatorServer("runFH", {
       rv$outputFH <- file_path_sans_ext(basename(rv$rawFHPath))
       if (input$usePUpolys == 1) {
-        rv$outputFH <- paste(rv$outputFH, rv$puName, sep = "_")
+        rv$puName<-tools::file_path_sans_ext(basename(rv$puPath))
+        rv$outputFH <- paste(rv$puName,rv$outputFH, sep = "_")
       }
       
       
@@ -579,8 +572,8 @@ server <- function(session, input, output) {
           )
           
           print("finished  Spp abund LU List")
-print ("names rv = ")
-print(names(rv))
+
+          
           print("Making spYearSumm")
           
           
@@ -886,12 +879,12 @@ print(names(rv))
         validate(
           need(rv$usePUpolys == TRUE, message = "The FHAnalysis does not contain planning/burn units for JFMP calculations")
         )
-        validate(need(length(rv$jfmpMetricWtFile) > 0, message = "You need to select a JFMP metric weight file"))
+        validate(need(length(rv$jfmpMetricWtFilePath) > 0, message = "You need to select a JFMP metric weight file"))
         validate(need(length(rv$zoneWtFile) > 0, message = "You need to select a JFMP zone Weight file"))
         print("doing JFMP1")
         # read in lookup tables for weighting of JFMP
         rv$zoneWt <- read_csv(rv$zoneWtFile)
-        rv$jfmpMetricWt <- read_csv(rv$jfmpMetricWtFile)
+        rv$jfmpMetricWt <- read_csv(rv$jfmpMetricWtFilePath)
         
         puDF <- jfmp1(
           myPUPath = rv$puPath,
@@ -1464,7 +1457,7 @@ print(names(rv))
   # UTILITIES - LOADING PREVIOUS ANALYSIS AND SERVER SHUTDOWN
   # Observer to load analysis from list as qs file----
   observe({
-    roots <- c("UserFolder" = "./FH_Outputs")
+    roots <- c(FH_Outputs = "./FH_Outputs")
     shinyFileChoose(input,
                     id = "loadAnalysis",
                     roots = roots,
@@ -1829,8 +1822,8 @@ print(names(rv))
       # menuItem("User Manual",
       #          tabName = "Manual",
       #          icon = icon("book")),
-      menuItem(text = versionDate),
-      menuItem(text = versionFAMEFMR)
+      menuItem(text = FAMEGUIVersion),
+      menuItem(text = FAMEFMRVersion)
     )
     if (input$usePUpolys == 0) {
       tabs_list <- c(tabs_list1, tabs_list2, tabs_list3)

@@ -50,7 +50,7 @@ ui <- dashboardPage(
           id = "saveAnalysis",
           label = "save analysis to file",
           title = "save analysis file as...",
-          filename = "savedValue",
+          filename = "savedAnalysis",
           filetype = list(qs = "qs"),
           icon = icon("file-export"),
           viewtype = "icon"
@@ -213,7 +213,8 @@ ui <- dashboardPage(
                 selectFileUI(
                   id = "rawFHPath",
                   label ="Select rawFH path"
-                )
+                ),
+                textOutput("rawFHPath")
 
               ),
 
@@ -233,7 +234,8 @@ ui <- dashboardPage(
                   selectFileUI(
                     id = "AdHocPath",
                     label ="Select AdHoc path"
-                  )
+                  ),
+                  textOutput("AdHocPath")
 
                 ),
               ),
@@ -280,7 +282,8 @@ ui <- dashboardPage(
                   selectFileUI(
                       id = "puPath",
                       label ="Select planning unit path"
-                    )
+                    ),
+                  textOutput("puPath")
                 ),
                 numericInput(
                   "JFMPSeason0",
@@ -338,27 +341,9 @@ ui <- dashboardPage(
                   selectFileUI(
                     id = "customSpList",
                     label ="select custom species list"
-                  )
-                  
-                  
-                  # column(
-                  #   3,
-                  #   shinyFilesButton(
-                  #     id = "customSpList",
-                  #     label = "select custom species list",
-                  #     title = "select custom species list csv file",
-                  #     multiple = FALSE,
-                  #     buttonType = "default",
-                  #     class = NULL,
-                  #     icon = NULL,
-                  #     style = NULL,
-                  #     viewtype = "detail"
-                  #   )
-                  # ),
-                  # column(
-                  #   7,
-                  #   textOutput("customSpListName")
-                  # )
+                  ),
+                  textOutput("customSpList")
+                
                 ),
               ),
               splitLayout(
@@ -384,7 +369,8 @@ ui <- dashboardPage(
                    selectFileUI(
                      id = "customResponseFile",
                      label ="Select user defined species response file"
-                   )
+                   ),
+                   textOutput("customResponseFile")
                 
                 ),
               ),
@@ -432,18 +418,21 @@ ui <- dashboardPage(
                 condition = "input.usePUpolys == 1",
                 splitLayout(
                   selectFileUI(
-                    id = "targetHaFile",
-                    label = "select area target file for JFMP")
+                    id = "targetHaFilepath",
+                    label = "select area target file for JFMP"),
+                  textOutput("targetHaFilepath")
                 ),
                 splitLayout(
                   selectFileUI(
-                    id = "jfmpMetricWtFile",
-                    label = "select file containing JFMP metric weights")
+                    id = "jfmpMetricWtFilePath",
+                    label = "select file containing JFMP metric weights"),
+                  textOutput("jfmpMetricWtFilePath")
                 ),
                 splitLayout(
                   selectFileUI(
                     id = "zoneWtFile",
-                    label = "select file containing JFMP zone weights")
+                    label = "select file containing JFMP zone weights"),
+                  textOutput("zoneWtFile")
                 ),
                 withBusyIndicatorUI(
                   actionButton(
@@ -466,8 +455,10 @@ ui <- dashboardPage(
                 splitLayout(
                   selectFileUI(
                     id = "draftJFMPFile",
-                    label = "select draft JFMP input")
+                    label = "select draft JFMP input"),
+                  textOutput("draftJFMPFile")
                 ),
+                
                 withBusyIndicatorUI(
                   actionButton(
                     style = "color: #fff;
