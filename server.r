@@ -16,13 +16,13 @@ server <- function(session, input, output) {
     }
   })
   
-
   
-    rawFHpath<-selectFileServer(
-      id = "rawFHPath",
-      root_dirs = c(rawFH ="./rawFH",
-      filetypes = c(".gpkg",".shp"))
-      )
+  
+  rawFHpath<-selectFileServer(
+    id = "rawFHPath",
+    root_dirs = c(rawFH ="./rawFH",
+                  filetypes = c(".gpkg",".shp"))
+  )
   observe(rv$rawFHPath<-rawFHpath$datapath)
   observe(output$rawFHPath<-renderText(rv$rawFHPath))
   
@@ -36,13 +36,13 @@ server <- function(session, input, output) {
   )
   observe(rv$AdHocPath<-AdHocPath$datapath)
   observe(output$AdHocPath<-renderText(rv$AdHocPath))
-
+  
   
   # Observer to get PU shapefile file to be run ----
   puPath<-selectFileServer(
     id = "puPath",
     root_dirs = c(PUPolygons = "./PUPolygons",
-    filetypes = c(".gpkg",".shp"))
+                  filetypes = c(".gpkg",".shp"))
   )
   observe(rv$puPath<-puPath$datapath)
   observe(output$puPath<-renderText(rv$puPath))
@@ -99,7 +99,7 @@ server <- function(session, input, output) {
   observe(rv$draftJFMPFile<-draftJFMPFile$datapath)
   observe(output$draftJFMPFile<-renderText(rv$draftJFMPFile))
   
-
+  
   
   # OBSERVERS of CHECKBOXES ----
   # Observer of choice for PU polys----
@@ -142,14 +142,14 @@ server <- function(session, input, output) {
   observeEvent(input$makeBBTFIrasters, {
     rv$makeBBTFIrasters <- input$makeBBTFIrasters
   })
-
+  
   # Observer to get customResponseFile be run ----
-    selectFileServer(id = "customResponseFile",
-                     root_dirs = c(CustomCSV = "./CustomCSV"),
-                     filetypes = ".csv")
-    observe(rv$customResponseFile<-customResponseFile$datapath)
-    observe(output$customResponseFile<-renderText(rv$customResponseFile))
- 
+  selectFileServer(id = "customResponseFile",
+                   root_dirs = c(CustomCSV = "./CustomCSV"),
+                   filetypes = ".csv")
+  observe(rv$customResponseFile<-customResponseFile$datapath)
+  observe(output$customResponseFile<-renderText(rv$customResponseFile))
+  
   # Observer of custom species list choice  ----
   observeEvent(input$spListChoice, {
     rv$spListChoice <- input$spListChoice
@@ -572,7 +572,7 @@ server <- function(session, input, output) {
           )
           
           print("finished  Spp abund LU List")
-
+          
           
           print("Making spYearSumm")
           
@@ -680,7 +680,7 @@ server <- function(session, input, output) {
             ) %>%
             dplyr::mutate(SEASON = as.integer(SEASON))
           print("finished deltaabund")
- 
+          
         })
       })
     }
@@ -789,7 +789,8 @@ server <- function(session, input, output) {
           )
           
           print("calculating BBTFI")
-
+          source("D:/FAMEFMR/R/calcBBTFI_2.R")
+          
           rv$BBTFI <- calcBBTFI_2(
             myFHAnalysis = rv$FHAnalysis,
             myAllCombs = rv$allCombs,
@@ -1289,8 +1290,7 @@ server <- function(session, input, output) {
         RasterRes = 225,
         myPoly = myPoly,
         PUBLIC_LAND_ONLY = input$sppublic,
-        myHDMVals = "./HDMS/HDMVals225.qs",
-        splist = "./ReferenceTables/FAME_TAXON_LIST.csv"
+        TaxonList = "./ReferenceTables/FAME_TAXON_LIST.csv"
       )
       print(head(myDraftSpList))
       readr::write_csv(
@@ -1313,16 +1313,14 @@ server <- function(session, input, output) {
       
       myEFG_LMU <- make_Draft_GSO_inputs(
         REG_NO = input$spREGION_NO,
-        # REG_NO of defined region from input (1:6) or 0 for statewide or 7 for Ad Hoc Poly),
         RasterRes = 225,
         PUBLIC_LAND_ONLY = input$sppublic,
         myPoly = myPoly,
-        # shapefile ofLF_REGIONs( default)or  adhoc region,
         generalRasterDir = "./InputGeneralRasters",
-        splist = "./ReferenceTables/FAME_TAXON_LIST.csv",
-        myHDMVals = "./HDMS/HDMVals225.qs",
-        # EFGRas="./InputGeneralRasters/EFG_NUM_225.tif",
+        TaxonList = "./ReferenceTables/FAME_TAXON_LIST.csv",
         TFI_LUT = TFI_LUT
+        
+        
       )
       # print(myEFG_LMU)
       write_csv(
@@ -1776,6 +1774,7 @@ server <- function(session, input, output) {
     },
     contentType = "application/zip"
   )
+  
   # render tabs menu for UI ----
   output$tabsmenu <- renderMenu({
     tabs_list1 <- list(
@@ -1832,4 +1831,18 @@ server <- function(session, input, output) {
     }
     sidebarMenu(tabs_list)
   })
+  # package for dashboard ----
+  source("packageForDashboard.R")
+  pathForPackaging<-reactive(selectFileServer(
+    id = "fileForDashboard",
+    filetypes = "qs"))
+  
+  observe(
+    {if(isTruthy(pathForPackaging()$datapath[1]))
+    {withBusyIndicatorServer(
+      packageForDashboard(pathForPackaging()$datapath[1])
+      )
+    }
+    })
+  
 }

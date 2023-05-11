@@ -179,7 +179,13 @@ ui <- dashboardPage(
             )
           ),
           column(
-            8,
+            8, 
+            box(
+              width = 6, background = "light-blue",
+              withBusyIndicatorUI(
+              selectFileUI("fileForDashboard", "Select analysis and package for dashboard")
+              )
+            ),
             box(
               width = 12, title = "Download results",
               h5("Current Results Directory is:"),
@@ -538,15 +544,6 @@ ui <- dashboardPage(
                                border-color: #2e6da4",
                                "runRA_TFI",
                                label = "Run all calculations")
-                ),
-              ), box(
-                width = 6, background = "light-blue",
-                withBusyIndicatorUI(
-                  actionButton(inputId = "prepareDashboard",
-                               style = "color: #fff; 
-                               background-color: #337ab7;
-                               border-color: #2e6da4",
-                               label = "Prepare Dashboard Outputs")
                 ),
               )
             )
