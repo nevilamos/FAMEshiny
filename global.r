@@ -11,7 +11,7 @@ library(reactlog)
 
 # get version of FAMEFMR in use and set app version
 
-FAMEGUIVersion <- "  dev Version 3.4 April 20 2023"
+FAMEGUIVersion <- "  dev Version 3.9 May 12 2023"
 
 FAMEFMRVersion <- paste("  R", getRversion(), "FAMEFMR", packageVersion("FAMEFMR"))
 
@@ -23,12 +23,10 @@ options(readr.show_col_types = FALSE)
 source("ButtonDisableHelpers.r")
 
 
-Ncores <- 4
-print(paste("Using", Ncores, "cores"))
 
 # Set the maximum size of files for upload/ download
 
-options(shiny.maxRequestSize = 2 * 1024^3)
+options(shiny.maxRequestSize = 5 * 1024^3)
 
 
 # code to implement action on closing browser window

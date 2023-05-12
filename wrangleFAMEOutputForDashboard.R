@@ -7,7 +7,7 @@ library(qs)
 library(data.table)
 
 #this file needs to be manually edited to read the correct output list file for wrangling 
-inPath <- "./results/FIRE_HISTORY20210310_DemoAdHocPolygon_LF_DISTRICT_with_PU_fieldDemo_6__TAXON_LIST.qs"
+inPath <- "./FH_Outputs/savedAnalysis.qs"
 inName <- basename(inPath)
 rv <- qread(inPath)#qread("C:/Users/na03/Downloads/75mwith5sp.qs")
 
@@ -18,8 +18,8 @@ PUcols <- ifelse("PU" %in% names(rv$allCombs$U_AllCombs_TFI), TRUE, FALSE)
 if (is.null(rv$puPath)){
   puLUT<-foreign::read.dbf("./ReferenceShapefiles/LF_DISTRICT_with_PU_field.dbf")[,c("PU","DISTRICT_N")]
 } else {
-    puLUT<-foreign::read.dbf(gsub(".shp$",".dbf",rv$puPath))[,c("PU","DISTRICT_N")]
-  }
+  puLUT<-foreign::read.dbf(gsub(".shp$",".dbf",rv$puPath))[,c("PU","DISTRICT_N")]
+}
 
 
 # check for whether any private land vegetation was included in calculations
@@ -42,7 +42,7 @@ if (
 } else{
   warning("PLM values and rv$public do not agree")
 }
-  
+
 
 
 myColNames <- c("EFG", "DELWP", "FIRE_REG", "FIREFMZ", "PLM", "Index")
@@ -60,9 +60,9 @@ gc()
 seasNames <- names(x)[!names(x) %in% c("Index", "TAXON_ID")]
 
 y <- melt(x,
-  id.vars = c("TAXON_ID", "Index"),
-  variable.name = "SEASON",
-  value.name = "sumRA"
+          id.vars = c("TAXON_ID", "Index"),
+          variable.name = "SEASON",
+          value.name = "sumRA"
 )
 
 rm(x)
@@ -83,11 +83,11 @@ RA <- data.table(DELWP_LUT)[RA, on = "DELWP"]
 RA <- data.table(REG_LUT)[RA, on = "FIRE_REG"]
 RA <- data.table(FIREFMZ_LUT[, 1:2])[RA, on = "FIREFMZ"]
 RA <- data.table(rv$TaxonList[, 1:2])[RA, on = "TAXON_ID"]
-if(exists("puLUT")){
+if(exists("puLUT") & ("PU" %in% names(RA))){
   RA <- data.table(puLUT)[RA, on = "PU"]
   rv$BBTFI$BBTFI_LONG<-data.table(puLUT)[data.table(rv$BBTFI$BBTFI_LONG), on = "PU"]
   rv$TFI<-data.table(puLUT)[data.table(rv$TFI), on = "PU"]
-  }
+}
 myList <- list("TFI" = rv$TFI, "BBTFI" = rv$BBTFI$BBTFI_LONG, "RA" = RA, "TaxonList" = rv$TaxonList)
 qsave(myList, paste0("./FH_Outputs/Dashboard_",inName))
 

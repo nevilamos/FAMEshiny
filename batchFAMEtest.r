@@ -276,6 +276,7 @@ r<-eval(rv$cropRasters$rasterDef)
     
     rv$TFI <- calc_TFI_2(
       myFHAnalysis = rv$FHAnalysis,
+      myCropRasters = rv$cropRasters,
       myAllCombs = rv$allCombs,
       myTFI_LUT = TFI_LUT,
       OutputRasters = T,
@@ -321,11 +322,12 @@ r<-eval(rv$cropRasters$rasterDef)
     
     
     print("calculating BBTFI")
-    
+    source("D:/FAMEFMR/R/calcBBTFI_2.R")
     rv$BBTFI <- calcBBTFI_2(
       myFHAnalysis = rv$FHAnalysis,
       myAllCombs = rv$allCombs,
-      makeBBTFIrasters = rv$makeBBTFIrasters,
+      myCropRasters = rv$cropRasters,
+      makeBBTFIrasters = T,
       myResultsDir = rv$resultsDir
     )
     print("finished BBTFI calcs")

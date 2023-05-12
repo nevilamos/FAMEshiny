@@ -3,7 +3,7 @@
 # the batch will run through each of the raw fire history scenarios specified  by the shapefile paths in rawFHPath  in series putting the results in a separate subdirectory of the resultsDir.  All other inputs are constant throughout the batch
 
 #path(s) to your rawFH file ( output of the ARCGIS preprocessing tool) each given as a separate string of the full path or ./path relative to the working directory. 
-rawFHPaths =c("D:\\FAMEshiny\\rawFH\\FRAU_FH_2020_DemoAdHocPolygon.gpkg") #c("D:/FAMEshiny/rawFH/smallTestWith1755.shp")
+rawFHPaths =c("D:/FAMEshiny/rawFH/FIRE_HISTORY20210310_DemoAdHocPolygon.shp") #c("D:/FAMEshiny/rawFH/smallTestWith1755.shp")
 #the root directory in which results directories should be created and outputs saved
 resultsDir = "./results"
 #the integer value of the region number 1-6 for FFR regions,7 for user supplied adHoc polygon, 99 for Statewide
@@ -43,7 +43,7 @@ endSEASON = NULL
 #whether to write TFI rasters
 makeTFIrasters = TRUE
 #whether to write BBTFI rasters
-makeBBTFIrasters = TRUE
+makeBBTFIrasters = FALSE
 
 #whether to write Species Relative Abundance rasters
 makeRArasters = FALSE
