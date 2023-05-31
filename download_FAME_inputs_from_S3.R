@@ -28,7 +28,7 @@ for(mypath in newDirPaths){
 #   
 }
 if(!file.exists("FAME_inputfiles.zip")){
-  download.file("https://ecological-risk-analysis.s3-ap-southeast-2.amazonaws.com/FAME_FMR/FAME_inputfiles.zip","FAME_inputfiles.zip")
+  download.file("https://ecological-risk-analysis.s3-ap-southeast-2.amazonaws.com/FAME_FMR/FAME4_inputfiles.zip","FAME_inputfiles.zip")
   
   if (.Platform$OS.type == "unix"){
     system("unzip -o ./FAME_inputfiles.zip && cp -rl ./FAME_inputfiles ./  && rm -r ./FAME_inputfiles")
