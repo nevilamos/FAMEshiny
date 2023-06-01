@@ -26,6 +26,7 @@ for(mypath in newDirPaths){
    }
 #   
 #   
+  
 }
 if(!file.exists("FAME_inputfiles.zip")){
   download.file("https://ecological-risk-analysis.s3-ap-southeast-2.amazonaws.com/FAME_FMR/FAME4_inputfiles.zip","FAME_inputfiles.zip")
