@@ -1832,7 +1832,6 @@ server <- function(session, input, output) {
     sidebarMenu(tabs_list)
   })
   # package for dashboard ----
-  source("packageForDashboard.R")
   pathForPackaging<-reactive(selectFileServer(
     id = "fileForDashboard",
     filetypes = "qs"))
