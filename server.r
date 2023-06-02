@@ -436,8 +436,7 @@ server <- function(session, input, output) {
         terra::rasterize(
           x = terra::vect(rv$FHAnalysis$OutDF),
           y = eval(rv$cropRasters$rasterDef),
-          field = "ID",
-          fun = "first"
+          field = "ID"
         )
       
       rv$cropRasters$FH_ID<-values(rv$FHAnalysis$FH_IDr)
