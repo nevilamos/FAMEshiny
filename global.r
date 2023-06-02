@@ -7,7 +7,6 @@ library(reactlog)
 #options(shiny.reactlog = TRUE)
 #options(shiny.error = browser)
 # tell shiny to log all reactivity
-#reactlog_enable()
 
 # get version of FAMEFMR in use and set app version
 
