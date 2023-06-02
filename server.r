@@ -398,7 +398,6 @@ server <- function(session, input, output) {
       }
       
       
-      #source("../FAMEFMR/R/cropNAborder.R")
       # make cropRasters -----
       rv$cropRasters <- cropToOutput(
         REG_NO = rv$REGION_NO,
@@ -788,8 +787,7 @@ server <- function(session, input, output) {
           )
           
           print("calculating BBTFI")
-          source("D:/FAMEFMR/R/calcBBTFI_2.R")
-          
+
           rv$BBTFI <- calcBBTFI_2(
             myFHAnalysis = rv$FHAnalysis,
             myAllCombs = rv$allCombs,
