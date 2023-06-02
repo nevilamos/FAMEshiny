@@ -3,9 +3,6 @@ rm(list = ls(all = TRUE))
 
 options(stringsAsFactors = F)
 source("installationCheck.R")
-#options(shiny.reactlog = TRUE)
-#options(shiny.error = browser)
-# tell shiny to log all reactivity
 
 # get version of FAMEFMR in use and set app version
 
