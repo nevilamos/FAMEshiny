@@ -129,7 +129,8 @@ server <- function(session, input, output) {
   # Observer of JFMP Area Target  ----
   targetHaFilepath <- selectFileServer(
     id = "targetHaFilepath",
-    root_dirs = c(customCSV ="customCSV",filetypes = ".csv"))
+    root_dirs = c(CustomCSV = "./CustomCSV",filetypes = c("csv"))
+  )
   observe(rv$targetHaFilepath<-targetHaFilepath$datapath)
   observe(output$targetHaFilepath<-renderText(rv$targetHaFilepath))
   
@@ -787,7 +788,7 @@ server <- function(session, input, output) {
           )
           
           print("calculating BBTFI")
-
+          
           rv$BBTFI <- calcBBTFI_2(
             myFHAnalysis = rv$FHAnalysis,
             myAllCombs = rv$allCombs,
@@ -1837,7 +1838,7 @@ server <- function(session, input, output) {
     {if(isTruthy(pathForPackaging()$datapath[1]))
     {withBusyIndicatorServer(
       packageForDashboard(pathForPackaging()$datapath[1])
-      )
+    )
     }
     })
   
