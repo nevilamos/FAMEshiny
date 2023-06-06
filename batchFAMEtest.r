@@ -39,7 +39,7 @@ rv<-list()
     # PU shapefile file to be run ----
     rv$puPath <- puPath
     rv$puName <- basename(rv$puPath)
-    
+    if (runJFMP == TRUE){
     # zone wt File be run ----
     rv$zoneWtFile <- zoneWtFile
     rv$zoneWtFileName <- basename(rv$zoneWtFile)
@@ -53,14 +53,9 @@ rv<-list()
     rv$targetHaFilepath <- targetHaFilepath
     rv$targetHaFileName <- basename(rv$targetHaFilepath)
     rv$targetHa <- read_csv(rv$targetHaFilepath)
-    
-    
-    
-    
-    
+    }
+
   }
-  
-  
   
   # Observer of custom relative abundance table choice----
   
@@ -113,27 +108,17 @@ rv<-list()
   # Observer for end baseline----
   
   rv$endBaseline <- endBaseline
-  
-  
-  
-  
 
   # set public land----
   
   rv$public <- public
 
   rv$otherUnknown <- otherUnknown
-  
-  # set allOrSomeYears for writing rasters----
-  
-  #rv$allOrSomeYears <- allOrSomeYears
-  
-  
-  
+
   # SEASONS for write rasters (yearsForRasters)  ----
   # this is not working at the moment to reload the seasons selected in previous session
   
-  #rv$yearsForRasters <- yearsForRasters
+  rv$yearsForRasters <- yearsForRasters
   
 
   #choose a region  ----
@@ -164,7 +149,7 @@ rv<-list()
   }
   
   
-  if (rv$usePUpolys == TRUE) {
+  if (runJFMP == TRUE) {
     rv$end.SEASON <- rv$JFMPSeason0 + 4
   } else {
     rv$end.SEASON <- rv$endTimespan
@@ -217,8 +202,7 @@ rv<-list()
     terra::rasterize(
       x = terra::vect(rv$FHAnalysis$OutDF),
       y = eval(rv$cropRasters$rasterDef),
-      field = "ID",
-      fun = "first"
+      field = "ID"
     )
   
   rv$cropRasters$FH_ID<-values(rv$FHAnalysis$FH_IDr)
@@ -229,7 +213,7 @@ rv<-list()
   
   
   # check if pupoly is to be used
-  if (rv$usePUpolys) {
+  if (runJFMP==T) {
     
     myPuPoly <- rv$puPath
     # update the FHAnalysis$OutDF  with noburn columns
@@ -264,8 +248,8 @@ r<-eval(rv$cropRasters$rasterDef)
   
   print("finished FH analysis")
   #save completed FHanalysis rv with 
-  FHanalysisPath<-file.path(resultsDir ,paste0(gsub(".shp","",rv$outputFH),"FHanalysis",".qs"))
-  saveSpatRasterList(rv, FHanalysisPath)
+  analysisPath<-file.path(rv$resultsDir ,paste0(rv$outputFH,"_FHanalysis",".qs"))
+  saveSpatRasterList(rv, analysisPath)
   
   
   #block for TFI and GS calcuations in try()----
@@ -322,12 +306,12 @@ r<-eval(rv$cropRasters$rasterDef)
     
     
     print("calculating BBTFI")
-    source("D:/FAMEFMR/R/calcBBTFI_2.R")
+    #source("D:/FAMEFMR/R/calcBBTFI_2.R")
     rv$BBTFI <- calcBBTFI_2(
       myFHAnalysis = rv$FHAnalysis,
       myAllCombs = rv$allCombs,
       myCropRasters = rv$cropRasters,
-      makeBBTFIrasters = T,
+      makeBBTFIrasters = rv$makeBBTFIrasters,
       myResultsDir = rv$resultsDir
     )
     print("finished BBTFI calcs")
@@ -390,10 +374,12 @@ r<-eval(rv$cropRasters$rasterDef)
     print("finished GS calcs")
     
     
- # save output so far----   
-    TFIanalysisPath<-file.path(resultsDir ,
-                            paste0(gsub(".shp","",rv$outputFH),"_TFI_GS",".qs"))
-    saveSpatRasterList(rv, TFIanalysisPath)
+ # save output so far----
+    pathToDelete<-analysisPath
+    analysisPath<-file.path(rv$resultsDir ,paste0(rv$outputFH,"_TFI_GS",".qs"))
+    saveSpatRasterList(rv, analysisPath)
+    unlink(pathToDelete)
+    
   
   
   # species calculations ------
@@ -475,7 +461,7 @@ r<-eval(rv$cropRasters$rasterDef)
       
       
       # Run the main function to get species abundance by cells ----
-      system.time(rv$SpYearSumm <- calc_SpeciesRA(
+      rv$SpYearSumm <- calc_SpeciesRA(
         myFHAnalysis = rv$FHAnalysis,
         myAllCombs <- rv$allCombs,
         myHDMSpp_NO = HDMSpp_NO,
@@ -483,11 +469,10 @@ r<-eval(rv$cropRasters$rasterDef)
         myResultsDir = rv$resultsDir,
         myLU_List = LU_List,
         myTaxonList = rv$TaxonList,
-        writeYears = NULL,
-        # rv$yearsForRasters,
-        myWriteSp = writeSp
-        #,myIDX = rv$cropRasters$IDX
-      ))
+        writeYears =  rv$yearsForRasters,
+        myWriteSp = writeSp,
+        myCropRasters = rv$cropRasters
+      )
       gc()
       # Save abundance summary outputs to csv files ----
       
@@ -580,14 +565,17 @@ r<-eval(rv$cropRasters$rasterDef)
       print("finished deltaabund")
       
       
+      pathToDelete<-analysisPath
       
-      analysisPath<-file.path(resultsDir ,
-                              paste0(gsub(".shp","",rv$outputFH),
+      analysisPath<-file.path(rv$resultsDir ,
+                              paste0(rv$outputFH,
                                      ifelse(is.null(rv$customSpListName),
                                             "DefaultTaxa",
                                             gsub(".csv","",rv$customSpListName)),
                                      ".qs"))
       saveSpatRasterList(rv, analysisPath)
+      unlink(pathToDelete)
+      rm(analysisPath)
     })
   }
   print(paste("Saved all results for ",rv$outputFH))
