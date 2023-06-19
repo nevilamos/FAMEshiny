@@ -63,7 +63,8 @@ server <- function(session, input, output) {
   # Observer to get customResponseFile be run ----
   customResponseFile<-selectFileServer(
     id = "customResponseFile",
-    root_dirs = c(CustomCSV = "./CustomCSV",filetypes = c("csv"))
+    root_dirs = c(CustomCSV = "./CustomCSV",
+                  filetypes = c("csv"))
   )
   observe(rv$customResponseFile<-customResponseFile$datapath)
   observe(output$customResponseFile<-renderText(rv$customResponseFile))
@@ -144,13 +145,7 @@ server <- function(session, input, output) {
     rv$makeBBTFIrasters <- input$makeBBTFIrasters
   })
   
-  # Observer to get customResponseFile be run ----
-  selectFileServer(id = "customResponseFile",
-                   root_dirs = c(CustomCSV = "./CustomCSV"),
-                   filetypes = ".csv")
-  observe(rv$customResponseFile<-customResponseFile$datapath)
-  observe(output$customResponseFile<-renderText(rv$customResponseFile))
-  
+
   # Observer of custom species list choice  ----
   observeEvent(input$spListChoice, {
     rv$spListChoice <- input$spListChoice
