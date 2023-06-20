@@ -1,6 +1,6 @@
 ui <- dashboardPage(
   dashboardHeader(
-    # formatting individual letters to different size and colour
+    #formatting individual letters to different size and colour ----
     title = span("F",
       style = "color: white; font-size: 40px",
       span("ire",
@@ -74,32 +74,102 @@ ui <- dashboardPage(
     )
   ),
   dashboardBody(
-    shinyDashboardThemes(
-      theme = "blue_gradient"
-    ),
-    setBackgroundImage(
-      src = "08732250_before_after_2014_fire.jpg", shinydashboard = TRUE
-    ),
-    tags$head(tags$style(HTML("
-      .main-header .logo {
+    # this tags$head section changes the shinydashboard to DEECA corporate colours ----
+    # DEECA Navy 100% =  hex #201547
+    # DEECA Teal 100% =  hex #00B2A9
+    # Vic Gov Blue = hex #004C97
+    # Corporate Sky Blue = #88DBDF
+    # ECA Lime = #CDDC29
+    
+    tags$head(tags$style(HTML('
+        .main-header .logo {
         font-weight: bold;
         font-size: 40px;
         font-family:Georgia;
-        color:red;
+        
       }
       .main-header .logo #mydiv b{
         font-weight: bold;
         font-size: 40px;
         font-family:Georgia;
       }
+      
+      
+                      
+        .skin-blue .btn {
+        background-color: #004C97;
+        color: #ffffff
+        }                      
+        /* logo */
+        .skin-blue .main-header .logo {
+                              background-color: #00B2A9;
+                              }
 
-    "))),
-    tags$head(tags$style("body {color:red;}")),
+        /* logo when hovered */
+        .skin-blue .main-header .logo:hover {
+                              background-color: #00B2A9;
+                              }
+
+        /* navbar (rest of the header) */
+        .skin-blue .main-header .navbar {
+                              background-color: #00B2A9;
+                              }        
+
+        /* main sidebar */
+        .skin-blue .main-sidebar {
+                              background-color: #00B2A9;
+                              }
+
+        /* active selected tab in the sidebarmenu */
+        .skin-blue .main-sidebar .sidebar .sidebar-menu .active a{
+                              background-color: #201547;
+                              }
+
+        /* other links in the sidebarmenu */
+        .skin-blue .main-sidebar .sidebar .sidebar-menu a{
+                              background-color: #00B2A9;
+                              color: #ffffff;
+                              }
+
+        /* other links in the sidebarmenu when hovered */
+         .skin-blue .main-sidebar .sidebar .sidebar-menu a:hover{
+                              background-color: #004C97;
+         }
+        
+        /* Box colours */
+        .skin-blue .box {
+                    color:#ffffff;
+                    background:#201547;
+                    border-bottom-color:#201547;
+                    border-left-color:#201547;
+                    border-right-color:#201547;
+                    border-top-color:#201547;
+                    background:#201547;
+                      
+        
+        
+        }
+        .skin-blue .box-header {
+        color:#ffffff;
+        
+        }
+      .skin-blue .well{
+        color:#ffffff;
+                    background:#201547;
+                    border-bottom-color:#201547;
+                    border-left-color:#201547;
+                    border-right-color:#201547;
+                    border-top-color:#201547;
+                    background:#201547;
+      }
+        
+                              '))),
+    setBackgroundImage(
+      src = "08732250_before_after_2014_fire.jpg", shinydashboard = TRUE
+    ),
+    
     tabItems(
-      # tab to display manual pdf
-      # tabItem(tabName = "Manual",
-      #         tags$iframe(style="height:1200px; width:1200px",
-      #                     src="FAME_Manual.pdf")),
+
       # Upload and other utilities tab----
       tabItem(
         tabName = "util",
@@ -107,7 +177,7 @@ ui <- dashboardPage(
           column(
             8,
             box(
-              width = 12, background = "light-blue", title = "Select and upload files",
+              width = 12,title = "Select and upload files",
               fileInput(
                 inputId = "rawFH",
                 label = "Select 4 elements of raw fire sequence shapefile\n.shp, .shx, .prj, .dbf",
@@ -135,7 +205,7 @@ ui <- dashboardPage(
           column(
             4,
             box(
-              width = 12, background = "light-blue", title = "Create draft species lists",
+              width = 12,  title = "Create draft species lists",
               selectInput("spREGION_NO", "Choose an area for species list",
                 choices = as.list(c(REG_NO))
               ),
@@ -153,9 +223,15 @@ ui <- dashboardPage(
               radioButtons("sppublic", "Restrict to Public Land", c("Yes" = TRUE, "No" = FALSE)),
 
               # runscript button
-              withBusyIndicatorUI(actionButton(style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", "runDSpList", label = "Run draft species list")),
               withBusyIndicatorUI(
-                actionButton(style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", "runspEFGpList", label = "Run Spp EFG LMU for list for GSO")
+                actionButton(
+                  "runDSpList",
+                  label = "Run draft species list")
+                ),
+              withBusyIndicatorUI(
+                actionButton(
+                  "runspEFGpList",
+                  label = "Run Spp EFG LMU for list for GSO")
               )
             ),
           )
@@ -164,24 +240,24 @@ ui <- dashboardPage(
           column(
             4,
             box(
-              width = 12, background = "light-blue", title = "Downloads",
+              width = 12,  title = "Downloads",
               downloadButton("downloadTool", "Download FAME ArcGIS preproccessing tool"),
               downloadButton("downloadManual", "Download FAME manual"),
               # tags$h1("Revised, alternate 2"),
               # HTML("<p>Download FAME manual <a https://github.com/nevilamos/FAMEshiny/blob/main/Manual/FAMEv2_User_Manual.pdf</a>!</p>")
             ),
             box(
-              width = 12, background = "red", title = "WARNING BUTTON BELOW WILL SHUT DOWN SERVER",
+              title = "WARNING BUTTON BELOW WILL SHUT DOWN SERVER",
               useShinyjs(),
               extendShinyjs(text = jscode, functions = c("closeWindow")),
               h5("Make sure you have downloaded all your data first"),
-              actionButton(style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", "close", "Shut Down Server")
+              actionButton(style = "background-color: red;", "close", "Shut Down Server")
             )
           ),
           column(
             8, 
             box(
-              width = 6, background = "light-blue",
+              width = 6, 
               withBusyIndicatorUI(
               selectFileUI("fileForDashboard", "Select analysis and package for dashboard")
               )
@@ -214,7 +290,7 @@ ui <- dashboardPage(
             box(
               title = "FH Analysis Settings",
               width = 12,
-              background = "light-blue",
+              #00B2A9
               splitLayout(
                 selectFileUI(
                   id = "rawFHPath",
@@ -270,11 +346,11 @@ ui <- dashboardPage(
               numericInput("startTimespan",
                 "First season for analysis output",
                 1980, 1980,
-                width = "25%"
+                width = "40%"
               ),
             ),
             box(
-              title = "JFMP Settings", width = 12, background = "light-blue",
+              title = "JFMP Settings", width = 12, #00B2A9
               checkboxInput(
                 inputId = "usePUpolys",
                 label = "Include burn unit/planning unit shapefile for JFMP analysis",
@@ -305,7 +381,7 @@ ui <- dashboardPage(
           column(
             6,
             box(
-              width = 12, background = "light-blue",
+              width = 12, #00B2A9
               conditionalPanel(
                 condition = "input.usePUpolys == 0",
                 h4("Fauna Abundance Calculation Choices")
@@ -320,12 +396,14 @@ ui <- dashboardPage(
                 numericInput(
                   "startBaseline",
                   "enter start season for abundance baseline",
-                  ""
+                  "",
+                  width = "40%"
                 ),
                 numericInput(
                   "endBaseline",
                   "enter end season for abundance baseline",
-                  ""
+                  "",
+                  width = "40%"
                 )
               ),
 
@@ -411,9 +489,6 @@ ui <- dashboardPage(
                   condition = "input.usePUpolys == 0",
                   withBusyIndicatorUI(
                     actionButton(
-                      style = "color: #fff;
-                      background-color: #337ab7;
-                      border-color: #2e6da4",
                       "runRA",
                       label = "Run fauna relative abundance calculations"
                     )
@@ -442,9 +517,6 @@ ui <- dashboardPage(
                 ),
                 withBusyIndicatorUI(
                   actionButton(
-                    style = "color: #fff;
-                    background-color: #337ab7;
-                    border-color: #2e6da4",
                     "runJFMP1",
                     label = "Run JFMP calculations stage 1"
                   )
@@ -456,7 +528,7 @@ ui <- dashboardPage(
               box(
                 width = 12,
                 solidHeader = T,
-                background = "light-blue",
+                #00B2A9
                 title = "Compare alternative JFMPs",
                 splitLayout(
                   selectFileUI(
@@ -480,7 +552,7 @@ ui <- dashboardPage(
               condition = "input.usePUpolys == 0",
               box(
                 title = "TFI and GS Calculations",
-                width = 12, solidHeader = T, background = "light-blue",
+                width = 12,
                 splitLayout(
                   checkboxInput(
                     inputId = "makeTFIrasters",
@@ -497,17 +569,11 @@ ui <- dashboardPage(
                 ),
                 splitLayout(
                   withBusyIndicatorUI(
-                    actionButton(style = "color: #fff;
-                                 background-color: #337ab7;
-                                 border-color: #2e6da4",
-                                 "runTFI",
+                    actionButton("runTFI",
                                  label = "Run TFI calculations")
                   ),
                   withBusyIndicatorUI(
-                    actionButton(style = "color: #fff;
-                                 background-color: #337ab7;
-                                 border-color: #2e6da4",
-                                 "runGS",
+                    actionButton("runGS",
                                  label = "Run Growth Stage calculations")
                   )
                 )
@@ -520,12 +586,9 @@ ui <- dashboardPage(
             6,
             # runFH analysis action  button----
             box(
-              width = 12, background = "light-blue",
+              width = 12, #00B2A9
               withBusyIndicatorUI(
                 actionButton(
-                  style = "color: #fff;
-                  background-color: #337ab7;
-                  border-color: #2e6da4",
                   "runFH",
                   label = "Run FH Analysis"
                 )
@@ -537,12 +600,9 @@ ui <- dashboardPage(
             column(
               6,
               box(
-                width = 6, background = "light-blue",
+                width = 6, #00B2A9
                 withBusyIndicatorUI(
-                  actionButton(style = "color: #fff;
-                               background-color: #337ab7;
-                               border-color: #2e6da4",
-                               "runRA_TFI",
+                  actionButton("runRA_TFI",
                                label = "Run all calculations")
                 ),
               )
@@ -687,7 +747,7 @@ ui <- dashboardPage(
           column(
             6,
             box(
-              width = 12, background = "light-blue", title = "Select and upload GSO .csv files",
+              width = 12, #00B2A9 title = "Select and upload GSO .csv files",
               fileInput(
                 inputId = "addGSOCSV",
                 label = "gsofiles to upload",
@@ -695,7 +755,7 @@ ui <- dashboardPage(
               )
             ),
             box(
-              width = 12, background = "light-blue", title = "Select GSO input tables",
+              width = 12, #00B2A9 title = "Select GSO input tables",
               selectInput(
                 "spEFGLMU",
                 "Select Spp_EFG_LMU.csv file",
@@ -733,7 +793,7 @@ ui <- dashboardPage(
           column(
             6,
             box(
-              width = 12, background = "light-blue", title = "Analysis options",
+              width = 12, #00B2A9 title = "Analysis options",
               h4(
                 "Please note all inputs are case sensitive, do not include any spaces"
               ),
@@ -777,17 +837,13 @@ ui <- dashboardPage(
               numericInput("GSOdwt", "weight for option 2", 0.75),
               numericInput("GSOnrep", "Number of iterations to run", 100),
               numericInput("GSOnsim", "Number of simulations to generate 95% CI?", 5),
-              withBusyIndicatorUI(actionButton(style = "color: #fff; background-color:
-                                               #337ab7; border-color: #2e6da4", "runGSO",
+              withBusyIndicatorUI(actionButton( "runGSO",
                                                "Run Aspatial GSO"))
             )
           )
         )
       )
     ),
-  ),
-  tags$head(tags$style(HTML("
-    .skin- .main-sidebar {
-        background-color:  green;
-                            }"))),
+  )
+  
 )

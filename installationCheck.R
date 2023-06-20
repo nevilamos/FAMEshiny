@@ -5,7 +5,7 @@
 
 ## First specify the packages of interest
 packages = c("aws.s3",
-             "dashboardthemes",
+             #"dashboardthemes",
              #"doParallel",
              "dplyr",
              #"fasterize",
