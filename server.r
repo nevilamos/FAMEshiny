@@ -365,7 +365,7 @@ server <- function(session, input, output) {
   
   # OBSERVERS TO RUN MAIN FUNCTIONS----
   # Observer to runFH analysis ----
-  observeEvent(input$runFH, {
+  observeEvent(input$runFH | input$runRA_TFI, {
     validate(need(rv$rawFHPath, "You need to select a raw FH to run analysis"))
     # if(rv$usePUPolys == TRUE){validate(need(!is.null(rv$puPath)), 'You need to select a PU/burn unit file to run analysis')}
     withBusyIndicatorServer("runFH", {
