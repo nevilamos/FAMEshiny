@@ -2,6 +2,8 @@ server <- function(session, input, output) {
   rv <- reactiveValues()
   rv$FAMEFMRVersion<-FAMEFMRVersion
   rv$FAMEGUIVersion<-FAMEGUIVersion
+  output$FAMEFMRVersion <- renderText(rv$FAMEFMRVersion)
+  output$FAMEGUIVersion <- renderText(rv$FAMEGUIVersion)
   
   
   observe({
@@ -1688,7 +1690,7 @@ server <- function(session, input, output) {
     })
     outputOptions(output, "panelStatus1", suspendWhenHidden = FALSE)
   })
-  # Observer for custom .csv uploads  ----
+  # Observer for custom .file uploads  ----
   observe({
     myInput <- input$addCustomCSV
     savePath <- "./CustomCSV"
@@ -1706,7 +1708,28 @@ server <- function(session, input, output) {
       inputId = "customResponseFile",
       choices = c("", list.files("./CustomCSV", pattern = ".csv$"))
     )
+
   })
+  
+  #observer for HDM uploads ----
+  observe({
+    myInput <- input$addCustomHDM225
+    savePath <- "./HDMS/225m/CustomHDM"
+    file.copy(
+      myInput$datapath,
+      file.path(savePath, myInput$name)
+    )
+  })
+  
+  observe({
+    myInput <- input$addCustomHDM75
+    savePath <- "./HDMS/75m/CustomHDM"
+    file.copy(
+      myInput$datapath,
+      file.path(savePath, myInput$name)
+    )
+  })
+    
   
   # Download handlers for utilities page----
   downloadToolFileName <-
@@ -1725,7 +1748,7 @@ server <- function(session, input, output) {
   )
   
   
-  downloadManualFileName <- "./Manual/FAMEv3_User_Manual.pdf"
+  downloadManualFileName <- "./Manual/FAMEv3.0.6_User_Manual.pdf"
   output$downloadManual <- downloadHandler(
     filename = function() {
       downloadManualFileName
@@ -1814,8 +1837,8 @@ server <- function(session, input, output) {
       # menuItem("User Manual",
       #          tabName = "Manual",
       #          icon = icon("book")),
-      menuItem(text = FAMEGUIVersion),
-      menuItem(text = FAMEFMRVersion)
+      #menuItem(text = rv$FAMEGUIVersion),
+      #menuItem(text = rv$FAMEFMRVersion)
     )
     if (input$usePUpolys == 0) {
       tabs_list <- c(tabs_list1, tabs_list2, tabs_list3)
