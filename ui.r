@@ -60,7 +60,8 @@ ui <- dashboardPage(
           selectFileUI("fileForDashboard",
                        label = tags$div(HTML('<i class="fa-regular fa-box"></i> Select and package for dashboard'))
                         )
-        )
+        ),
+        uiOutput("openDashBoardBtn")
       ),
       box(
         width = 12,

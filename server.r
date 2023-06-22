@@ -1859,5 +1859,14 @@ server <- function(session, input, output) {
     )
     }
     })
+  #  create dashboard button using rederUI to open dashboard on separate window
+  output$openDashBoardBtn <- renderUI({
+    baseURL<-reactiveValuesToList(session$clientData)$url_hostname
+    onclickstring<-paste0("window.open('http://",baseURL,"/rstudio/FAMEDashboard','_blank','resizable,height=260,width=370')")
+    
+    shiny::actionButton(inputId="openDashboard",label = "Open Dashboard App on new tab",icon = icon("tachometer"), value = "Open popup",onclick =onclickstring)
+    
+  })
+  
   
 }
