@@ -57,7 +57,9 @@ ui <- dashboardPage(
           )
         ),
         withBusyIndicatorUI(
-          selectFileUI("fileForDashboard", "Select and package for dashboard")
+          selectFileUI("fileForDashboard",
+                       label = tags$div(HTML('<i class="fa-regular fa-box"></i> Select and package for dashboard'))
+                        )
         )
       ),
       box(
@@ -66,7 +68,11 @@ ui <- dashboardPage(
         useShinyjs(),
         extendShinyjs(text = jscode, functions = c("closeWindow")),
         h5("Make sure you have downloaded all your data first"),
-        actionButton(style = "background-color: red;", "close", "Shut Down Server")
+        actionButton(inputId="close", 
+                     label =tags$div(HTML(
+                       '<i class="fa-sharp fa-solid fa-circle-exclamation fa-2xl" style="color: #ff0000;"></i>  Shut Down Server')
+                       )
+                     )
       ),
       box(
         width = 12,
