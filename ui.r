@@ -60,7 +60,8 @@ ui <- dashboardPage(
           selectFileUI("fileForDashboard",
                        label = tags$div(HTML('<i class="fa-regular fa-box"></i> Select and package for dashboard'))
                         )
-        )
+        ),
+        actionButton(inputId="openDashboard",label = "Open Dashboard App on new tab",icon = icon("tachometer"))
       ),
       box(
         width = 12,

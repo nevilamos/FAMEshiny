@@ -1859,5 +1859,14 @@ server <- function(session, input, output) {
     )
     }
     })
+  # open dashboard on separate tab
+  observeEvent(input$openDashboard,
+               {
+    baseURL<-reactiveValuesToList(session$clientData)$url_hostname
+    dashboardURL<-paste0("http://",baseURL,"/rstudio/FAMEDashboard")
+    browseURL(dashboardURL)
+               }
+  )
+  
   
 }
