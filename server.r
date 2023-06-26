@@ -424,7 +424,7 @@ server <- function(session, input, output) {
       rv$FHAnalysis$name <- paste0("FH_Analysis_", rv$outputFH)
       print(paste("rv$FHAnalysis$name =", rv$FHAnalysis$name))
       st_write(rv$FHAnalysis$OutDF,
-               file.path(rv$resultsDir, paste0(rv$FHAnalysis$name, ".shp")),
+               file.path(rv$resultsDir, paste0(rv$FHAnalysis$name, ".gpkg")),
                append = FALSE
       )
       
