@@ -1,4 +1,5 @@
-ui <- dashboardPage(
+ui <- dashboardPage(  title = "FAME 4",
+                      
   dashboardHeader(
     #formatting individual letters to different size and colour ----
     title = span(
@@ -217,18 +218,18 @@ ui <- dashboardPage(
             title = "Select and upload files",
             fileInput(
               inputId = "rawFH",
-              label = "Select 4 elements of raw fire sequence shapefile\n.shp, .shx, .prj, .dbf",
+              label = "Select raw fire sequence geopackage (.gpkg) or shapefile (.dbf, .prj,.shp, and .shx)",
               multiple = TRUE
             ),
             htmlOutput("message_text"),
             fileInput(
               inputId = "adHocPoly",
-              label = "Select 4 elements of ad hoc area shapefile\n.shp, .shx, .prj, .dbf",
+              label = "Select Area of Interest geopackage (.gpkg) or shapefile (.dbf, .prj,.shp, and .shx)",
               multiple = TRUE
             ),
             fileInput(
               inputId = "puPoly",
-              label = "Select 4 elements of PU/BU shapefile\n.shp, .shx, .prj, .dbf",
+              label = "Select PU/BU geopackage (.gpkg) or shapefile (.dbf, .prj,.shp, and .shx)",
               multiple = TRUE
             ),
             htmlOutput("message_text1"),
