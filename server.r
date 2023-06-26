@@ -1489,6 +1489,7 @@ server <- function(session, input, output) {
   ##add the line
   ##suggested at https://serverfault.com/questions/390322/how-to-shutdown-from-a-s>
   #rstudio ALL=NOPASSWD: /sbin/shutdown
+  #then use r system ("/usr/bin/sudo /sbin/shutdown")
   
   observeEvent(input$close, {
     js$closeWindow()
