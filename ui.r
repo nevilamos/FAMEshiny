@@ -550,9 +550,6 @@ ui <- dashboardPage(  title = "FAME 4",
                 
                 withBusyIndicatorUI(
                   actionButton(
-                    style = "color: #fff;
-                    background-color:
-                    #337ab7; border-color: #2e6da4",
                     "runCompareJFMP",
                     label = "Compare Draft JFMP"
                   )
