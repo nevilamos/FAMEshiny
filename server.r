@@ -1484,11 +1484,15 @@ server <- function(session, input, output) {
   )
   
   # Observer to shut down server ----
-  # THIS IS NOT WORKING WITH CURRENT UBUNTU VERSION DUE TO SECURITY CHANGES
-  # SHOULD BE REPLACED BY aws TIME OUT SETTINGS ON SERVER
+  # This requires visudo edit on ubuntu accout from ssh to work
+  # sudo visudo
+  ##add the line
+  ##suggested at https://serverfault.com/questions/390322/how-to-shutdown-from-a-s>
+  #rstudio ALL=NOPASSWD: /sbin/shutdown
+  
   observeEvent(input$close, {
     js$closeWindow()
-    system("sudo shutdown -h now")
+    system ("/usr/bin/sudo /sbin/shutdown")
   })
   
   # UPLOADS AND DOWNLOADS OF FILES AND RESULTS ----
