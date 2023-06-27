@@ -22,8 +22,8 @@ server <- function(session, input, output) {
   
   rawFHpath<-selectFileServer(
     id = "rawFHPath",
-    root_dirs = c(rawFH ="./rawFH",
-                  filetypes = c(".gpkg",".shp"))
+    root_dirs = c(rawFH ="./rawFH"),
+    filetypes = c("gpkg","shp")
   )
   observe(rv$rawFHPath<-rawFHpath$datapath)
   observe(output$rawFHPath<-renderText(rv$rawFHPath))
@@ -33,8 +33,8 @@ server <- function(session, input, output) {
   # Observer to get AdHoc shapefile file to be run ----
   AdHocPath<-selectFileServer(
     id = "AdHocPath",
-    root_dirs = c(AdHocPolygons ="./AdHocPolygons",
-                  filetypes = c(".gpkg",".shp"))
+    root_dirs = c(AdHocPolygons ="./AdHocPolygons"),
+                  filetypes = c("gpkg","shp")
   )
   observe(rv$AdHocPath<-AdHocPath$datapath)
   observe(output$AdHocPath<-renderText(rv$AdHocPath))
@@ -43,8 +43,8 @@ server <- function(session, input, output) {
   # Observer to get PU shapefile file to be run ----
   puPath<-selectFileServer(
     id = "puPath",
-    root_dirs = c(PUPolygons = "./PUPolygons",
-                  filetypes = c(".gpkg",".shp"))
+    root_dirs = c(PUPolygons = "./PUPolygons"),
+                  filetypes = c("gpkg","shp")
   )
   observe(rv$puPath<-puPath$datapath)
   observe(output$puPath<-renderText(rv$puPath))
@@ -52,8 +52,8 @@ server <- function(session, input, output) {
   # Observer to get customSpList be run ----
   customSpList<-selectFileServer(
     id = "customSpList",
-    root_dirs = c(CustomCSV = "./CustomCSV",
-                  filetypes = c("csv"))
+    root_dirs = c(CustomCSV = "./CustomCSV"),
+                  filetypes = c("csv")
   )
   observe(rv$customSpList<-customSpList$datapath)
   observe(output$customSpList<-renderText(rv$customSpList))
@@ -65,8 +65,8 @@ server <- function(session, input, output) {
   # Observer to get customResponseFile be run ----
   customResponseFile<-selectFileServer(
     id = "customResponseFile",
-    root_dirs = c(CustomCSV = "./CustomCSV",
-                  filetypes = c("csv"))
+    root_dirs = c(CustomCSV = "./CustomCSV"),
+                  filetypes = c("csv")
   )
   observe(rv$customResponseFile<-customResponseFile$datapath)
   observe(output$customResponseFile<-renderText(rv$customResponseFile))
@@ -77,7 +77,7 @@ server <- function(session, input, output) {
   
   zoneWtFile<-selectFileServer(
     id = "zoneWtFile",
-    root_dirs = c(CustomCSV = "./CustomCSV",filetypes = c("csv"))
+    root_dirs = c(CustomCSV = "./CustomCSV"),filetypes = c("csv")
   )
   observe(rv$zoneWtFile<-zoneWtFile$datapath)
   observe(output$zoneWtFile<-renderText(rv$zoneWtFile))
@@ -97,7 +97,7 @@ server <- function(session, input, output) {
   
   draftJFMPFile<-selectFileServer(
     id = "draftJFMPFile",
-    root_dirs = c(CustomCSV = "./CustomCSV",filetypes = c("csv"))
+    root_dirs = c(CustomCSV = "./CustomCSV"),filetypes = c("csv")
   )
   observe(rv$draftJFMPFile<-draftJFMPFile$datapath)
   observe(output$draftJFMPFile<-renderText(rv$draftJFMPFile))
@@ -132,7 +132,7 @@ server <- function(session, input, output) {
   # Observer of JFMP Area Target  ----
   targetHaFilepath <- selectFileServer(
     id = "targetHaFilepath",
-    root_dirs = c(CustomCSV = "./CustomCSV",filetypes = c("csv"))
+    root_dirs = c(CustomCSV = "./CustomCSV"),filetypes = c("csv")
   )
   observe(rv$targetHaFilepath<-targetHaFilepath$datapath)
   observe(output$targetHaFilepath<-renderText(rv$targetHaFilepath))
@@ -1484,7 +1484,7 @@ server <- function(session, input, output) {
   )
   
   # Observer to shut down server ----
-  # This requires visudo edit on ubuntu accout from ssh to work
+  # This requires visudo edit on ubuntu account from ssh to work
   # sudo visudo
   ##add the line
   ##suggested at https://serverfault.com/questions/390322/how-to-shutdown-from-a-s>
@@ -1497,245 +1497,54 @@ server <- function(session, input, output) {
   })
   
   # UPLOADS AND DOWNLOADS OF FILES AND RESULTS ----
-  # Observer for loading fire scenario shapefiles ----
+
   # This code is repeated with modifications for each shapefile load ideally would be made into function or module
+  # Observer for loading fire scenario shapefiles ----
   observe({
-    myInput <- input$rawFH
-    savePath <- "./rawFH"
-    if (is.null(myInput)) {
-      return()
-    }
-    shapefile_components <- c("shp", "shx", "prj", "dbf")
-    y <- NULL
-    x <- NULL
-    x <- length(unique(tools::file_path_sans_ext(
-      tools::file_path_sans_ext(myInput$name)
-    )) == 1)
-    y <-
-      (length(myInput$name) == 4 &
-         sum(shapefile_components %in% tools::file_ext(myInput$name)) == 4)
+    uploadFileServer(id = "rawFH",
+                     filetype = "geog",
+                     saveToPath = "./rawFH")
     
-    
-    if (x == T) {
-      if (y == T) {
-        rawFHPath <- file.path(savePath, myInput$name)
-        rv$rawFHPath <- rawFHPath
-        
-        file.copy(
-          myInput$datapath,
-          file.path(rv$rawFHPath)
-        )
-        # updateSelectInput(
-        #   session,
-        #   'unionedFH',
-        #   'Select fire scenario shapefile',
-        #   choice = c("", list.files('./rawFH/', pattern =
-        #                               ".shp$"))
-        # )
-        myText <- "shapefile uploaded"
-        showtable <- "YES"
-        output$rawFHTable <- renderTable(myInput[, 1:2])
-      } else {
-        myText <- paste(
-          "<span style=\"color:red\">one or more of .shp,.shx,.dbf,.prj are missing\n Or additional files selected</span>"
-        )
-        showtable <- "NO"
-      }
-    } else {
-      if (y == T) {
-        myText <- paste(
-          "<span style=\"color:red\"all elements of shapefile do not have same basename</span>"
-        )
-        output$showtable <- "NO"
-      } else {
-        myText <- paste("<span style=\"color:red\">wrong file elements selected</span>")
-        showtable <- "NO"
-      }
-    }
-    
-    output$message_text <- renderText({
-      myText
-    })
-    output$panelStatus <- reactive({
-      showtable
-    })
-    outputOptions(output, "panelStatus", suspendWhenHidden = FALSE)
   })
-  
-  
+
   
   
   # Observer for loading AdHoc shapefiles ----
   observe({
-    myInput <- input$adHocPoly
-    savePath <- "./AdHocPolygons"
-    if (is.null(myInput)) {
-      return()
-    }
-    shapefile_components <- c("shp", "shx", "prj", "dbf")
-    y <- NULL
-    x <- NULL
-    x <- length(unique(tools::file_path_sans_ext(
-      tools::file_path_sans_ext(myInput$name)
-    )) == 1)
-    y <-
-      (length(myInput$name) == 4 &
-         sum(shapefile_components %in% tools::file_ext(myInput$name)) == 4)
-    
-    
-    if (x == T) {
-      if (y == T) {
-        file.copy(
-          myInput$datapath,
-          file.path(
-            savePath,
-            myInput$name
-          )
-        )
-        # update
-        rv$AdHocPoly <- myInput$name
-        myText1 <- "shapefile uploaded"
-        showtable1 <- "YES"
-        output$rawFHTable <- renderTable(myInput[, 1:2])
-        updateSelectInput(
-          session,
-          inputId = "spAdHocShape",
-          choices = c("", list.files("./AdHocPolygons", pattern = ".shp$"))
-        )
-      } else {
-        myText1 <- paste(
-          "<span style=\"color:red\">one or more of .shp,.shx,.dbf,.prj are missing\n Or additional files selected</span>"
-        )
-        showtable1 <- "NO"
-      }
-    } else {
-      if (y == T) {
-        myText1 <- paste(
-          "<span style=\"color:red\"all elements of shapefile do not have same basename</span>"
-        )
-        output1$showtable <- "NO"
-      } else {
-        myText1 <- paste("<span style=\"color:red\">wrong file elements selected</span>")
-        showtable1 <- "NO"
-      }
-    }
-    
-    output$message_text1 <- renderText({
-      myText1
-    })
-    output$panelStatus1 <- reactive({
-      showtable1
-    })
-    outputOptions(output, "panelStatus1", suspendWhenHidden = FALSE)
+    uploadFileServer(id = "adHocPoly",
+                     filetype = "geog",
+                     saveToPath = "./AdHocPolygons")
   })
+
   
   # Observer for loading PUPoly shapefiles ----
   observe({
-    myInput <- input$puPoly
-    savePath <- "./PUPolygons"
-    if (is.null(myInput)) {
-      return()
-    }
-    shapefile_components <- c("shp", "shx", "prj", "dbf")
-    y <- NULL
-    x <- NULL
-    x <- length(unique(tools::file_path_sans_ext(
-      tools::file_path_sans_ext(myInput$name)
-    )) == 1)
-    y <-
-      (length(myInput$name) == 4 &
-         sum(shapefile_components %in% tools::file_ext(myInput$name)) == 4)
+    uploadFileServer(id = "puPoly",
+                     filetype = "geog",
+                     saveToPath = "./PUPolygons")
+  })  
     
-    
-    if (x == T) {
-      if (y == T) {
-        file.copy(
-          myInput$datapath,
-          file.path(
-            savePath,
-            myInput$name
-          )
-        )
-        # update
-        rv$AdHocPoly <- myInput$name
-        myText1 <- "shapefile uploaded"
-        showtable1 <- "YES"
-        output$rawFHTable <- renderTable(myInput[, 1:2])
-        updateSelectInput(session,
-                          "puShape",
-                          "Select AdHoc Area shapefile",
-                          choice = c("", list.files("./PUPolygons/",
-                                                    pattern =
-                                                      ".shp$"
-                          ))
-        )
-      } else {
-        myText1 <- paste(
-          "<span style=\"color:red\">one or more of .shp,.shx,.dbf,.prj are missing\n Or additional files selected</span>"
-        )
-        showtable1 <- "NO"
-      }
-    } else {
-      if (y == T) {
-        myText1 <- paste(
-          "<span style=\"color:red\"all elements of shapefile do not have same basename</span>"
-        )
-        output1$showtable <- "NO"
-      } else {
-        myText1 <- paste("<span style=\"color:red\">wrong file elements selected</span>")
-        showtable1 <- "NO"
-      }
-    }
-    
-    output$message_text2 <- renderText({
-      myText1
-    })
-    output$panelStatus1 <- reactive({
-      showtable1
-    })
-    outputOptions(output, "panelStatus1", suspendWhenHidden = FALSE)
-  })
   # Observer for custom .file uploads  ----
+  # Observer for loading PUPoly shapefiles ----
   observe({
-    myInput <- input$addCustomCSV
-    savePath <- "./CustomCSV"
-    file.copy(
-      myInput$datapath,
-      file.path(savePath, myInput$name)
-    )
-    updateSelectInput(
-      session,
-      inputId = "customSpList",
-      choices = c("", list.files("./CustomCSV", pattern = ".csv$"))
-    )
-    updateSelectInput(
-      session,
-      inputId = "customResponseFile",
-      choices = c("", list.files("./CustomCSV", pattern = ".csv$"))
-    )
-
-  })
+    uploadFileServer(id = "addCustomCSV",
+                     filetype = "csv",
+                     saveToPath = "./CustomCSV")
+  })  
   
+
   #observer for HDM uploads ----
   observe({
-    myInput <- input$addCustomHDM225
-    savePath <- "./HDMS/225m/CustomHDM"
-    file.copy(
-      myInput$datapath,
-      file.path(savePath, myInput$name)
-    )
-  })
-  
+    uploadFileServer(id = "addCustomHDM225",
+                     filetype = "tif",
+                     saveToPath = "./HDMS/225m/CustomHDM")
+  })  
   observe({
-    myInput <- input$addCustomHDM75
-    savePath <- "./HDMS/75m/CustomHDM"
-    file.copy(
-      myInput$datapath,
-      file.path(savePath, myInput$name)
-    )
-  })
-    
-  
+    uploadFileServer(id = "addCustomHDM75",
+                     filetype = "tif",
+                     saveToPath = "./HDMS/75m/CustomHDM")
+  })  
+ 
   # Download handlers for utilities page----
   downloadToolFileName <-
     "./FAMEPreProcessing/FAMEPreProcessing.zip"

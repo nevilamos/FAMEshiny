@@ -216,40 +216,25 @@ ui <- dashboardPage(  title = "FAME 4",
           box(
             width = 12,
             title = "Select and upload files",
-            fileInput(
-              inputId = "rawFH",
-              label = "Select raw fire sequence geopackage (.gpkg) or shapefile (.dbf, .prj,.shp, and .shx)",
-              multiple = TRUE
+            
+            uploadFileUI(id="rawFH",label = "Select rawFH for upload geopackage (.gpkg) or shapefile (.dbf, .prj,.shp, and .shx)"),
+            uploadFileUI(id="adHocPoly",label = "Select Area of Interest geopackage (.gpkg) or shapefile (.dbf, .prj,.shp, and .shx)"),
+            uploadFileUI(id="puPoly",label = "Select PU/BU geopackage (.gpkg) or shapefile (.dbf, .prj,.shp, and .shx)"),
+            
+            uploadFileUI(id= "addCustomCSV",
+              label = "Add Custom input CSV"),
+            uploadFileUI(id=  "addCustomHDM225",
+              label = "Add Custom 225m HDM files as .tif"
+              #,
+              #accept = c(".tif"),
+              #multiple = T
             ),
-            htmlOutput("message_text"),
-            fileInput(
-              inputId = "adHocPoly",
-              label = "Select Area of Interest geopackage (.gpkg) or shapefile (.dbf, .prj,.shp, and .shx)",
-              multiple = TRUE
+            uploadFileUI(id ="addCustomHDM75",
+                         label = "Add Custom 75m HDM files as .tif"
+                         #,
+                         #accept = c(".tif"),
+                         #multiple = T
             ),
-            fileInput(
-              inputId = "puPoly",
-              label = "Select PU/BU geopackage (.gpkg) or shapefile (.dbf, .prj,.shp, and .shx)",
-              multiple = TRUE
-            ),
-            htmlOutput("message_text1"),
-            fileInput(
-              inputId = "addCustomCSV",
-              label = "Add Custom input CSV",
-              accept = c("csv", ".csv")
-            ),
-            fileInput(
-              inputId = "addCustomHDM225",
-              label = "Add Custom 225m HDM files as .tif",
-              accept = c(".tif"),
-              multiple = T
-            ),
-            fileInput(
-              inputId = "addCustomHDM75",
-              label = "Add Custom 75m HDM files as .tif",
-              accept = c(".tif"),
-              multiple = T
-            )
           )
         ),
         column(
