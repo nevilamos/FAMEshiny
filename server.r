@@ -1544,6 +1544,12 @@ server <- function(session, input, output) {
                      filetype = "tif",
                      saveToPath = "./HDMS/75m/CustomHDM")
   })  
+  
+  observe({
+    uploadFileServer(id = "addSavedAnalysis",
+                     filetype = "qs",
+                     saveToPath = "./FH_Outputs")
+  })  
  
   # Download handlers for utilities page----
   downloadToolFileName <-
@@ -1577,10 +1583,9 @@ server <- function(session, input, output) {
   )
   
   # Choose results files to download ----
-  roots <- c(wd = "./results")
-  
+ roots = c(FAME = ".")
   shinyFileChoose(input, "files",
-                  roots = roots
+                  roots =  roots
   )
   
   output$rawInputValue <- renderPrint({

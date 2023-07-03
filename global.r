@@ -6,7 +6,7 @@ source("installationCheck.R")
 
 # get version of FAMEFMR in use and set app version
 
-FAMEGUIVersion <- "Version 4.0.1 June 27 2023"
+FAMEGUIVersion <- "Version 4.0.2 July 3 2023"
 
 FAMEFMRVersion <- paste("  R", getRversion(), "FAMEFMR", packageVersion("FAMEFMR"))
 

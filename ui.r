@@ -235,6 +235,9 @@ ui <- dashboardPage(  title = "FAME 4",
                          #accept = c(".tif"),
                          #multiple = T
             ),
+            uploadFileUI(id = "addSavedAnalysis",
+                         label = "Upload saved analysis '.qs' file",
+                         multiple = T)
           )
         ),
         column(
@@ -266,7 +269,7 @@ ui <- dashboardPage(  title = "FAME 4",
           ),
           box(
             width = 12,
-            title = "Download results",
+            title = "Download Files",
             fluidRow(column(4,
                             h5(
                               paste("Current Results Directory is:")
@@ -317,13 +320,7 @@ ui <- dashboardPage(  title = "FAME 4",
                 
               ),
               
-              
-              # select region or user defined area to run analysis on ----
-              # shinyWidgets::pickerInput(inputId = "REGION_NO",
-              #                           label = "Choose a Region",
-              #                           choices = as.list(c(REG_NO)),
-              #                           width = "fit",),
-              
+
               selectInput(
                 "REGION_NO",
                 "Choose a Region",
