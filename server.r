@@ -369,6 +369,7 @@ server <- function(session, input, output) {
   # Observer to runFH analysis ----
   observeEvent(input$runFH , {
     validate(need(rv$rawFHPath, "You need to select a raw FH to run analysis"))
+    if(rv$REGION_NO == '7'){ validate(need(rv$AdHocPath, "You have selected to use a custom Study area, please select a custom polygon file" ))}
     # if(rv$usePUPolys == TRUE){validate(need(!is.null(rv$puPath)), 'You need to select a PU/burn unit file to run analysis')}
     withBusyIndicatorServer("runFH", {
       rv$outputFH <- file_path_sans_ext(basename(rv$rawFHPath))
@@ -679,7 +680,14 @@ server <- function(session, input, output) {
           
         })
       })
-    }
+      #save analysis to qs so that it can be retrieved if UI greys out
+      myRvList <- reactiveValuesToList(rv)
+      autoSavePath<-"./FH_Outputs/autoSavedAnalysis.qs"
+      qsave(myRvList,autoSavePath)
+      
+      
+    
+      }
   )
   # Observer to get update years for calculations----
   observeEvent(rv$FHAnalysis$TimeSpan, {
@@ -1679,7 +1687,7 @@ server <- function(session, input, output) {
     }
     })
 
-  #  create dashboard button using rederUI to open dashboard on separate window
+  #  create dashboard button using renderUI to open dashboard on separate window
   output$openDashBoardBtn <- renderUI({
     baseURL<-reactiveValuesToList(session$clientData)$url_hostname
     onclickstring<-paste0("window.open('http://",baseURL,"/rstudio/FAMEDashboard','_blank','resizable,height=260,width=370')")
