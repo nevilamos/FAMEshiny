@@ -42,7 +42,7 @@ WD <- getwd()
 if(.Platform$OS.type == "unix") {
   system("find ./results -type d -empty -delete")
 } else {
-  
+  #not currently working for windows
 }
 
 
