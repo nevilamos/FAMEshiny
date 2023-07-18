@@ -238,7 +238,7 @@ rv<-list()
     myFHAnalysis = rv$FHAnalysis,
     myCropRasters = rv$cropRasters,
     myRasterRes = RasterRes,
-    puPoly = myPuPoly
+    puPoly = rv$puPath
   )
 
   print("made allcombs")
@@ -248,7 +248,7 @@ r<-eval(rv$cropRasters$rasterDef)
   
   print("finished FH analysis")
   #save completed FHanalysis rv with 
-  analysisPath<-file.path(rv$resultsDir ,paste0(rv$outputFH,"_FHanalysis",".qs"))
+  analysisPath<-file.path(rv$resultsDir ,paste0(rv$outputFH,"_FHanalysis",rv$RasterRes,".qs"))
   saveSpatRasterList(rv, analysisPath)
   
   
