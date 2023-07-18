@@ -38,6 +38,12 @@ StartTimeString <- format(Sys.time(), "%Y%m%d_%H%M")
 
 WD <- getwd()
 
+#cleans up any old empty results directories
+if(.Platform$OS.type == "unix") {
+  system("find ./results -type d -empty -delete")
+} else {
+  
+}
 
 
 # Makes resultsDir

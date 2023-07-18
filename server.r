@@ -736,6 +736,11 @@ server <- function(session, input, output) {
             myCropRasters = rv$cropRasters
           )
           
+          if(rv$makeTFIrasters == TRUE){
+            write_csv(TFI_STATUS_LUT,
+                      file.path(resultsDir, "TFI_Rasters", "TFI_STATUS_LUT.csv"))
+          }
+          
           
           
           
