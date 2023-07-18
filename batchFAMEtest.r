@@ -213,9 +213,9 @@ rv<-list()
   
   
   # check if pupoly is to be used
-  if (runJFMP==T) {
-    
+  if (rv$usePUpolys == TRUE){
     myPuPoly <- rv$puPath
+    if (runJFMP==T) {
     # update the FHAnalysis$OutDF  with noburn columns
     rv$FHAnalysis$OutDF <-
       rv$FHAnalysis$OutDF %>% bind_cols(make_JFMPNoBurnTab(
@@ -227,8 +227,9 @@ rv<-list()
     rv$FHAnalysis$LFTNames <- c(FHAnalysis$LFTNames, "LFTNoBurn")
     
     print("appended JFMPNoBurnCols")
-  } else {
+  } }else {
     myPuPoly <- NULL
+    
   }
   
 
@@ -238,7 +239,7 @@ rv<-list()
     myFHAnalysis = rv$FHAnalysis,
     myCropRasters = rv$cropRasters,
     myRasterRes = RasterRes,
-    puPoly = myPuPoly
+    puPoly = rv$puPath
   )
 
   print("made allcombs")
@@ -248,7 +249,7 @@ r<-eval(rv$cropRasters$rasterDef)
   
   print("finished FH analysis")
   #save completed FHanalysis rv with 
-  analysisPath<-file.path(rv$resultsDir ,paste0(rv$outputFH,"_FHanalysis",".qs"))
+  analysisPath<-file.path(rv$resultsDir ,paste0(rv$outputFH,"_FHanalysis",rv$RasterRes,".qs"))
   saveSpatRasterList(rv, analysisPath)
   
   
