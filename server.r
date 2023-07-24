@@ -553,7 +553,8 @@ server <- function(session, input, output) {
             # If abundance data is provide by growth stage rather than time since fire expand it to the full time since fire long format ----
             AbundDataLong <- AbundDataByGS %>%
               dplyr::mutate(FireTypeNo = if_else(FireType == "High", 2, if_else(FireType == "Low", 1, 0))) %>%
-              dplyr::left_join(EFG_TSF_4GS, by = c("EFG_NO", "GS4_NO")) %>%
+              #inner join here prevents NA for YSF in output  where there are no YSF for a GS4_NO but GS4_NO is incuded in  AbundDataByGS
+              dplyr::inner_join(EFG_TSF_4GS, by = c("EFG_NO", "GS4_NO"),relationship ="many-to-many") %>%
               dplyr::arrange(TAXON_ID)
           } else {
             # Read abundance data already in full long format  ----
