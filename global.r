@@ -41,9 +41,14 @@ WD <- getwd()
 #cleans up any old empty results directories
 if(.Platform$OS.type == "unix") {
   system("find ./results -type d -empty -delete")
+  if (!dir.exists("./results")){
+    dir.create("results")
+  }
+  
 } else {
   #not currently working for windows
 }
+
 
 
 # Makes resultsDir
