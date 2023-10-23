@@ -15,8 +15,9 @@ rv<-list()
   
   #AdHoc shapefile file to be run ----
   rv$AdHocPath <- AdHocPath
-  rv$AdHocName <- basename(rv$AdHocPath)
-  
+  if(!is.null(rv$AdHocPath)){
+    rv$AdHocName <- basename(rv$AdHocPath)
+  }
   # whether or not to make make TFI rasters----
   rv$makeTFIrasters <- makeTFIrasters
   
@@ -415,11 +416,11 @@ r<-eval(rv$cropRasters$rasterDef)
       
       
       
-      HDMSpp_NO <-
+      rv$HDMSpp_NO <-
         rv$TaxonList$TAXON_ID[rv$TaxonList$Include == "Yes"]
       writeSp <-
         rv$TaxonList$TAXON_ID[rv$TaxonList$WriteSpeciesRaster == "Yes"]
-      writeSp <- writeSp[writeSp %in% HDMSpp_NO]
+      writeSp <- writeSp[writeSp %in% rv$HDMSpp_NO]
       
       
       if (rv$spResponseChoice == FALSE) {
@@ -439,21 +440,21 @@ r<-eval(rv$cropRasters$rasterDef)
         )]
         
         # If abundance data is provide by growth stage rather than time since fire expand it to the full time since fire long format ----
-        AbundDataLong <- AbundDataByGS %>%
+        rv$AbundDataLong <- AbundDataByGS %>%
           dplyr::mutate(FireTypeNo = if_else(FireType == "High", 2, if_else(FireType == "Low", 1, 0))) %>%
-          dplyr::left_join(EFG_TSF_4GS, by = c("EFG_NO", "GS4_NO")) %>%
+          dplyr::inner_join(EFG_TSF_4GS, by = c("EFG_NO", "GS4_NO")) %>%
           dplyr::arrange(TAXON_ID)
       } else {
         # Read abundance data already in full long format  ----
-        AbundDataLong <- read_csv(mySpGSResponses) %>%
+        rv$AbundDataLong <- read_csv(mySpGSResponses) %>%
           dplyr::arrange(TAXON_ID)
       }
       
       # Make the lookup list of arrays for fast calculation of cell by cell species abundance ----
       print("making Spp abund LU List")
       LU_List <- make_Spp_LU_list(
-        myHDMSpp_NO = HDMSpp_NO,
-        myAbundDataLong = AbundDataLong
+        myHDMSpp_NO = rv$HDMSpp_NO,
+        myAbundDataLong = rv$AbundDataLong
       )
       
       print("finished  Spp abund LU List")
@@ -465,7 +466,7 @@ r<-eval(rv$cropRasters$rasterDef)
       rv$SpYearSumm <- calc_SpeciesRA(
         myFHAnalysis = rv$FHAnalysis,
         myAllCombs <- rv$allCombs,
-        myHDMSpp_NO = HDMSpp_NO,
+        myHDMSpp_NO = rv$HDMSpp_NO,
         myWriteSpRasters = rv$makeRArasters,
         myResultsDir = rv$resultsDir,
         myLU_List = LU_List,
