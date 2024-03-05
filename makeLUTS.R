@@ -2,29 +2,28 @@
 
 # list of options for choice of region/ state or adhoc polygon for analysis
 #ultimately should be possible to remove this and use  REG_LUT for the same purposes.
-REG_NO <- c(
+REG_NO <- c("USER DEFINED POLYGON" = 7,
   "WHOLE OF STATE" = 99,
   "BARWON SOUTH WEST" = 1,
   "GIPPSLAND" = 2 ,
   "GRAMPIANS" = 3,
   "HUME" = 4,
   "LODDON MALLEE" = 5,
-  "PORT PHILLIP" = 6,
-  "USER DEFINED POLYGON" = 7
+  "PORT PHILLIP" = 6
 )
 
 REG_LUT <- data.frame(
-  FIRE_REG = c(99, 1, 2, 3, 4, 5, 6, 7),
+  FIRE_REG = c(7,99, 1, 2, 3, 4, 5, 6),
   FIRE_REGION_NAME = c(
+    "USER DEFINED POLYGON",
     "WHOLE OF STATE",
     "BARWON SOUTH WEST",
     "GIPPSLAND",
     "GRAMPIANS",
     "HUME",
     "LODDON MALLEE",
-    "PORT PHILLIP",
-    "USER DEFINED POLYGON"
-  )
+    "PORT PHILLIP"
+    )
 )
 
 # Fire FMZ look up table
