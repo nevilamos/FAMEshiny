@@ -3,7 +3,6 @@ rm(list = ls(all = TRUE))
 
 options(stringsAsFactors = F)
 source("installationCheck.R")
-source("C:/Data/FAMEshiny/tempSaveSettings.R")
 # get version of FAMEFMR in use and set app version
 
 FAMEGUIVersion <- "Version 4.0.3 July 18 2023"
@@ -49,8 +48,6 @@ if(.Platform$OS.type == "unix") {
   #not currently working for windows
 }
 
-
-
 # Makes resultsDir
 resultsDir <- file.path("./results", StartTimeString)
 
@@ -61,6 +58,7 @@ for (d in c(resultsDir)) {
 rm(d)
 dir.create(file.path(resultsDir, "RA_Rasters"))
 dir.create(file.path(resultsDir, "TFI_Rasters"))
+
 
 # make lookup tables used in app
 source("makeLUTS.R")
@@ -77,3 +75,5 @@ names(TFI_LUT)[1] <- "EFG"
 
 EFG_TSF_4GS <-
   read_csv("./ReferenceTables/EFG_TSF_4GScorrectedAllEFGto400yrsV2.csv")[, c("EFG_NO", "GS4_NO", "YSF")]
+
+outputNames<-read.csv("./ReferenceTables/outputNames.csv",row.names =1)
