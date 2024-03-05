@@ -3,7 +3,7 @@ rm(list = ls(all = TRUE))
 
 options(stringsAsFactors = F)
 source("installationCheck.R")
-
+source("C:/Data/FAMEshiny/tempSaveSettings.R")
 # get version of FAMEFMR in use and set app version
 
 FAMEGUIVersion <- "Version 4.0.3 July 18 2023"
