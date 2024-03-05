@@ -424,14 +424,14 @@ r<-eval(rv$cropRasters$rasterDef)
       
       
       if (rv$spResponseChoice == FALSE) {
-        mySpGSResponses <- "./ReferenceTables/OrdinalExpertLong.csv"
+        rv$SpGSResponses <- "./ReferenceTables/OrdinalExpertLong.csv"
       } else {
-        mySpGSResponses <-
+        rv$SpGSResponses <-
           file.path(rv$customResponseFile)
       }
       # Select the file giving the fauna relative abundance inputs you wish to use----
       if (rv$abundByGS == TRUE) {
-        AbundDataByGS <- read_csv(mySpGSResponses)[, c(
+        AbundDataByGS <- read_csv(rv$SpGSResponses)[, c(
           "EFG_NO",
           "GS4_NO",
           "FireType",
@@ -446,7 +446,7 @@ r<-eval(rv$cropRasters$rasterDef)
           dplyr::arrange(TAXON_ID)
       } else {
         # Read abundance data already in full long format  ----
-        rv$AbundDataLong <- read_csv(mySpGSResponses) %>%
+        rv$AbundDataLong <- read_csv(rv$SpGSResponses) %>%
           dplyr::arrange(TAXON_ID)
       }
       
