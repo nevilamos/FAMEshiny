@@ -2,9 +2,43 @@ server <- function(session, input, output) {
   rv <- reactiveValues()
   rv$FAMEFMRVersion<-FAMEFMRVersion
   rv$FAMEGUIVersion<-FAMEGUIVersion
+  rv$max_interval = 5
   output$FAMEFMRVersion <- renderText(rv$FAMEFMRVersion)
   output$FAMEGUIVersion <- renderText(rv$FAMEGUIVersion)
+  rv$outputSettings = list()
+  # MAKE RESULTS DIRECTORIES
+  # create a unique results directory for each run of scenarios
+  # using starting time as a string for Results directory name
+  # this is zipped for download of results.
   
+  
+  StartTimeString <- format(Sys.time(), "%Y%m%d_%H%M")
+  
+  WD <- getwd()
+  
+  #cleans up any old empty results directories
+  if(.Platform$OS.type == "unix") {
+    system("find ./results -type d -empty -delete")
+    if (!dir.exists("./results")){
+      dir.create("results")
+    }
+    
+  } else {
+    #not currently working for windows
+  }
+  
+  
+  
+  # Makes resultsDir
+  resultsDir <- file.path("./results", StartTimeString)
+  
+  #
+  for (d in c(resultsDir)) {
+    dir.create(d)
+  }
+  rm(d)
+  dir.create(file.path(resultsDir, "RA_Rasters"))
+  dir.create(file.path(resultsDir, "TFI_Rasters"))
   
   observe({
     rv$resultsDir <- resultsDir
@@ -280,6 +314,19 @@ server <- function(session, input, output) {
     )
   })
   
+  # Observer for max_interval----
+  observeEvent(input$max_interval, {
+    rv$max_interval <- input$max_interval
+  })
+  
+  # observeEvent(rv$max_interval, {
+  #   updateNumericInput(
+  #     session = session,
+  #     inputId = "max_interval",
+  #     value = rv$max_interval
+  #   )
+  # })
+  
   # Observer for jfmpSEASON0----
   observeEvent(input$JFMPSeason0, {
     rv$JFMPSeason0 <- input$JFMPSeason0
@@ -368,10 +415,12 @@ server <- function(session, input, output) {
   # OBSERVERS TO RUN MAIN FUNCTIONS----
   # Observer to runFH analysis ----
   observeEvent(input$runFH , {
+    
     validate(need(rv$rawFHPath, "You need to select a raw FH to run analysis"))
     if(rv$REGION_NO == '7'){ validate(need(rv$AdHocPath, "You have selected to use a custom Study area, please select a custom polygon file" ))}
     # if(rv$usePUPolys == TRUE){validate(need(!is.null(rv$puPath)), 'You need to select a PU/burn unit file to run analysis')}
     withBusyIndicatorServer("runFH", {
+      #rv$resultsDir<-file.path("./results", StartTimeString)
       rv$outputFH <- file_path_sans_ext(basename(rv$rawFHPath))
       if (input$usePUpolys == 1) {
         rv$puName<-tools::file_path_sans_ext(basename(rv$puPath))
@@ -413,11 +462,15 @@ server <- function(session, input, output) {
         start.SEASON = rv$startTimespan,
         end.SEASON = rv$endSEASON,
         OtherAndUnknown = rv$otherUnknown,
-        validFIRETYPE = c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER")
+        validFIRETYPE = c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER"),
+        max_interval = rv$max_interval
+        
+        
       )
-      # Save input settings to a list and then append into FH analysis object
+      # Save input settings into FH analysis object
       rv$FHAnalysis$FireScenario <- rv$rawFHName
       rv$FHAnalysis$RasterRes <- rv$RasterRes
+      rv$FHAnalysis$max_interval<-rv$max_interval
       rv$FHAnalysis$ClipPolygonFile <- rv$clipShape
       rv$FHAnalysis$Region_No <- rv$REGION_NO
       rv$FHAnalysis$PUBLIC_ONLY <- rv$public
@@ -428,7 +481,15 @@ server <- function(session, input, output) {
                file.path(rv$resultsDir, paste0(rv$FHAnalysis$name, ".gpkg")),
                append = FALSE
       )
+      #save settings for fhProcess
+      # the outpuSettings a reset to their empty values when the fhAnalysis is 
+      #run as the values for the subsequent anlayseis need to be updated 
+      #(ie run again ) if the fhAnalysis changes.
+      rv$outputSettings<-as.list(as.data.frame(t(outputNames)))
+      rv$outputSettings<-saveFHsettings(rv$outputSettings,rv)
       
+      saveSettingsTable(rv$outputSettings,rv$resultsDir,outputNames)
+     
       
       rv$FHAnalysis$FH_IDr <-
         terra::rasterize(
@@ -466,6 +527,10 @@ server <- function(session, input, output) {
       } else {
         rv$puPath <- NULL
       }
+      #save settings to rv$outputSettings for puPath
+      rv$outputSettings<-savePUsettings(rv$outputSettings,rv)
+      saveSettingsTable(rv$outputSettings,rv$resultsDir,outputNames)
+      
       
       
       # make allCombs -----
@@ -501,15 +566,15 @@ server <- function(session, input, output) {
           # run relative abundance analysis  ----
           
           startBaseline <- as.integer(rv$startBaseline)
-          endBaseline <- as.integer(rv$endBaseline)
+          endBaseline <- as.integer(rv$startBaseline)
           
           Baseline <- startBaseline:endBaseline
           if (rv$spListChoice == FALSE) {
-            rv$TaxonList <-
-              read_csv("./ReferenceTables/FAME_TAXON_LIST.csv")
+            rv$TaxonListPath <-"./ReferenceTables/FAME_TAXON_LIST.csv"
           } else {
-            rv$TaxonList <- read_csv(rv$customSpList)
+            rv$TaxonListPath <- rv$customSpList
           }
+          rv$TaxonList<-read_csv(rv$TaxonListPath)
           
           if(rv$RasterRes == 75){gsub("/225m/","/75m/",rv$TaxonList$HDMPath)
           } else if(rv$RasterRes == 225){
@@ -535,14 +600,14 @@ server <- function(session, input, output) {
           
           
           if (rv$spResponseChoice == FALSE) {
-            mySpGSResponses <- "./ReferenceTables/OrdinalExpertLong.csv"
+            rv$SpGSResponses <- "./ReferenceTables/OrdinalExpertLong.csv"
           } else {
-            mySpGSResponses <-
+            rv$SpGSResponses <-
               file.path(rv$customResponseFile)
           }
           # Select the file giving the fauna relative abundance inputs you wish to use----
           if (rv$abundByGS == TRUE) {
-            AbundDataByGS <- read_csv(mySpGSResponses)[, c(
+            AbundDataByGS <- read_csv(rv$SpGSResponses)[, c(
               "EFG_NO",
               "GS4_NO",
               "FireType",
@@ -558,7 +623,7 @@ server <- function(session, input, output) {
               dplyr::arrange(TAXON_ID)
           } else {
             # Read abundance data already in full long format  ----
-            AbundDataLong <- read_csv(mySpGSResponses) %>%
+            AbundDataLong <- read_csv(rv$SpGSResponses) %>%
               dplyr::arrange(TAXON_ID)
           }
           
@@ -678,13 +743,20 @@ server <- function(session, input, output) {
             ) %>%
             dplyr::mutate(SEASON = as.integer(SEASON))
           print("finished deltaabund")
-          
+          #save settings for fhProcess
+          rv$outputSettings<-saveFHsettings(rv$outputSettings,rv)
+          #save settings for species calculations
+          rv$outputSettings<-saveSPsettings(rv$outputSettings,rv)
+          saveSettingsTable(rv$outputSettings,rv$resultsDir,outputNames)
         })
       })
       #save analysis to qs so that it can be retrieved if UI greys out
       myRvList <- reactiveValuesToList(rv)
       autoSavePath<-"./FH_Outputs/autoSavedAnalysis.qs"
       qsave(myRvList,autoSavePath)
+      #save name of autosavepath after species calculations
+      rv$outputSettings$analysisSavedPath[1] = autoSavePath
+      saveSettingsTable(rv$outputSettings,rv$resultsDir,outputNames)
       
       
     
@@ -739,7 +811,7 @@ server <- function(session, input, output) {
           
           if(rv$makeTFIrasters == TRUE){
             write_csv(TFI_STATUS_LUT,
-                      file.path(resultsDir, "TFI_Rasters", "TFI_STATUS_LUT.csv"))
+                      file.path(rv$resultsDir, "TFI_Rasters", "TFI_STATUS_LUT.csv"))
           }
           
           
@@ -775,6 +847,11 @@ server <- function(session, input, output) {
               ),
             file = file.path(rv$resultsDir, "TFI_EFG_SUMMARY.csv")
           )
+          
+          #save settings for TFI processing
+          rv$outputSettings$ranTFI = TRUE
+          rv$outputSettings$makeTFIrasters = rv$makeTFIrasters
+          saveSettingsTable(rv$outputSettings,rv$resultsDir,outputNames)
           
           
           print("Finished TFI calculations")
@@ -834,6 +911,11 @@ server <- function(session, input, output) {
                       "BBTFI_WIDE.csv"
                     )
           )
+          
+          #save settings for BBTFI processing
+          rv$outputSettings$ranBBTFI = TRUE
+          rv$outputSettings$makeBBTFIrasters = rv$makeBBTFIrasters
+          saveSettingsTable(rv$outputSettings,rv$resultsDir,outputNames)
         })
       })
     }
@@ -872,6 +954,10 @@ server <- function(session, input, output) {
                                         "GS_WIDE.csv"
                                       )
                      )
+                     
+                     #save settings for GS processing
+                     rv$outputSettings$ranGS = TRUE
+                     saveSettingsTable(rv$outputSettings,rv$resultsDir,outputNames)
                      print("finished GS calcs")
                    })
                  })
@@ -957,7 +1043,12 @@ server <- function(session, input, output) {
         )
         
         print("finished auto JFMP")
-      })
+      
+        #save settings for JFMP processing
+        rv$outputSettings<-saveJFMPsettings(rv$outputSettings,rv)
+        saveSettingsTable(rv$outputSettings,rv$resultsDir,outputNames)
+
+        })
     }
   )
   
@@ -1153,8 +1244,7 @@ server <- function(session, input, output) {
             showlegend = T
           )
       })
-      # output$BBTFIPlot <- renderUI(plotlyOutput("myBBTFIPlot"))
-      # }
+      
     }
   )
   
@@ -1167,7 +1257,6 @@ server <- function(session, input, output) {
       myChoices <- unique(rv$GS_Summary$GS_Summary_Long$EFG_NAME)
       myChoices <- myChoices[!is.na(myChoices)]
       updateSelectInput(session, "GSEFGChoices", choices = myChoices)
-      # updateTabItems(session, "tabs", "GSplots")
       minSEASON <- min(rv$GS_Summary$GS_Summary_Long$SEASON)
       maxSEASON <- max(rv$GS_Summary$GS_Summary_Long$SEASON)
       updateSliderInput(
@@ -1457,7 +1546,10 @@ server <- function(session, input, output) {
     fileinfo <- parseSavePath(roots, input$saveAnalysis)
     
     if (nrow(fileinfo) > 0) {
-      qsave(myRvList, as.character(fileinfo$datapath))
+      mySavedAnaylysisFile<-as.character(fileinfo$datapath)
+      qsave(myRvList, mySavedAnaylysisFile)
+      #save name of autosavepath after species calculations
+      rv$outputSettings$analysisSavedPath[1] = mySavedAnaylysisFile
       gc()
     }
   })
@@ -1481,8 +1573,10 @@ server <- function(session, input, output) {
       for (i in x) {
         rv[[i]] <- myRvList[[i]]
       }
+      
       gc()
-    }
+      
+    } 
   })
   
   # Observer  to switch to settings page when analysis loaded----
@@ -1512,7 +1606,6 @@ server <- function(session, input, output) {
   
   # UPLOADS AND DOWNLOADS OF FILES AND RESULTS ----
 
-  # This code is repeated with modifications for each shapefile load ideally would be made into function or module
   # Observer for loading fire scenario shapefiles ----
   observe({
     uploadFileServer(id = "rawFH",
