@@ -259,6 +259,7 @@ ui <- dashboardPage(  title = "FAME 4",
             ),
             radioButtons("sppublic", "Restrict to Public Land", c("Yes" = TRUE, "No" = FALSE)),
             
+            
             # runscript button
             withBusyIndicatorUI(actionButton("runDSpList",
                                              label = "Run draft species list")),
@@ -336,15 +337,20 @@ ui <- dashboardPage(  title = "FAME 4",
                                ),),
               fluidRow(
                 column(
-                  4,
+                  3,
                   radioButtons("RasterRes", "Select Raster Resolution", cellSizes),
                 ),
-                column(4,
+                column(3,
                        radioButtons(
                          "public", "Restrict to Public Land", c("Yes" = TRUE, "No" = FALSE)
                        )),
+                column(3,
+                       radioButtons(
+                         "max_interval", "Correct for Burn after Bushfire", c("Yes" = 5, "No" = 0)
+                         )),
+                
                 column(
-                  4,
+                  3,
                   radioButtons(
                     inputId = "otherUnknown",
                     label = "Value for other and unknown fires",
