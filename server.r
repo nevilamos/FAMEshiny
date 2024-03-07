@@ -1650,8 +1650,29 @@ server <- function(session, input, output) {
     uploadFileServer(id = "addCustomHDM75",
                      filetype = "tif",
                      saveToPath = "./HDMS/75m/CustomHDM")
-  })  
+  })
   
+  addCustomUnformattedHDMListen <- reactive({
+    list(input$addCustomUnformattedHDM,input$outRes)
+  })
+  
+  
+  observeEvent(addCustomUnformattedHDMListen(),ignoreInit = T,{
+    if (input$addCustomUnformattedHDM$type[1] == "image/tiff"){
+      
+      outDir<-paste0("./HDMS/",input$outRes,"m/CustomHDM")
+      formattedHDMPath<-file.path(outDir,paste0(basename(tools::file_path_sans_ext(input$addCustomUnformattedHDM$name)),"_",input$outRes,"_custom.tif"))
+      alginCustomRaster(inputPath =input$addCustomUnformattedHDM$datapath, RES =  as.integer(input$outRes), CRS="epsg:3111",EXTENT = ext(2126550, 2941050, 2258825, 2828075 ),outPath = formattedHDMPath)
+      output$formattedHDMPath<-renderText(paste ( "Saved formatted HDM to:", formattedHDMPath))
+      
+    }else{
+      stop ("please upload tiff file")
+    }
+    
+    
+  })
+  
+
   observe({
     uploadFileServer(id = "addSavedAnalysis",
                      filetype = "qs",
