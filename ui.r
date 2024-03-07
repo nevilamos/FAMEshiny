@@ -235,6 +235,11 @@ ui <- dashboardPage(  title = "FAME 4",
                          #accept = c(".tif"),
                          #multiple = T
             ),
+            
+            fileInput("addCustomUnformattedHDM", NULL, buttonLabel = "Load custom HDM for formatting as .tif", multiple = FALSE),
+            radioButtons("outRes",label = "Custom HDM output resolution",choices = list("75m"=75,"225m"=225) ),
+            textOutput(outputId = "formattedHDMPath"),
+            
             uploadFileUI(id = "addSavedAnalysis",
                          label = "Upload saved analysis '.qs' file",
                          multiple = T)
