@@ -244,7 +244,7 @@ ui <- dashboardPage(  title = "FAME 4",
                          #multiple = T
             ),
             
-            fileInput("addCustomUnformattedHDM", NULL, buttonLabel = "Load custom HDM .tif file for reformatting", multiple = FALSE),
+            fileInput("addCustomUnformattedHDM", NULL,accept=".tif", buttonLabel = "Load custom HDM .tif file for reformatting", multiple = FALSE),
             radioButtons("outRes",label = "Custom HDM output resolution",choices = list("225m"=225,"75m"=75),inline =TRUE ),
             textOutput(outputId = "formattedHDMPath"),
             
