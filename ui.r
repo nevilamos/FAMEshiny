@@ -27,7 +27,14 @@ ui <- dashboardPage(  title = "FAME 4",
     width = 300,
     sidebarMenu(
       sidebarMenuOutput("tabsmenu"),
-      a("Open manual in new tab",target="blank",href= "FAME_User_Manual.pdf"),
+      # Button to open fame manual from pdf in www directory
+      
+      actionButton(inputId='ab1', label="Open manual in new tab", 
+                   icon = icon("th"), 
+                   onclick ="window.open('FAME_User_Manual.pdf', '_blank')"),
+      
+     
+      
       
       # save and reload analysis  buttons ----
       
