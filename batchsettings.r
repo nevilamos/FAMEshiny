@@ -3,11 +3,11 @@
 # the batch will run through each of the raw fire history scenarios specified  by the shapefile paths in rawFHPath  in series putting the results in a separate subdirectory of the resultsDir.  All other inputs are constant throughout the batch
 
 #path(s) to your rawFH file ( output of the ARCGIS preprocessing tool) each given as a separate string of the full path or ./path relative to the working directory. 
-rawFHPaths =c("C:/Data/FAMEshiny/rawFH/FIRE_HISTORY20210310_DemoAdHocPolygon.gpkg")#FIRE_HISTORY20210310_DemoAdHocPolygon.gpkg") 
+rawFHPaths =c("C:/Data/ARCGISProjects/PreProcessing/rawFH_FH_Clip15_LF_DISTRICT_1755_JFMP_2024.gpkg")#FIRE_HISTORY20210310_DemoAdHocPolygon.gpkg") 
 #the root directory in which results directories should be created and outputs saved
 resultsDir = "./results"
 #the integer value of the region number 1-6 for FFR regions,7 for user supplied adHoc polygon, 99 for Statewide
-REGION_NO = "7"  #"99"
+REGION_NO = "2"  #"99"
 
 #path to the ad Hoc polygon if REGION_NO 			== 7 otherwise NULL
 AdHocPath = "C:/Data/FAMEshiny/AdHocPolygons/DemoIrregularPolygon.gpkg"
@@ -16,7 +16,7 @@ doSpeciesCalculations= TRUE
 
 # whether or not custom species list is used ( TRUE for custom species list) otherwise FALSE
 spListChoice = TRUE
-customSpList = "C:/Data/FAMEshiny/CustomCSV/5spWithAreas.csv"
+customSpList = "C:/Data/FAMEshiny/CustomCSV/GippsSpListInEO.csv"
 
 #whether the species response file contains abundance data by 4 growth stages ( TRUE) or YSF (FALSE) 0-400
 abundByGS =TRUE
@@ -33,13 +33,14 @@ public = TRUE
 RasterRes = 225
 
 #"first season for which output is wanted ( four digit year as integer)
-startTimespan = 2005
+startTimespan = 1988
 endTimespan =2030
 #start and end baseline years if single year then the two values should be equal
 startBaseline = 2000
 endBaseline = 2010
 endSEASON = NULL
 
+max_interval = 0
 
 #whether to write TFI rasters
 makeTFIrasters = TRUE

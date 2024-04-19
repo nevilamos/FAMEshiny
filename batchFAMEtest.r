@@ -155,6 +155,8 @@ rv<-list()
   } else {
     rv$end.SEASON <- rv$endTimespan
   }
+  
+  rv$max_interval<-max_interval
 #Starts analysis here ---- 
   
 #make cropRAsters list of extent and values for rasters cropped to extent of area of interest. ----- 
@@ -173,7 +175,8 @@ rv<-list()
     start.SEASON = rv$startTimespan,
     end.SEASON = rv$end.SEASON,
     OtherAndUnknown = rv$otherUnknown,
-    validFIRETYPE = c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER")
+    validFIRETYPE = c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER"),
+    max_interval = rv$max_interval
   )
   # Save input settings to a list and then append into FH analysis object
   # FHAnalysis$AnalysisInputs<-list(
