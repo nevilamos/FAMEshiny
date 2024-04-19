@@ -1,3 +1,4 @@
+
 # library(aws.s3)
 newDirPaths<-c("AdHocPolygons",
                "CustomCSV",
@@ -8,31 +9,9 @@ newDirPaths<-c("AdHocPolygons",
                "rawFH",
                "ReferenceShapefiles",
                "ReferenceTables",
-               "results",
-               "www"# 
+               "results"
 )
-# 
-# 
-# Sys.setenv("AWS_DEFAULT_REGION" = "ap-southeast-2")
-# 
-# library(aws.s3)
-newDirPaths<-c("AdHocPolygons",
-               "CustomCSV",
-               "FH_Outputs",
-               "HDMS",
-               "InputGeneralRasters",
-               "PUPolygons",
-               "rawFH",
-               "ReferenceShapefiles",
-               "ReferenceTables",
-               "results",
-               "www"# 
-)
-# 
-# 
-# Sys.setenv("AWS_DEFAULT_REGION" = "ap-southeast-2")
-# 
-# 
+
 for(mypath in newDirPaths){
   
   if (file.exists(mypath)){
