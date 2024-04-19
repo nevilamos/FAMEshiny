@@ -27,6 +27,7 @@ ui <- dashboardPage(  title = "FAME 4",
     width = 300,
     sidebarMenu(
       sidebarMenuOutput("tabsmenu"),
+      a("Open manual in new tab",target="blank",href= "FAME_User_Manual.pdf"),
       
       # save and reload analysis  buttons ----
       
@@ -236,8 +237,8 @@ ui <- dashboardPage(  title = "FAME 4",
                          #multiple = T
             ),
             
-            fileInput("addCustomUnformattedHDM", NULL, buttonLabel = "Load custom HDM for formatting as .tif", multiple = FALSE),
-            radioButtons("outRes",label = "Custom HDM output resolution",choices = list("75m"=75,"225m"=225) ),
+            fileInput("addCustomUnformattedHDM", NULL, buttonLabel = "Load custom HDM .tif file for reformatting", multiple = FALSE),
+            radioButtons("outRes",label = "Custom HDM output resolution",choices = list("225m"=225,"75m"=75),inline =TRUE ),
             textOutput(outputId = "formattedHDMPath"),
             
             uploadFileUI(id = "addSavedAnalysis",
@@ -298,10 +299,10 @@ ui <- dashboardPage(  title = "FAME 4",
           box(
             width = 12,
             title = "Downloads",
-            downloadButton("downloadTool", "Download FAME ArcGIS preproccessing tool"),
-            downloadButton("downloadManual", "Download FAME manual"),
+            downloadButton("downloadTool", "Download FAME ArcGIS preproccessing tool")
+            #downloadButton("downloadManual", "Download FAME manual"),
             # tags$h1("Revised, alternate 2"),
-            # HTML("<p>Download FAME manual <a https://github.com/nevilamos/FAMEshiny/blob/main/Manual/FAMEv2_User_Manual.pdf</a>!</p>")
+            
           )
         ),
         column(8,),)
