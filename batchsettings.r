@@ -1,46 +1,51 @@
-#Settings file to run a number of alternative fire history scenarios for the same area of interest though fame as a batch.  
+#Settings file to run a number of alternative fire history scenarios for the
+#same area of interest though fame as a batch.
 
-# the batch will run through each of the raw fire history scenarios specified  by the shapefile paths in rawFHPath  in series putting the results in a separate subdirectory of the resultsDir.  All other inputs are constant throughout the batch
+# the batch will run through each of the raw fire history scenarios specified
+# by the shapefile paths in rawFHPath  in series putting the results in a
+# separate subdirectory of the resultsDir.  All other inputs are constant
+# throughout the batch
 
-#path(s) to your rawFH file ( output of the ARCGIS preprocessing tool) each given as a separate string of the full path or ./path relative to the working directory. 
-rawFHPaths =c("C:/Data/ARCGISProjects/PreProcessing/rawFH_FH_Clip15_LF_DISTRICT_1755_JFMP_2024.gpkg")#FIRE_HISTORY20210310_DemoAdHocPolygon.gpkg") 
+#path(s) to your rawFH file ( output of the ARCGIS preprocessing tool) each
+#given as a separate string of the full path or ./path relative to the working
+#directory.
+rawFHPaths = c("rawFH/FIRE_HISTORY20210310_DemoAdHocPolygon.gpkg")
 #the root directory in which results directories should be created and outputs saved
 resultsDir = "./results"
 #the integer value of the region number 1-6 for FFR regions,7 for user supplied adHoc polygon, 99 for Statewide
-REGION_NO = "2"  #"99"
+REGION_NO = "7"  #"99"
 
 #path to the ad Hoc polygon if REGION_NO 			== 7 otherwise NULL
-AdHocPath = "C:/Data/FAMEshiny/AdHocPolygons/DemoIrregularPolygon.gpkg"
+AdHocPath = "AdHocPolygons/DemoIrregularPolygon.gpkg"
 
-doSpeciesCalculations= TRUE
+doSpeciesCalculations = TRUE
 
 # whether or not custom species list is used ( TRUE for custom species list) otherwise FALSE
 spListChoice = TRUE
-customSpList = "C:/Data/FAMEshiny/CustomCSV/GippsSpListInEO.csv"
+customSpList = "CustomCSV/Demo5SpeciesList.csv"
 
 #whether the species response file contains abundance data by 4 growth stages ( TRUE) or YSF (FALSE) 0-400
-abundByGS =TRUE
+abundByGS = TRUE
 # whether the default or custom response file is used for abundance responses
 spResponseChoice = FALSE
 #path of custom response abundance file if spResponseChoice==TRUE
 customResponseFile = #"C:/Data/FAMEshiny/jennyOtawysSbbdebug/sbb_gam1_fame_test.csv"
-
-#value to use for cases where fire type is "OTHER" or "UNKNOWN",1 ="BURN",2="BUSHFIRE",NA = Fire excluded from analysis default is 2 ("BUSHFIRE")
-otherUnknown = 2
+  
+  #value to use for cases where fire type is "OTHER" or "UNKNOWN",1 ="BURN",2="BUSHFIRE",NA = Fire excluded from analysis default is 2 ("BUSHFIRE")
+  otherUnknown = 2
 #whether analysis should be undertaken only on public land ( public land only if TRUE)
 public = TRUE
 #raster resolution 75 or 225
 RasterRes = 225
 
 #"first season for which output is wanted ( four digit year as integer)
-startTimespan = 1988
-endTimespan =2030
+startTimespan = 1980
+endTimespan = 2030
 #start and end baseline years if single year then the two values should be equal
 startBaseline = 2000
 endBaseline = 2010
 endSEASON = NULL
 
-max_interval = 0
 
 #whether to write TFI rasters
 makeTFIrasters = TRUE
@@ -48,7 +53,7 @@ makeTFIrasters = TRUE
 makeBBTFIrasters = TRUE
 
 #whether to write Species Relative Abundance rasters
-makeRArasters = TRUE
+makeRArasters = FALSE
 
 
 # which years to write rasters if makeRArasters = TRUE

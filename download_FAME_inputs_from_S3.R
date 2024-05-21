@@ -24,17 +24,18 @@ for(mypath in newDirPaths){
   #   
   
 }
-if(!file.exists("FAME4_inputfiles.zip")){
-  download.file("https://ecological-risk-analysis.s3-ap-southeast-2.amazonaws.com/FAME_FMR/FAME4_inputfiles.zip","FAME4_inputfiles.zip")
+datazip<-"FAME4_VG2020_inputfiles.zip"
+if(!file.exists(datazip)){
+  download.file("https://ecological-risk-analysis.s3.ap-southeast-2.amazonaws.com/FAME_FMR/FAME4_VG2020_inputfiles.zip",datazip)
   
   if (.Platform$OS.type == "unix"){
-    system("unzip -o ./FAME4_inputfiles.zip && cp -r FAME4_inputfiles/. . ")
+    system("unzip -o ./FAME4_VG2020_inputfiles.zip && cp -r FAME4_VG2020_inputfiles/. . ")
   }else{
-    unzip("./FAME_inputfiles.zip",exdir = ".")
+    unzip("./FAME4_VG2020_inputfiles.zip",exdir = ".")
     system("xcopy .\\FAME4_inputfiles\ . /E/H/y")
     
   }
-  unlink("FAME4_inputfiles",recursive=TRUE)
+  unlink(file_path_sans_ext(datazip),recursive=TRUE)
 }
 
 

@@ -1,4 +1,4 @@
-ui <- dashboardPage(  title = "FAME 4",
+ui <- dashboardPage(  title = "FAME 4 VicGrid_2020",
                       
   dashboardHeader(
     #formatting individual letters to different size and colour ----

@@ -725,8 +725,8 @@ server <- function(session, input, output) {
               -tidyr::one_of(
                 "TAXON_ID",
                 "DIVNAME",
-                "EPBC_ACT_STATUS",
-                "VIC_ADVISORY_STATUS",
+                "FFG_ACT_STATUS",
+                "EPBC_ACT_STATUS",  
                 "CombThreshold",
                 "NoLessthanThreshhold",
                 "LastLessThanThreshold"
