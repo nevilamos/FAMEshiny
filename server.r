@@ -1,7 +1,6 @@
 server <- function(session, input, output) {
-  rv <- reactiveValues(secondFH=NULL,
-                       inFHLayer = NULL,
-                       secondFH = NULL,
+  rv <- reactiveValues(inFHLayer = NULL,
+                       secondFH=NULL,
                        secondFHLayer = NULL,
                        baseFire = NULL,
                        OtherAndUnknown = NULL,
@@ -79,7 +78,7 @@ server <- function(session, input, output) {
     filetypes = c("gpkg","shp")
   )
   
-  observe({
+  observeEvent(length(secondFH$datapath>0) , ignoreInit = T,{
     rv$secondFH<-secondFH$datapath
     output$secondFH<-renderText(rv$secondFH)
   }
