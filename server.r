@@ -1,5 +1,15 @@
 server <- function(session, input, output) {
-  rv <- reactiveValues()
+  rv <- reactiveValues(secondFH=NULL,
+                       inFHLayer = NULL,
+                       secondFH = NULL,
+                       secondFHLayer = NULL,
+                       baseFire = NULL,
+                       OtherAndUnknown = NULL,
+                       validFIRETYPE = NULL,
+                       baseFire = NULL,
+                       start.SEASON = NULL,
+                       end.SEASON = NULL,
+                       max_interval = NULL)
   rv$FAMEFMRVersion<-FAMEFMRVersion
   rv$FAMEGUIVersion<-FAMEGUIVersion
   rv$max_interval = 5
@@ -59,8 +69,25 @@ server <- function(session, input, output) {
     root_dirs = c(rawFH ="./rawFH"),
     filetypes = c("gpkg","shp")
   )
+  # Observer to getrawFH shapefile file to be run ----
   observe(rv$rawFHPath<-rawFHpath$datapath)
   observe(output$rawFHPath<-renderText(rv$rawFHPath))
+  
+  secondFH<-selectFileServer(
+    id = "secondFH",
+    root_dirs = c(rawFH ="./rawFH"),
+    filetypes = c("gpkg","shp")
+  )
+  
+  observe({
+    rv$secondFH<-secondFH$datapath
+    output$secondFH<-renderText(rv$secondFH)
+  }
+  
+  )
+
+  # 
+   observe(rv$baseFire<-ifelse(is.null(input$baseFire),NULL,input$baseFire))
   
   
   
@@ -456,17 +483,25 @@ server <- function(session, input, output) {
       )
       
       rv$cropRasters$HDM_RASTER_PATH <- HDM_RASTER_PATH
+      # amin fh Processing steps ----
+      outFH1<-fhProcess1(inFH = rv$rawFHPath,
+                         inFHLayer = NULL,
+                         secondFH = rv$secondFH,
+                         secondFHLayer = NULL,
+                         OtherAndUnknown =2,
+                         validFIRETYPE = c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER"),
+                         baseFire = 1755)
       
-      rv$FHAnalysis <- fhProcess(
-        rawFH = rv$rawFHPath,
+      outFH2<-fhProcess2(
+        inFH1=outFH1,
         start.SEASON = rv$startTimespan,
         end.SEASON = rv$endSEASON,
-        OtherAndUnknown = rv$otherUnknown,
-        validFIRETYPE = c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER"),
-        max_interval = rv$max_interval
-        
-        
-      )
+        max_interval = 0)
+
+      rv$FHAnalysis<-outFH2
+    
+      print("got here 2")
+
       # Save input settings into FH analysis object
       rv$FHAnalysis$FireScenario <- rv$rawFHName
       rv$FHAnalysis$RasterRes <- rv$RasterRes

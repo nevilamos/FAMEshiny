@@ -330,11 +330,16 @@ ui <- dashboardPage(  title = "FAME 4",
               splitLayout(
                 selectFileUI(id = "rawFHPath",
                              label = "Select rawFH path"),
-                textOutput("rawFHPath")
+                textOutput("rawFHPath"),
                 
+                selectFileUI(id = "secondFH",
+                             label = "Select secondFH path"),
+                textOutput("secondFH")
               ),
+              numericInput("baseFire",
+                           "Include Base fire in FH analysis",
+                           value =NULL,width = "15%"),
               
-
               selectInput(
                 "REGION_NO",
                 "Choose a Region",
