@@ -28,7 +28,10 @@ packages = c("aws.s3",
              "terra",
              "tibble",
              "tidyr",
-             "tools")
+             "tools",
+             "foreach",
+             "parallel",
+             "doParallel")
 
 ## Now load or install&load all packages from cran
 package.check <- lapply(
@@ -43,7 +46,7 @@ package.check <- lapply(
 
 #check that FAMEFMR package is installed and get it from github if not.
 if(require("FAMEFMR")==FALSE){
-  devtools::install_github("nevilamos/FAMEFMR@v1.0.6")
+  devtools::install_github("nevilamos/FAMEFMR@v2.0.0-BETA")
 }
 
 

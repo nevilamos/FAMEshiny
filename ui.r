@@ -338,7 +338,7 @@ ui <- dashboardPage(  title = "FAME 4",
               ),
               numericInput("baseFire",
                            "Include Base fire in FH analysis",
-                           value =NULL,width = "15%"),
+                           value =NA,width = "15%"),
               
               selectInput(
                 "REGION_NO",

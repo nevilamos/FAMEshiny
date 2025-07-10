@@ -5,7 +5,6 @@ server <- function(session, input, output) {
                        baseFire = NULL,
                        OtherAndUnknown = NULL,
                        validFIRETYPE = NULL,
-                       baseFire = NULL,
                        start.SEASON = NULL,
                        end.SEASON = NULL,
                        max_interval = NULL)
@@ -85,8 +84,12 @@ server <- function(session, input, output) {
   
   )
 
-  # 
-   observe(rv$baseFire<-ifelse(is.null(input$baseFire),NULL,input$baseFire))
+  # Observer for base fire season----
+   observe({if(is.na(input$baseFire)){
+     rv$baseFire<-NULL} else {
+       rv$baseFire<-input$baseFire
+       }
+     })
   
   
   
@@ -482,24 +485,20 @@ server <- function(session, input, output) {
       )
       
       rv$cropRasters$HDM_RASTER_PATH <- HDM_RASTER_PATH
-      # amin fh Processing steps ----
-      outFH1<-fhProcess1(inFH = rv$rawFHPath,
-                         inFHLayer = NULL,
-                         secondFH = rv$secondFH,
-                         secondFHLayer = NULL,
-                         OtherAndUnknown =2,
-                         validFIRETYPE = c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER"),
-                         baseFire = 1755)
+      #  fhProcessing steps ----
       
-      outFH2<-fhProcess2(
-        inFH1=outFH1,
-        start.SEASON = rv$startTimespan,
-        end.SEASON = rv$endSEASON,
-        max_interval = 0)
-
-      rv$FHAnalysis<-outFH2
+      rv$FHAnalysis<-fhProcess(firstFH = rv$rawFHPath,
+                               firstFHLayer =  NULL,
+                               secondFH = rv$secondFH,
+                               secondFHLayer = NULL,
+                               OtherAndUnknown =2,
+                               validFIRETYPE = c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER"),
+                               baseFire = rv$baseFire,
+                               start.SEASON = rv$startTimespan,
+                               end.SEASON = rv$endSEASON,
+                               max_interval = rv$max_interval )
     
-      print("got here 2")
+      
 
       # Save input settings into FH analysis object
       rv$FHAnalysis$FireScenario <- rv$rawFHName
@@ -517,7 +516,7 @@ server <- function(session, input, output) {
       )
       #save settings for fhProcess
       # the outpuSettings a reset to their empty values when the fhAnalysis is 
-      #run as the values for the subsequent anlayseis need to be updated 
+      #run as the values for the subsequent analyses need to be updated 
       #(ie run again ) if the fhAnalysis changes.
       rv$outputSettings<-as.list(as.data.frame(t(outputNames)))
       rv$outputSettings<-saveFHsettings(rv$outputSettings,rv)
