@@ -3,11 +3,12 @@ rm(list = ls(all = TRUE))
 
 options(stringsAsFactors = F)
 source("installationCheck.R")
+
 # get version of FAMEFMR in use and set app version
 
 FAMEGUIVersion <- "Version 4.2.0 April 11 2025"
 
-FAMEFMRVersion <- paste("  R", getRversion(), "FAMEFMR", packageVersion("FAMEFMR"))
+FAMEFMRVersion <- "functions in FAMEshiny"#paste("  R", getRversion(), "FAMEFMR", packageVersion("FAMEFMR"))
 
 #set option so that readr does not print column types 
 options(readr.show_col_types = FALSE)

@@ -1,0 +1,53 @@
+"","Value"
+"resultsDir.Value",NA
+"resultsDir.Description","the root directory in which results directories should be created and outputs saved"
+"rawFHPath.Value",NA
+"rawFHPath.Description","path of the rawFH file ( output of the ARCGIS preprocessing tool)"
+"outputFH.Value",NA
+"outputFH.Description","name of the output "
+"RasterRes.Value",NA
+"RasterRes.Description","raster resolution  in metres 75 or 225"
+"ClipPolygonFile.Value",NA
+"ClipPolygonFile.Description","path to the  polygon file for a custom area of interest if REGION_NO =7  otherwise NULL"
+"REGION.Value",NA
+"REGION.Description","the integer value of the region number 1-6 for FFR regions,7 for user supplied adHoc polygon, 99 for Statewide"
+"public.Value",NA
+"public.Description","whether analysis should be undertaken only on public land ( public land only if TRUE)"
+"Start_Season.Value",NA
+"Start_Season.Description","first season for which output is wanted ( four digit year as integer)"
+"fhAnalysisName.Value",NA
+"fhAnalysisName.Description","full name of the output FH analysis without file suffix"
+"puPath.Value",NA
+"puPath.Description","path to the pu polygon file iif used"
+"startBaseline.Value",NA
+"startBaseline.Description","start and end baseline years if single year then the two values should be equal"
+"endBaseline.Value",NA
+"endBaseline.Description","start and end baseline years if single year then the two values should be equal"
+"spListChoice.Value",NA
+"spListChoice.Description","whether or not custom species list is used ( TRUE for custom species list) otherwise FALSE"
+"TaxonListPath.Value",NA
+"TaxonListPath.Description","path for the (custom) species list file used"
+"spResponseChoice.Value",NA
+"spResponseChoice.Description","whether the default or custom response file is used for abundance responses"
+"SpGSResponses.Value",NA
+"SpGSResponses.Description","path of custom response abundance file if spResponseChoice==TRUE or default if FALSE"
+"WriteSpRasters.Value",NA
+"WriteSpRasters.Description","Whether or not to write out species relatvie abundace rasters for species where WriteSpeciesRasters = ""Yes"" in speceis list file"
+"yearsForRasters.Value",NA
+"yearsForRasters.Description","Seasons for which species rasters are output"
+"analysisSavedPath.Value",NA
+"analysisSavedPath.Description","Name of  save output anlysis file - either made by selecting save anaysis or outsaved with standard name when species calcuations or JFMP are run."
+"ranBBTFI.Value",NA
+"ranBBTFI.Description","whether the BBTFI calculations were run"
+"makeBBTFIrasters.Value",NA
+"makeBBTFIrasters.Description","whether to make rasters for BBTFI calcuations"
+"ranJfmp.Value",NA
+"ranJfmp.Description","whether a JFMP analysis was run"
+"myJFMPSeason0.Value",NA
+"myJFMPSeason0.Description","JFMP season 0 ( the season before the start of a 3 year JFMP)"
+"zoneWtFile.Value",NA
+"zoneWtFile.Description","JFMP zone wt file path"
+"jfmpMetricWtFilePath.Value",NA
+"jfmpMetricWtFilePath.Description","JFMP metric weight file path"
+"targetHaFilepath.Value",NA
+"targetHaFilepath.Description","JFMP target area file path"

@@ -169,18 +169,34 @@ rv<-list()
   )
   
   rv$cropRasters$HDM_RASTER_PATH <- HDM_RASTER_PATH
-
-  rv$FHAnalysis<- fhProcess2(fhProcess1(inFH = rv$rawFHPath,inFHLayer = NULL,
-               OtherAndUnknown = 2,
-               validFIRETYPE = c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER"),
-               secondFH = NULL,
-               secondFHLayer = NULL,
-               baseFire = NULL
-    ),
+  
+  outFH1<-fhProcess1(inFH = rv$rawFHPath,
+                     inFHLayer = NULL,
+                     secondFH = NULL,
+                     secondFHLayer = NULL,
+                     OtherAndUnknown =2,
+                     validFIRETYPE = c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER"),
+                     baseFire = 1755)
+  
+  outFH2<-fhProcess2(
+    inFH1=outFH1,
     start.SEASON = rv$startTimespan,
     end.SEASON = rv$endSEASON,
-    max_interval = rv$max_interval
-  )
+    max_interval = 0)
+  
+  rv$FHAnalysis<-outFH2
+
+  # rv$FHAnalysis<- fhProcess2(fhProcess1(inFH = rv$rawFHPath,inFHLayer = NULL,
+  #              OtherAndUnknown = 2,
+  #              validFIRETYPE = c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER"),
+  #              secondFH = NULL,
+  #              secondFHLayer = NULL,
+  #              baseFire = NULL
+  #   ),
+  #   start.SEASON = rv$startTimespan,
+  #   end.SEASON = rv$endSEASON,
+  #   max_interval = rv$max_interval
+  # )
   # Save input settings to a list and then append into FH analysis object
   # FHAnalysis$AnalysisInputs<-list(
   rv$FHAnalysis$FireScenario <- rv$rawFHName
