@@ -5,33 +5,34 @@
 
 ## First specify the packages of interest
 packages = c("aws.s3",
+             "doParallel",
+             "doSNOW",
              "dplyr",
+             "foreach",
              "ggplot2",
-             "knitr",
+             "knitr", 
              "nloptr",
+             "parallel",
              "plotly",
              "qs",
              "readr",
              "readxl",
-             "Rfast",
-             "rmarkdown",
+             "Rfast", 
              "rlang",
+             "rmarkdown",
              "scales",
              "sf",
              "shiny",
-             "shinycssloaders",
+             "shinycssloaders", 
              "shinydashboard",
              "shinyFiles",
              "shinyjs",
              "shinyWidgets",
-             "stringr",
+             "stringr", 
              "terra",
              "tibble",
              "tidyr",
-             "tools",
-             "foreach",
-             "parallel",
-             "doParallel")
+             "tools")
 
 ## Now load or install&load all packages from cran
 package.check <- lapply(

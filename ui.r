@@ -382,11 +382,15 @@ ui <- dashboardPage(  title = "FAME 4",
               ),
               numericInput(
                 "startTimespan",
-                "First season for analysis output",
-                1980,
-                1980,
-                width = "40%"
+                label = HTML("First season for analysis output.<br />Value must be <= Last season for analysis output. "),
+                value = 1980
               ),
+              numericInput(
+                "endTimespan",
+                label = HTML("Last season for analysis output.<br />Value must be >= highest SEASON value in input fire mapping<br />or Run FH Analysis button  will return a 'subscript out of bounds' error"),
+                value = get_fire_season(Sys.Date())
+              ),
+              
             ),
             box(
               title = "JFMP Settings",
