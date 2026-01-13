@@ -8,10 +8,13 @@ source("batchsettings.r")
 rv<-list()
 
   #  rawFH file to be run ----
-  rv$rawFHPath <- rawFHPaths
-  
-  
+  rv$rawFHPath <- firstFH
+  rv$firstFHLayer <-firstFHLayer
+  rv$secondFH=secondFH
+  rv$secondFHLayer=secondFHLayer
   rv$rawFHName <- basename(rv$rawFHPath)
+  rv$baseFire <-baseFire
+
   
   #AdHoc shapefile file to be run ----
   rv$AdHocPath <- AdHocPath
@@ -169,18 +172,32 @@ rv<-list()
   )
   
   rv$cropRasters$HDM_RASTER_PATH <- HDM_RASTER_PATH
+  
+  rv$FHAnalysis<-fhProcess(firstFH = rv$rawFHPath,
+                           firstFHLayer =  NULL,
+                           secondFH = rv$secondFH,
+                           secondFHLayer = NULL,
+                           clipShape = rv$clipShape,
+                           start.SEASON =rv$startTimespan,
+                           end.SEASON = rv$endTimespan,
+                           OtherAndUnknown =2,
+                           max_interval = rv$max_interval,
+                           validFIRETYPE = c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER"),
+                           baseFire = rv$baseFire,
+                           precsision = 1)
 
-  rv$FHAnalysis<- fhProcess2(fhProcess1(inFH = rv$rawFHPath,inFHLayer = NULL,
-               OtherAndUnknown = 2,
-               validFIRETYPE = c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER"),
-               secondFH = NULL,
-               secondFHLayer = NULL,
-               baseFire = NULL
-    ),
-    start.SEASON = rv$startTimespan,
-    end.SEASON = rv$endSEASON,
-    max_interval = rv$max_interval
-  )
+  # rv$FHAnalysis<- fhProcess2(fhProcess1(inFH = rv$rawFHPath,
+  #                                       inFHLayer = rv$inFHLayer,
+  #              OtherAndUnknown = 2,
+  #              validFIRETYPE = c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER"),
+  #              secondFH = rv$secondFH,
+  #              secondFHLayer = rv$secondFHLayer,
+  #              baseFire = rv$baseFire
+  #   ),
+  #   start.SEASON = rv$startTimespan,
+  #   end.SEASON = rv$endTimespan,
+  #   max_interval = rv$max_interval
+  # )
   # Save input settings to a list and then append into FH analysis object
   # FHAnalysis$AnalysisInputs<-list(
   rv$FHAnalysis$FireScenario <- rv$rawFHName
@@ -188,7 +205,7 @@ rv<-list()
   rv$FHAnalysis$ClipPolygonFile <- rv$clipShape
   rv$FHAnalysis$Region_No <- myREG_NO
   rv$FHAnalysis$PUBLIC_ONLY <- rv$public
-  rv$FHAnalysis$Start_Season <- NULL
+  rv$FHAnalysis$Start_Season <- rv$startTimespan
   
   rv$FHAnalysis$name <- paste0("FH_Analysis_", rv$outputFH)
   
