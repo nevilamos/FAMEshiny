@@ -3,6 +3,10 @@ rm(list = ls(all = TRUE))
 
 options(stringsAsFactors = F)
 source("installationCheck.R")
+
+#debugging
+source("fhProcessQGIS.R")
+
 # get version of FAMEFMR in use and set app version
 
 FAMEGUIVersion <- "Version 4.3.1 November 25 2025"
