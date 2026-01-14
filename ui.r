@@ -303,14 +303,14 @@ ui <- dashboardPage(  title = "FAME 4",
         )),
         fluidRow(column(
           4,
-          box(
-            width = 12,
-            title = "Downloads",
-            downloadButton("downloadTool", "Download FAME ArcGIS preproccessing tool")
-            #downloadButton("downloadManual", "Download FAME manual"),
-            # tags$h1("Revised, alternate 2"),
-            
-          )
+          # box(
+          #   width = 12,
+          #   title = "Downloads",
+          #   downloadButton("downloadTool", "Download FAME ArcGIS preproccessing tool")
+          #   #downloadButton("downloadManual", "Download FAME manual"),
+          #   # tags$h1("Revised, alternate 2"),
+          #   
+          # )
         ),
         column(8,),)
       ),

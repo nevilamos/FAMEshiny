@@ -32,7 +32,7 @@ server <- function(session, input, output) {
     }
     
   } else {
-    #not currently working for windows
+    #not working for windows
   }
   
   
@@ -361,13 +361,6 @@ server <- function(session, input, output) {
     rv$max_interval <- input$max_interval
   })
   
-  # observeEvent(rv$max_interval, {
-  #   updateNumericInput(
-  #     session = session,
-  #     inputId = "max_interval",
-  #     value = rv$max_interval
-  #   )
-  # })
   
   # Observer for jfmpSEASON0----
   observeEvent(input$JFMPSeason0, {
@@ -416,14 +409,7 @@ server <- function(session, input, output) {
     rv$allOrSomeYears <- input$allOrSomeYears
     rv$writeYears = NULL
   })
-  # observeEvent(rv$allOrSomeYears, {
-  #   updateRadioButtons(
-  #     session = session,
-  #     inputId = "allOrSomeYears",
-  #     selected = rv$allOrSomeYears
-  #   )
-  #   
-  # })
+  
   
   # OBSERVERS for NON-FILE SELECT INPUTS ----
   
@@ -512,22 +498,6 @@ server <- function(session, input, output) {
                                validFIRETYPE = c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER"),
                                baseFire = rv$baseFire,
                                precsision = rv$precsision)
-      # rv$FHAnalysis<- fhProcess2(
-      #   fhProcess1(inFH = rv$rawFHPath,
-      #              inFHLayer =  NULL,
-      #              secondFH = rv$secondFH,
-      #              secondFHLayer = NULL,
-      #              OtherAndUnknown =2,
-      #              validFIRETYPE = c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER"),
-      #              baseFire = rv$baseFire,
-      #   ),
-      # start.SEASON = rv$startTimespan,
-      # end.SEASON = rv$endTimespan,
-      # max_interval = rv$max_interval
-      # )
-    
-      
-
       # Save input settings into FH analysis object
       rv$FHAnalysis$FireScenario <- rv$rawFHName
       rv$FHAnalysis$RasterRes <- rv$RasterRes
@@ -1741,20 +1711,20 @@ server <- function(session, input, output) {
   })  
  
   # Download handlers for utilities page----
-  downloadToolFileName <-
-    "./FAMEPreProcessing/FAMEPreProcessing.zip"
-  output$downloadTool <- downloadHandler(
-    filename = function() {
-      basename(downloadToolFileName)
-    },
-    content = function(file) {
-      file.copy(
-        from = downloadToolFileName,
-        to = file,
-        overwrite = T
-      )
-    }
-  )
+  # downloadToolFileName <-
+  #   "./FAMEPreProcessing/FAMEPreProcessing.zip"
+  # output$downloadTool <- downloadHandler(
+  #   filename = function() {
+  #     basename(downloadToolFileName)
+  #   },
+  #   content = function(file) {
+  #     file.copy(
+  #       from = downloadToolFileName,
+  #       to = file,
+  #       overwrite = T
+  #     )
+  #   }
+  # )
   
   
   downloadManualFileName <- "./Manual/FAMEv3.0.6_User_Manual.pdf"
