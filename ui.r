@@ -411,8 +411,8 @@ ui <- dashboardPage(  title = "FAME 4",
                   textOutput("puPath")
                 ),
                 numericInput("JFMPSeason0",
-                             "JFMP SEASON 0",
-                             as.integer(format(Sys.Date(
+                             "JFMP SEASON 0",value = NA,
+                             min = as.integer(format(Sys.Date(
                              ), "%Y")))
               )
             )

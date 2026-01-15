@@ -497,7 +497,9 @@ server <- function(session, input, output) {
                                max_interval = rv$max_interval,
                                validFIRETYPE = c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER"),
                                baseFire = rv$baseFire,
-                               precsision = rv$precsision)
+                               precsision = rv$precsision,
+                               addJFMPplus2 = rv$usePUpolys,
+                               JFMPSeason0 = rv$JFMPSeason0)
       # Save input settings into FH analysis object
       rv$FHAnalysis$FireScenario <- rv$rawFHName
       rv$FHAnalysis$RasterRes <- rv$RasterRes
