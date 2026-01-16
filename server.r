@@ -6,8 +6,12 @@ server <- function(session, input, output) {
                        OtherAndUnknown = NULL,
                        validFIRETYPE = NULL,
                        start.SEASON = NA,
-                       max_interval = NULL,
-                       precision = 0)
+                       max_interval = 0,
+                       precision = 0,
+                       usePUpolys=FALSE,
+                       JFMPSeason0=NA
+                       )
+  
   rv$FAMEFMRVersion<-FAMEFMRVersion
   rv$FAMEGUIVersion<-FAMEGUIVersion
   rv$max_interval = 5

@@ -1,22 +1,16 @@
 Package: FAMEshiny
 Title: Functions and Shiny App For Fire Anaysis of Ecological Values
-Version: 4.5.0.9000
+Version: 4.5.0.10
 Authors@R: 
     person(given = "Nevil",
            family = "Amos",
            role = c("aut", "cre"),
            email = "nevil.amos@gmail.com",
            comment = c(ORCID = "0000-0003-1271-4767"))
-Description: The package contains all the functions necessary to run the DEECA FAME
+Description: The package contains shinyAppfiles and r script  to run the DEECA FAME
             process of analysis of effects of a given fire history on environmental
-            resilience metrics. These include Tolerable fire Inteval (TFI) status, area
-            burned below TFI (BBTFI) and changes in relative abundance (RA) of fauna 
-            species.It allows calcuation of all inter fire intervals and numbers of times
-            an area has been burned by a given sequence of fires supplied as a shapefile.
-            The FAME analysis can be run using standard R scripts, or alternatively via a
-            shiny web GUI. The package does not contain the required input files (lookup
-            tables, rasters of species HDMs etc) as these are too large to be loaded to 
-            github and are available separately from an AWS repository. 
+            resilience metrics. Use it in conjunction with the FAMEFMR R package 
+            https://github.com/nevilamos/FAMEFMR. 
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

@@ -184,7 +184,9 @@ rv<-list()
                            max_interval = rv$max_interval,
                            validFIRETYPE = c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER"),
                            baseFire = rv$baseFire,
-                           precsision = 1)
+                           precsision = 1,
+                           JFMPSeason0 = NA,
+                           addJFMPplus2 = FALSE)
 
   # rv$FHAnalysis<- fhProcess2(fhProcess1(inFH = rv$rawFHPath,
   #                                       inFHLayer = rv$inFHLayer,
