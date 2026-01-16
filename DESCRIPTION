@@ -10,7 +10,8 @@ Authors@R:
 Description: The package contains shinyAppfiles and r script  to run the DEECA FAME
             process of analysis of effects of a given fire history on environmental
             resilience metrics. Use it in conjunction with the FAMEFMR R package 
-            https://github.com/nevilamos/FAMEFMR. 
+            https://github.com/nevilamos/FAMEFMR. requires nevilamos/FAMEFMR@416dfa0
+ 
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
