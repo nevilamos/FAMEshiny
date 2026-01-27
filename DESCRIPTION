@@ -1,6 +1,6 @@
 Package: FAMEshiny
 Title: Functions and Shiny App For Fire Anaysis of Ecological Values
-Version: 4.5.0.10
+Version: 4.5.1.3
 Authors@R: 
     person(given = "Nevil",
            family = "Amos",

@@ -1474,107 +1474,7 @@ server <- function(session, input, output) {
   })
   
   
-  # })
-  # Run Aspatial GSO----
-  
-  # this section runs the rmd script and documents for aspatial GSO that was written by Paul Moloney in 2017. and modified to use shiny GUI
-  # Observers for GSO .csv uploads  ----
-  observe({
-    myInput <- input$addGSOCSV
-    savePath <- "./GSOInputs"
-    file.copy(
-      myInput$datapath,
-      file.path(savePath, myInput$name)
-    )
-    updateSelectInput(
-      session,
-      inputId = "spEFGLMU",
-      label = "Select Spp_EFG_LMU.csv file",
-      choice = c(list.files("./GSOInputs/", pattern = "Spp_EFG_LMU.csv$"))
-    )
-    updateSelectInput(session,
-                      "lmuArea",
-                      "LMU_Area.csv file",
-                      choice = c(list.files("./GSOInputs/", pattern = "LMU_Area.csv$"))
-    )
-    updateSelectInput(session,
-                      "lmuScenarios",
-                      "LMU_Scenarios.csv file",
-                      choice = c(
-                        list.files("./GSOInputs/", pattern = "LMU_Scenarios.csv$")
-                      )
-    )
-    updateSelectInput(session,
-                      "ObsData",
-                      "ObsData.csv file",
-                      choice = c(list.files("./GSOInputs/", pattern = "ObsData.csv$"))
-    )
-  })
-  
-  
-  observeEvent(input$lmuScenarios,
-               ignoreInit = T,
-               {
-                 myScenarios <- unique(read_csv(file.path(
-                   WD,
-                   "GSOInputs",
-                   input$lmuScenarios
-                 ))$Scenario)
-                 updateSelectInput(session,
-                                   "GSOBaseLine",
-                                   choices = c("Optimisation", myScenarios)
-                 )
-               }
-  )
-  
-  observeEvent(input$runGSO, {
-    withBusyIndicatorServer("runGSO", {
-      fileConn <- file("./GSO/GSOSettings.r")
-      
-      
-      
-      writeLines(
-        c(
-          paste0("GSOResultsDir ='", file.path(WD, rv$resultsDir), "'"),
-          paste0("FireType ='", input$GSOFireType, "'"),
-          paste0("Comparison = '", input$GSOBaseLine, "'"),
-          paste0("Classes = '", input$GSOFaunaClasses, "'"),
-          paste0("Rule = '", input$GSOrule, "'"),
-          paste0("dWt = ", input$GSOdwt),
-          paste0("nrep = ", input$GSOnrep),
-          paste0("nsim = ", input$GSOnsim),
-          paste0(
-            "SpEFGLMU = read_csv('",
-            file.path(WD, "GSOInputs", input$spEFGLMU),
-            "',na='NA')"
-          ),
-          paste0(
-            "GSOScen<-read_csv('",
-            file.path(WD, "GSOInputs", input$lmuScenarios),
-            "',na='NA')"
-          ),
-          paste0(
-            "GSOArea<-read_csv('",
-            file.path(WD, "GSOInputs", input$lmuArea),
-            "',na='NA')"
-          ),
-          paste0(
-            "SurveyData<-read_csv('",
-            file.path(WD, "GSOInputs", input$ObsData),
-            "',na='NA')"
-          )
-        ),
-        fileConn
-      )
-      close(fileConn)
-      rmarkdown::render(
-        "./GSO/GSOAnalysisOutput.Rmd",
-        output_dir = rv$resultsDir,
-        clean = T
-      )
-    })
-  })
-  
+
   # Observer to save current analysis reactive values to file as list----
   observeEvent(input$saveAnalysis, {
     roots <- c("UserFolder" = "./FH_Outputs")
@@ -1716,36 +1616,7 @@ server <- function(session, input, output) {
                      saveToPath = "./FH_Outputs")
   })  
  
-  # Download handlers for utilities page----
-  # downloadToolFileName <-
-  #   "./FAMEPreProcessing/FAMEPreProcessing.zip"
-  # output$downloadTool <- downloadHandler(
-  #   filename = function() {
-  #     basename(downloadToolFileName)
-  #   },
-  #   content = function(file) {
-  #     file.copy(
-  #       from = downloadToolFileName,
-  #       to = file,
-  #       overwrite = T
-  #     )
-  #   }
-  # )
-  
-  
-  downloadManualFileName <- "./Manual/FAMEv3.0.6_User_Manual.pdf"
-  output$downloadManual <- downloadHandler(
-    filename = function() {
-      downloadManualFileName
-    },
-    content = function(file) {
-      file.copy(
-        from = downloadManualFileName,
-        to = file,
-        overwrite = T
-      )
-    }
-  )
+ 
   
   # Choose results files to download ----
  roots = c(FAME = ".")
@@ -1786,11 +1657,6 @@ server <- function(session, input, output) {
         "Settings for Spatial Analyses",
         tabName = "AnalysisSettings",
         icon = icon("fire")
-      ),
-      menuItem(
-        "Settings for Aspatial GSO",
-        tabName = "GSO",
-        icon = icon("calculator")
       ),
       menuItem(
         text = "Utilities",
