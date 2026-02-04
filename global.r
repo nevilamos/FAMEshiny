@@ -9,9 +9,24 @@ source("installationCheck.R")
 
 # get version of FAMEFMR in use and set app version
 
-FAMEGUIVersion <- "Version 4.5.1.1 January 14 2026"
+# Load development version
+ 
+    pkgload::load_all( # load dev version functions
+    path = "D:/git_code/FAMEFMR", # update path to where dev version lives
+    reset = TRUE #unloads previous dev versions
 
-FAMEFMRVersion <- paste("  R", getRversion(), "FAMEFMR", packageVersion("FAMEFMR"))
+  )
+
+  FAMEGUIVersion <- "Dev version"
+
+  FAMEFMRVersion <- paste("  R", getRversion(), "FAMEFMR", packageVersion("FAMEFMR"))
+
+# Installed version from repo
+
+# FAMEGUIVersion <- "Version 4.5.1.1 January 14 2026"
+# 
+# FAMEFMRVersion <- paste("  R", getRversion(), "FAMEFMR", packageVersion("FAMEFMR"))
+
 
 #set option so that readr does not print column types 
 options(readr.show_col_types = FALSE)
