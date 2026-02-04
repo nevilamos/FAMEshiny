@@ -68,7 +68,7 @@ RasterRes = 225
 #endTimespan =2030
 #start and end baseline years if single year then the two values should be equal
 startBaseline = 2000
-endBaseline = 2010
+endBaseline = 2003
 #endSEASON = NULL
 
 
@@ -91,3 +91,10 @@ puPath = "ReferenceShapefiles/LF_DISTRICT_with_PU_field.shp"
 #Settings if JFMP analysis is also to be run this is not working yet so  keep runJFMP = FALSE and JFMPSeason0 = endTimespan
 runJFMP = FALSE
 
+# Set the crs for your project - all spatial objects for your project will be checked 
+# against this coordinate reference system and re-projected if they don't meet
+# the requirements
+
+epsg <- "epsg:3111"
+
+ 
