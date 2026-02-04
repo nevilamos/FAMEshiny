@@ -186,7 +186,8 @@ rv<-list()
                            baseFire = rv$baseFire,
                            precsision = 1,
                            JFMPSeason0 = NA,
-                           addJFMPplus2 = FALSE)
+                           addJFMPplus2 = FALSE,
+                           epsg = epsg)
 
   # rv$FHAnalysis<- fhProcess2(fhProcess1(inFH = rv$rawFHPath,
   #                                       inFHLayer = rv$inFHLayer,
@@ -608,6 +609,8 @@ r<-eval(rv$cropRasters$rasterDef)
   print(paste("Saved all results for ",rv$outputFH))
   
   
+  
+
   
 
   
