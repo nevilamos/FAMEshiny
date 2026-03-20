@@ -260,8 +260,6 @@ rv<-list()
   }
   
 
-  
-  
   rv$allCombs <- calcU_All_Combs(
     myFHAnalysis = rv$FHAnalysis,
     myCropRasters = rv$cropRasters,

@@ -9,7 +9,8 @@ server <- function(session, input, output) {
                        max_interval = 0,
                        precision = 0,
                        usePUpolys=FALSE,
-                       JFMPSeason0=NA
+                       JFMPSeason0=NA,
+                       epsg = NULL,
                        )
   
   rv$FAMEFMRVersion<-FAMEFMRVersion
