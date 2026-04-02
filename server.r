@@ -474,6 +474,7 @@ server <- function(session, input, output) {
       
       rv$cropRasters$HDM_RASTER_PATH <- HDM_RASTER_PATH
       
+
       rv$FHAnalysis <- fhProcess(
         rawFH = rv$rawFHPath,
         start.SEASON = rv$startTimespan,
@@ -483,7 +484,7 @@ server <- function(session, input, output) {
         max_interval = rv$max_interval
       )
      
-      
+
       # Save input settings into FH analysis object
       rv$FHAnalysis$FireScenario <- rv$rawFHName
       rv$FHAnalysis$RasterRes <- rv$RasterRes
