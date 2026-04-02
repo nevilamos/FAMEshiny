@@ -1,5 +1,8 @@
 server <- function(session, input, output) {
-  rv <- reactiveValues()
+  rv <- reactiveValues(OtherAndUnknown = NULL,
+                       validFIRETYPE = NULL,
+                       start.SEASON = NA,
+                       max_interval = NULL)
   rv$FAMEFMRVersion<-FAMEFMRVersion
   rv$FAMEGUIVersion<-FAMEGUIVersion
   rv$max_interval = 5
@@ -289,6 +292,20 @@ server <- function(session, input, output) {
     )
   })
   
+  # Observer for Last season for analysis output (endTimespan)----
+  observeEvent(input$endTimespan, {
+    rv$endTimespan <- input$endTimespan
+  })
+  
+  observeEvent(rv$endTimespan, {
+    updateNumericInput(
+      session = session,
+      inputId = "endTimespan",
+      value = rv$endTimespan
+    )
+  })
+  
+  
   # Observer for start baseline----
   observeEvent(input$startBaseline, {
     rv$startBaseline <- input$startBaseline
@@ -457,16 +474,27 @@ server <- function(session, input, output) {
       
       rv$cropRasters$HDM_RASTER_PATH <- HDM_RASTER_PATH
       
-      rv$FHAnalysis <- fhProcess(
-        rawFH = rv$rawFHPath,
-        start.SEASON = rv$startTimespan,
-        end.SEASON = rv$endSEASON,
-        OtherAndUnknown = rv$otherUnknown,
-        validFIRETYPE = c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER"),
-        max_interval = rv$max_interval
-        
-        
-      )
+      # rv$FHAnalysis <- fhProcess(
+      #   rawFH = rv$rawFHPath,
+      #   start.SEASON = rv$startTimespan,
+      #   end.SEASON = rv$endSEASON,
+      #   OtherAndUnknown = rv$otherUnknown,
+      #   validFIRETYPE = c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER"),
+      #   max_interval = rv$max_interval
+      #   
+      #   
+      # )
+      rv$FHAnalysis<-fhProcess(firstFH = rv$rawFHPath,
+                               #firstFHLayer =  NULL,
+                               #secondFH = rv$secondFH,
+                               #secondFHLayer = NULL,
+                               OtherAndUnknown =2,
+                               validFIRETYPE = c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER"),
+                               #baseFire = rv$baseFire,
+                               start.SEASON = rv$startTimespan,
+                               end.SEASON = rv$endTimespan,
+                               max_interval = rv$max_interval )
+      
       # Save input settings into FH analysis object
       rv$FHAnalysis$FireScenario <- rv$rawFHName
       rv$FHAnalysis$RasterRes <- rv$RasterRes
