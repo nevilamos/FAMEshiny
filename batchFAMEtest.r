@@ -400,9 +400,12 @@ r<-eval(rv$cropRasters$rasterDef)
         rv$TaxonList <- read_csv(rv$customSpList)
       }
       
-      if(rv$RasterRes == 75){gsub("/225m/","/75m/",rv$TaxonList$HDMPath)
+      # changes paths for HDMs to reflect 75m vs 225m version names -----
+      if(rv$RasterRes == 75){
+        rv$TaxonList$HDMPath<-gsub("/225m/","/75m/",rv$TaxonList$HDMPath)
+        rv$TaxonList$HDMPath<-gsub("_225m_","_75m_",rv$TaxonList$HDMPath)
       } else if(rv$RasterRes == 225){
-          gsub("/225m/","/75m/",rv$TaxonList$HDMPath)}
+        rv$TaxonList$HDMPath<-gsub("/225m/","/75m/",rv$TaxonList$HDMPath)}
       
       HDMPathsToCheck<-rv$TaxonList$HDMPath[rv$TaxonList$Include == "Yes"]
       MissingHDMS<-HDMPathsToCheck[!unlist(lapply(HDMPathsToCheck,file.exists))]
