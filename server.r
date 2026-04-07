@@ -594,11 +594,12 @@ server <- function(session, input, output) {
           }
           rv$TaxonList<-read_csv(rv$TaxonListPath)
           
+          # changes paths for HDMs to reflect 75m vs 225m version names -----
           if(rv$RasterRes == 75){
             rv$TaxonList$HDMPath<-gsub("/225m/","/75m/",rv$TaxonList$HDMPath)
             rv$TaxonList$HDMPath<-gsub("_225m_","_75m_",rv$TaxonList$HDMPath)
           } else if(rv$RasterRes == 225){
-            rv$TaxonList$HDMPath<-gsub("/225m/","/75m/",rv$TaxonList$HDMPath)}
+            rv$TaxonList$HDMPath<-gsub("/75m/","/225m/",rv$TaxonList$HDMPath)}
           
           HDMPathsToCheck<-rv$TaxonList$HDMPath[rv$TaxonList$Include == "Yes"]
           MissingHDMS<-HDMPathsToCheck[!unlist(lapply(HDMPathsToCheck,file.exists))]
