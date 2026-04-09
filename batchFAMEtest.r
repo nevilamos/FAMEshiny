@@ -24,6 +24,9 @@ rv<-list()
   # whether or not to make  BBTFI rasters----
   rv$makeBBTFIrasters <- makeBBTFIrasters
   
+  # whether or not to make  growth stage  rasters----
+  rv$makeGSrasters <- makeGSrasters  
+  
   #whether or not to run species calculations
   
   #customSpList be run ----
@@ -351,11 +354,11 @@ r<-eval(rv$cropRasters$rasterDef)
     
     
     print("GS Calculations")
-    GS_Summary <-
-      makeGS_Summary(
-        myFHAnalysis = rv$FHAnalysis,
-        myAllCombs = rv$allCombs
-      )
+    GS_Summary<-calc_growth_stages(myFHAnalysis = rv$FHAnalysis,
+                                              myCropRasters = rv$cropRasters,
+                                              myAllCombs = rv$allCombs,
+                                              OutputRasters = rv$makeGSrasters,
+                                              myResultsDir = rv$resultsDir)
     
     
     rv$GS_Summary <- GS_Summary

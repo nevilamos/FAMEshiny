@@ -183,6 +183,10 @@ server <- function(session, input, output) {
   observeEvent(input$makeBBTFIrasters, {
     rv$makeBBTFIrasters <- input$makeBBTFIrasters
   })
+  # Observer for makeGSrasters----
+  observeEvent(input$makeGSrasters, {
+    rv$makeGSrasters <- input$makeGSrasters
+  })
   
 
   # Observer of custom species list choice  ----
@@ -954,11 +958,12 @@ server <- function(session, input, output) {
                      ))
                      
                      print("GS Calculations")
-                     GS_Summary <-
-                       makeGS_Summary(
-                         myFHAnalysis = rv$FHAnalysis,
-                         myAllCombs = rv$allCombs
-                       )
+
+                     GS_Summary<-calc_growth_stages(myFHAnalysis = rv$FHAnalysis,
+                                                    myCropRasters = rv$cropRasters,
+                                                    myAllCombs = rv$allCombs,
+                                                    OutputRasters = rv$makeGSrasters,
+                                                    myResultsDir = rv$resultsDir)
                      
                      rv$GS_Summary <- GS_Summary
                      

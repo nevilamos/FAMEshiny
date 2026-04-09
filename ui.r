@@ -565,7 +565,7 @@ ui <- dashboardPage(  title = "FAME 4 VicGrid_2020",
               box(
                 title = "TFI and GS Calculations",
                 width = 12,
-                splitLayout(
+                column(6,
                   checkboxInput(
                     inputId = "makeTFIrasters",
                     label = "Make TFIstatus maps for each year",
@@ -577,11 +577,19 @@ ui <- dashboardPage(  title = "FAME 4 VicGrid_2020",
                     label = "Make BBTFIstatus maps for each year",
                     value = FALSE,
                     width = NULL
-                  )
-                ),
-                splitLayout(
+                  ),
                   withBusyIndicatorUI(actionButton("runTFI",
-                                                   label = "Run TFI calculations")),
+                                                   label = "Run TFI calculations"))
+                  
+                ),
+                column(6,
+                
+                  checkboxInput(
+                    inputId = "makeGSrasters",
+                    label = "Make growth stage  maps for each year",
+                    value = FALSE,
+                    width = NULL
+                  ),
                   withBusyIndicatorUI(actionButton("runGS",
                                                    label = "Run Growth Stage calculations"))
                 )

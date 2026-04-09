@@ -5,7 +5,7 @@ options(stringsAsFactors = F)
 source("installationCheck.R")
 # get version of FAMEFMR in use and set app version
 
-FAMEGUIVersion <- "Version 4.0.6.3 April 07 2026 VicGrid2020"
+FAMEGUIVersion <- "Version 4.0.6.4 April 09 2026 VicGrid2020"
 
 FAMEFMRVersion <- paste("  R", getRversion(), "FAMEFMR", packageVersion("FAMEFMR"))
 
