@@ -1722,19 +1722,6 @@ server <- function(session, input, output) {
   )
   
   
-  downloadManualFileName <- "./Manual/FAME_User_Manual.pdf"
-  output$downloadManual <- downloadHandler(
-    filename = function() {
-      downloadManualFileName
-    },
-    content = function(file) {
-      file.copy(
-        from = downloadManualFileName,
-        to = file,
-        overwrite = T
-      )
-    }
-  )
   
   # Choose results files to download ----
  roots = c(FAME = ".")
