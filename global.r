@@ -5,7 +5,7 @@ options(stringsAsFactors = F)
 source("installationCheck.R")
 # get version of FAMEFMR in use and set app version
 
-FAMEGUIVersion <- "Version 4.0.6.4 April 09 2026 VicGrid2020"
+FAMEGUIVersion <- "Version 4.0.6.5 April 21 2026 VicGrid2020"
 
 FAMEFMRVersion <- paste("  R", getRversion(), "FAMEFMR", packageVersion("FAMEFMR"))
 
@@ -74,6 +74,8 @@ names(TFI_LUT)[1] <- "EFG"
 
 
 EFG_TSF_4GS <-
-  read_csv("./ReferenceTables/EFG_TSF_4GScorrectedAllEFGto400yrsV2.csv")[, c("EFG_NO", "GS4_NO", "YSF")]
+  read_csv("./ReferenceTables/EFG_TSF_4GScorrectedAllEFGto400yrsV2.csv",
+           col_types = cols(.default = col_integer()) # forces numeric columns to be read as integers, needed to ensure that output raster attribute table for growth stages is also as integer.
+  )[, c("EFG_NO", "GS4_NO", "YSF")]
 
 outputNames<-read.csv("./ReferenceTables/outputNames.csv",row.names =1)
